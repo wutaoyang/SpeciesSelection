@@ -24,8 +24,7 @@ public class SpeciesSelection {
      * The fourth argument for the minimal size of species in a species set
      * The fifth argument for the maximal size of species in a species set
      */
-    public static void main(String[] args) 
-    throws FileNotFoundException{
+    public static void main(String[] args) throws FileNotFoundException{
         // TODO code application logic here
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
@@ -38,10 +37,8 @@ public class SpeciesSelection {
         ArrayList<Integer> indicatorCreated=new ArrayList<Integer>();
         
         
-        String fileName="Forest2.txt"; //default input data
+        String fileName="Forest_D_ALL.txt"; //default input data
         int numWordsInName=1; //the number of words contains in the speices name
-        
-    
         
         if(args.length>0){
             fileName=args[0];
