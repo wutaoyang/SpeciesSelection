@@ -44,20 +44,20 @@ public class SpecSelGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanelMain = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        jButtonSelectDataFile = new javax.swing.JButton();
         jTextFieldDataFilePath = new javax.swing.JTextField();
         jButtonProcess = new javax.swing.JButton();
-        jButtonSelectDataFile = new javax.swing.JButton();
-        jPanelMain = new javax.swing.JPanel();
+        jCheckBoxTruncate = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
 
-        jButtonProcess.setText("Process");
-        jButtonProcess.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonProcessActionPerformed(evt);
-            }
-        });
+        jPanelMain.setPreferredSize(new java.awt.Dimension(600, 400));
+        jPanelMain.setLayout(new java.awt.BorderLayout());
+
+        jPanel1.setPreferredSize(new java.awt.Dimension(782, 40));
 
         jButtonSelectDataFile.setText("Select Data File");
         jButtonSelectDataFile.addActionListener(new java.awt.event.ActionListener() {
@@ -66,39 +66,61 @@ public class SpecSelGUI extends javax.swing.JFrame {
             }
         });
 
-        jPanelMain.setPreferredSize(new java.awt.Dimension(600, 400));
-        jPanelMain.setLayout(new java.awt.BorderLayout());
+        jTextFieldDataFilePath.setText("Forest_D_ALL.txt");
+
+        jButtonProcess.setText("Process");
+        jButtonProcess.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonProcessActionPerformed(evt);
+            }
+        });
+
+        jCheckBoxTruncate.setSelected(true);
+        jCheckBoxTruncate.setText("Truncate Results");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButtonSelectDataFile)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextFieldDataFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jCheckBoxTruncate)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                .addComponent(jButtonProcess)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonSelectDataFile)
+                    .addComponent(jTextFieldDataFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonProcess)
+                    .addComponent(jCheckBoxTruncate))
+                .addGap(0, 0, Short.MAX_VALUE))
+        );
+
+        jPanelMain.add(jPanel1, java.awt.BorderLayout.PAGE_START);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(121, 121, 121)
-                        .addComponent(jPanelMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 71, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jButtonSelectDataFile)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextFieldDataFilePath)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonProcess)))
+                .addContainerGap()
+                .addComponent(jPanelMain, javax.swing.GroupLayout.DEFAULT_SIZE, 782, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextFieldDataFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonSelectDataFile)
-                    .addComponent(jButtonProcess))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jPanelMain, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(69, 69, 69))
+                .addComponent(jPanelMain, javax.swing.GroupLayout.DEFAULT_SIZE, 487, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -108,9 +130,12 @@ public class SpecSelGUI extends javax.swing.JFrame {
         try {
             String fileName = jTextFieldDataFilePath.getText();
             if (!fileName.equals("")) {
+                //Check for results truncation
+                boolean truncate = !jCheckBoxTruncate.isSelected();
+                
                 String[] args = {fileName};
                 //run solution and draw graph
-                drawGraph(SpeciesSelection.specSel(args));
+                drawGraph(SpeciesSelection.specSel(args, truncate));
             } else {
                 System.out.println("No file selected");
             }
@@ -123,7 +148,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         // Draw the graph to GUI
         JPanel panel = jPanelMain;
         Dimension dim = new Dimension(600, 400);
-        GraphPanel graph = new GraphPanel(meanSensitivities);
+        GraphPanel graph = new GraphPanel(meanSensitivities, "SpecSet Size", "Minimum Mean Sensitivity");
         graph.setPreferredSize(dim);
         panel.add(graph, BorderLayout.CENTER);
         pack();
@@ -217,6 +242,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonProcess;
     private javax.swing.JButton jButtonSelectDataFile;
+    private javax.swing.JCheckBox jCheckBoxTruncate;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelMain;
     private javax.swing.JTextField jTextFieldDataFilePath;
     // End of variables declaration//GEN-END:variables

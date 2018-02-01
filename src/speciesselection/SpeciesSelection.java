@@ -111,6 +111,8 @@ public class SpeciesSelection {
         double prevMeanSens = 10000;// large initial value greater than any sensitivity
         int i = startSize;
         ArrayList<Double> minSensitivities = new ArrayList<>();
+        minSensitivities.add(0.0);
+        minSensitivities.add(0.0);
         while (i <= endSize && (count < 3 || allResults)) {
             consSpecSetFamily = specRTGraph.getDomSpecSets(i, numOfSpeciesSet, mssf);
             if (consSpecSetFamily.size() > 0)//check for increasing mean sensitivity
@@ -124,6 +126,10 @@ public class SpeciesSelection {
                     count = 0;
                 }
                 prevMeanSens = meanSens;
+            }
+            else
+            {
+                minSensitivities.add(0.0);
             }
             outPut.println("For " + i + "  species");
             outPut.println(consSpecSetFamily);

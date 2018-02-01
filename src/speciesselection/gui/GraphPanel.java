@@ -17,7 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 /**
- * @author https://stackoverflow.com/questions/8693342/drawing-a-simple-line-graph-in-java
+ * @author
+ * https://stackoverflow.com/questions/8693342/drawing-a-simple-line-graph-in-java
  * Modified by Stephen Whiddett 1/2/2018
  */
 public class GraphPanel extends JPanel {
@@ -33,21 +34,33 @@ public class GraphPanel extends JPanel {
     private int pointWidth = 4;
     private int numberYDivisions = 10;
     private List<Double> scores;
+    private String yLabel;
+    private String xLabel;
 
     public GraphPanel(List<Double> scores) {
         this.scores = scores;
+        this.xLabel = "";
+        this.yLabel = "";
     }
-    
+
+    public GraphPanel(List<Double> scores, String xLabel, String yLabel) {
+        this.scores = scores;
+        this.xLabel = xLabel;
+        this.yLabel = yLabel;
+    }
+
     // Default constructor for testing with dummy data
     public GraphPanel() {
-       List<Double> scores = new ArrayList<>();
-       scores.add(1.0);
-       scores.add(2.0);
-       scores.add(7.0);
-       scores.add(4.0);
-       scores.add(5.0);
-      this.scores = scores;
-   }
+        List<Double> scores = new ArrayList<>();
+        scores.add(1.0);
+        scores.add(2.0);
+        scores.add(7.0);
+        scores.add(4.0);
+        scores.add(5.0);
+        this.scores = scores;
+        this.xLabel = "";
+        this.yLabel = "";
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -60,9 +73,12 @@ public class GraphPanel extends JPanel {
 
         List<Point> graphPoints = new ArrayList<>();
         for (int i = 0; i < scores.size(); i++) {
-            int x1 = (int) (i * xScale + padding + labelPadding);
-            int y1 = (int) ((getMaxScore() - scores.get(i)) * yScale + padding);
-            graphPoints.add(new Point(x1, y1));
+            if(scores.get(i) > 0)// prevents plotting points for zero sensitivity
+            {
+                int x1 = (int) (i * xScale + padding + labelPadding);
+                int y1 = (int) ((getMaxScore() - scores.get(i)) * yScale + padding);
+                graphPoints.add(new Point(x1, y1));
+            }
         }
 
         // draw white background
@@ -76,10 +92,18 @@ public class GraphPanel extends JPanel {
             int x1 = pointWidth + padding + labelPadding;
             int y0 = getHeight() - ((i * (getHeight() - padding * 2 - labelPadding)) / numberYDivisions + padding + labelPadding);
             int y1 = y0;
+
+            // Label y-axis
+            if (i == numberYDivisions) {
+                g2.drawString(yLabel, x0 - 30, y0 - 15);
+            }
+
             if (scores.size() > 0) {
                 g2.setColor(gridColor);
                 g2.drawLine(padding + labelPadding + 1 + pointWidth, y0, getWidth() - padding, y1);
                 g2.setColor(Color.BLACK);
+
+                // label y-axis data points
                 String yLabel = ((int) ((getMinScore() + (getMaxScore() - getMinScore()) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
                 FontMetrics metrics = g2.getFontMetrics();
                 int labelWidth = metrics.stringWidth(yLabel);
@@ -95,6 +119,12 @@ public class GraphPanel extends JPanel {
                 int x1 = x0;
                 int y0 = getHeight() - padding - labelPadding;
                 int y1 = y0 - pointWidth;
+                
+                // Label x-axis
+                if (i == scores.size()-1) {
+                    g2.drawString(xLabel, x1 - 60, y0 + 40);
+                }
+            
                 if ((i % ((int) ((scores.size() / 20.0)) + 1)) == 0) {
                     g2.setColor(gridColor);
                     g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
@@ -134,14 +164,14 @@ public class GraphPanel extends JPanel {
         }
     }
 
-//    @Override
-//    public Dimension getPreferredSize() {
-//        return new Dimension(width, heigth);
-//    }
     private double getMinScore() {
         double minScore = Double.MAX_VALUE;
         for (Double score : scores) {
-            minScore = Math.min(minScore, score);
+            if(score > 0)//ignore points at zero
+            {
+                minScore = Math.min(minScore, score);
+            }
+            
         }
         return minScore;
     }
@@ -171,7 +201,6 @@ public class GraphPanel extends JPanel {
         int maxScore = 10;
         for (int i = 0; i < maxDataPoints; i++) {
             scores.add((double) random.nextDouble() * maxScore);
-//            scores.add((double) i);
         }
         GraphPanel mainPanel = new GraphPanel(scores);
         mainPanel.setPreferredSize(new Dimension(800, 600));
@@ -184,10 +213,10 @@ public class GraphPanel extends JPanel {
     }
 
     public static void main(String[] args) {
-      SwingUtilities.invokeLater(new Runnable() {
-         public void run() {
-            createAndShowGui();
-         }
-      });
-   }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createAndShowGui();
+            }
+        });
+    }
 }
