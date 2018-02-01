@@ -28,8 +28,8 @@ public class SpeciesSelection {
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
         specSel(args);
-    } 
-    
+    }
+
     public static void specSel(String[] args) throws FileNotFoundException {
         //construct the bipartite graph between species and indicators.
         SpecRTGraph sig = new SpecRTGraph();
@@ -69,24 +69,22 @@ public class SpeciesSelection {
         int startSize = 2;
         int endSize = sig.numSpecies() - 1;
 
-        int numOfSpeciesSet = 11; //the number of species sets for 
-        //each size, 11 is the default size;
+        int numOfSpeciesSet = 11; //the number of species sets for each size, 11 is the default size;
 
         if (args.length > 2) {
             numOfSpeciesSet = Integer.parseInt(args[2]) + 1;
-        }
 
-        if (args.length > 3) {
-            startSize = Integer.parseInt(args[3]);
-            endSize = startSize;
-        }
+            if (args.length > 3) {
+                startSize = Integer.parseInt(args[3]);
+                endSize = startSize;
 
-        if (args.length > 4) {
-            endSize = Integer.parseInt(args[4]);
+                if (args.length > 4) {
+                    endSize = Integer.parseInt(args[4]);
+                }
+            }
         }
 
         MinSpecSetFamily mssf = sig.getMinDomSpecSets();
-
 
         for (int i = startSize; i <= endSize; i++) {
             // System.out.println("In the main loop "+i);
@@ -95,18 +93,13 @@ public class SpeciesSelection {
             outPut.println(consSpecSetFamily);
         }
         System.out.println("The output is stored in " + outFileName);
-
     }
-    
 
     //process the given String for a line of the data file
     public static void processLine(String text, SpecRTGraph sig, int numWordsInName) {
         Scanner data = new Scanner(text);
         //creat a new species
-        int spName = data.nextInt();//+" "+data.next();
-//        if (numWordsInName == 2) {
-//            spName = spName + " " + data.next();
-//        }
+        int spName = data.nextInt();
         Species inSpec = new Species(spName);
 
         int spReliance = data.nextInt();
@@ -123,7 +116,6 @@ public class SpeciesSelection {
             int indValue = data.nextInt();
             if (indValue == 1) {
                 //first to check whether an indicator with the given id exists
-                //System.out.println("The index is "+index+".");
                 ResourceType tmpInd = sig.getResourceTypeByID(index);
 
                 if (tmpInd != null) {
@@ -135,7 +127,6 @@ public class SpeciesSelection {
                 }
             }
         }
-//        System.out.println("Line Processed");
     } //process a line
 
 }
