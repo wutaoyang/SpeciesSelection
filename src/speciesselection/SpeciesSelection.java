@@ -25,27 +25,34 @@ public class SpeciesSelection {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
+        long start = System.nanoTime();
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
         specSel(args);
+        System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
 
     public static void specSel(String[] args) throws FileNotFoundException {
-        //construct the bipartite graph between species and indicators.
-        SpecRTGraph sig = new SpecRTGraph();
+        specSel(args, false);
+    }
 
-        //the list to record the indicators that has been processed.
-        ArrayList<Integer> indicatorCreated = new ArrayList<>();
+    /**
+     *
+     * @param args
+     * @param allResults set true for full output, otherwise output will be
+     * produced up until 3 consecutive meanSensitivity increases
+     * @throws FileNotFoundException
+     */
+    public static void specSel(String[] args, boolean allResults) throws FileNotFoundException {
+        //construct the bipartite graph between species and indicators.
+        SpecRTGraph specRTGraph = new SpecRTGraph();
 
         String fileName = "Forest_D_ALL.txt"; //default input data
-        int numWordsInName = 1; //the number of words contains in the speices name
-
         if (args.length > 0) {
             fileName = args[0];
         }
 
         String outFileName = fileName + "_result.txt";  //default file for output
-
         if (args.length > 1) {
             outFileName = args[1];
         }
@@ -57,19 +64,20 @@ public class SpeciesSelection {
         String titleInformation = input.nextLine();
         while (input.hasNext()) {
             String text = input.nextLine();
-            processLine(text, sig, numWordsInName);
+            processLine(text, specRTGraph);
         }
 
         //Output the results to a file
         PrintStream outPut = new PrintStream(new File(outFileName));
         outPut.println("The dataset:" + fileName);
-        outPut.println("The dataset contains " + sig.numSpecies() + " species and "
-                + sig.numResourceTypes() + " resource types");
-
+        outPut.println("The dataset contains " + specRTGraph.numSpecies() + " species and "
+                + specRTGraph.numResourceTypes() + " resource types");
+        
         int startSize = 2;
-        int endSize = sig.numSpecies() - 1;
-
-        int numOfSpeciesSet = 11; //the number of species sets for each size, 11 is the default size;
+        int endSize = specRTGraph.numSpecies() - 1;
+        
+        //the number of species sets for each size, 11 is the default size;
+        int numOfSpeciesSet = 11; 
 
         if (args.length > 2) {
             numOfSpeciesSet = Integer.parseInt(args[2]) + 1;
@@ -84,21 +92,41 @@ public class SpeciesSelection {
             }
         }
 
-        MinSpecSetFamily mssf = sig.getMinDomSpecSets();
+        long startMssf = System.nanoTime();
+        MinSpecSetFamily mssf = specRTGraph.getMinDomSpecSets();
+        System.out.println("MSSF: " + mssf.size());
+        System.out.println("MSSF time: " + ((System.nanoTime() - startMssf) / 1000000.0));
 
-        for (int i = startSize; i <= endSize; i++) {
-            // System.out.println("In the main loop "+i);
-            SpecSetFamily consSpecSetFamily = sig.getDomSpecSets(i, numOfSpeciesSet, mssf);
+        mssf.sortBySensitivity();
+        Collections.sort(specRTGraph.rtNode);
+        SpecSetFamily consSpecSetFamily;
+        int count = 0;
+        double prevMeanSens = 10000;// large initial value greater than any sensitivity
+        int i = startSize;
+        while (i <= endSize && (count < 3 || allResults)) {
+            consSpecSetFamily = specRTGraph.getDomSpecSets(i, numOfSpeciesSet, mssf);
+            if (consSpecSetFamily.size() > 0)//check for increasing mean sensitivity
+            {
+                SpecSet firstSSF = consSpecSetFamily.get(0);
+                double meanSens = firstSSF.getMeanSensitivity();
+                if (meanSens > prevMeanSens) {
+                    count++;
+                } else {
+                    count = 0;
+                }
+                prevMeanSens = meanSens;
+            }
             outPut.println("For " + i + "  species");
             outPut.println(consSpecSetFamily);
+            i++;
         }
         System.out.println("The output is stored in " + outFileName);
     }
 
     //process the given String for a line of the data file
-    public static void processLine(String text, SpecRTGraph sig, int numWordsInName) {
+    public static void processLine(String text, SpecRTGraph sig) {
         Scanner data = new Scanner(text);
-        //creat a new species
+        //create a new species
         int spName = data.nextInt();
         Species inSpec = new Species(spName);
 
@@ -121,12 +149,10 @@ public class SpeciesSelection {
                 if (tmpInd != null) {
                     sig.addEdge(inSpec, tmpInd);
                 } else {
-                    //System.out.println("no such indicator "+index);
                     ResourceType newInd = new ResourceType(index);
                     sig.addEdge(inSpec, newInd);
                 }
             }
         }
-    } //process a line
-
+    }
 }

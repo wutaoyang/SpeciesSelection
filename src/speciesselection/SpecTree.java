@@ -13,7 +13,6 @@ import java.util.*;
  * @author taoyang wu @UEA (taoyang.wu@uea.ac.uk)
  */
 public class SpecTree {
-    
     private SpecTreeNode root;
     
     public SpecTree(){
@@ -28,7 +27,6 @@ public class SpecTree {
         return root;
     }
     
-    
     public int size(){
         return root.numNodesBelow();
     }
@@ -36,15 +34,11 @@ public class SpecTree {
     public ArrayList<SpecTreeNode> getLeaves(){
         return root.getLeavesBelow();
     }
-    
      
+    @Override
     public String toString(){
       StringBuilder outStr=new StringBuilder("Spec tree: \n");
       outStr.append(this.getRoot());
-      
-        
-         
       return outStr.toString();
-    }   
-    
+    }      
 }

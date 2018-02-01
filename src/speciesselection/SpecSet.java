@@ -1,5 +1,5 @@
 /*
- *Species Selection
+ * Species Selection
  * 
  * Represents a potential indicatior, i.e., a set of species
  */
@@ -12,11 +12,14 @@ import java.util.*;
  * @author taoyang wu @UEA (taoyang.wu@uea.ac.uk)
  */
 public class SpecSet implements Comparable<SpecSet> {
-
     private Set<Species> spSet;
 
     public SpecSet() {
         spSet = new HashSet<>();
+    }
+
+    public SpecSet(Set<Species> spSet) {
+        this.spSet = new HashSet<>(spSet);
     }
 
     public SpecSet(ArrayList<Species> specList) {
@@ -39,9 +42,8 @@ public class SpecSet implements Comparable<SpecSet> {
             spSet.add(inSpec);
         }
     }
-    
-    public ArrayList<Species> sortForPrint()
-    {
+
+    public ArrayList<Species> sortForPrint() {
         ArrayList<Species> spList = new ArrayList<>(spSet);
         Collections.sort(spList, (a, b) -> ((Species) a).getName().compareTo(((Species) b).getName()));
         return spList;
@@ -59,7 +61,7 @@ public class SpecSet implements Comparable<SpecSet> {
         }
     }
 
-    public boolean isSuberSetOf(SpecSet other) {
+    public boolean isSubSetOf(SpecSet other) {
         return (other.spSet).containsAll(spSet);
     }
 
@@ -69,7 +71,6 @@ public class SpecSet implements Comparable<SpecSet> {
 
     public int getSumSensitivity() {
         int result = 0;
-
         for (Species sp : spSet) {
             result += sp.getSensitivity();
         }
@@ -100,14 +101,10 @@ public class SpecSet implements Comparable<SpecSet> {
         SpecSetFamily result = new SpecSetFamily();
 
         //find the elements that are not in the current set
-        ArrayList<Species> tmpSpecList = new ArrayList<>();
-        for (Species sp : inSpecList) {
-            if (!contains(sp)) {
-                tmpSpecList.add(sp);
-            }
-        }
-
+        ArrayList<Species> tmpSpecList = new ArrayList<>(inSpecList);
+        tmpSpecList.removeAll(spSet);
         Collections.sort(tmpSpecList);
+
         int extNum = targetSetSize - size();
         if (extNum == 0) {
             result.addSpecSet(this);
@@ -125,12 +122,11 @@ public class SpecSet implements Comparable<SpecSet> {
         CombSubSet rangSets = new CombSubSet(extNum, maxNum);
         ArrayList<ArrayList<Integer>> indexSets = rangSets.getSubSets();
 
+        SpecSet tmpSet;
         for (ArrayList<Integer> curList : indexSets) {
-            SpecSet tmpSet = new SpecSet();
-            tmpSet.addSpecies(spSet);
+            tmpSet = new SpecSet(spSet);
             for (Integer index : curList) {
-                Species tmpSpecies = tmpSpecList.get(index.intValue());
-                tmpSet.addSpecies(tmpSpecies);
+                tmpSet.addSpecies(tmpSpecList.get(index));
             }
             result.addSpecSet(tmpSet);
         }
@@ -150,6 +146,7 @@ public class SpecSet implements Comparable<SpecSet> {
         if (size() == targetSize) {
             return true;
         }
+
         for (Species spec : inSpecList) {
             this.addSpecies(spec);
             if (this.size() == targetSize) {
@@ -177,6 +174,19 @@ public class SpecSet implements Comparable<SpecSet> {
             return 0;
         }
         return 1;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        SpecSet other = (SpecSet) obj;
+        return this.isEqualTo(other);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 61 * hash + Objects.hashCode(this.spSet);
+        return hash;
     }
 
     @Override

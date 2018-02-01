@@ -13,14 +13,12 @@ import java.util.*;
  * @author taoyang
  */
 public class SpecSetFamily {
-
     private int numSetsLimit;
-
     protected ArrayList<SpecSet> ssf;
 
     public SpecSetFamily() {
         numSetsLimit = -1; //-1 denotes no limit
-        ssf = new ArrayList<SpecSet>();
+        ssf = new ArrayList<>();
     }
 
     public int getNumSetsLimit() {
@@ -55,14 +53,12 @@ public class SpecSetFamily {
     }
 
     public boolean addSpecSet(SpecSet inSS) {
-
         //check no set in the family is a subset of inSet
         for (SpecSet spSet : ssf) {
             if (spSet.isEqualTo(inSS)) {
                 return false;
             }
         }
-
         ssf.add(inSS);
 
         //when no limit or the limit of size has not reached
@@ -78,7 +74,6 @@ public class SpecSetFamily {
             ssf.remove(lastEleIndex);
         }
         return true;
-
     }
 
     @Override
@@ -86,14 +81,12 @@ public class SpecSetFamily {
         Collections.sort(ssf);
         // Sort species into numeric order for consistent printing
         String outStr = "[";
-        for(SpecSet ss : ssf)
-        {
-            outStr += "\n" + ss.getMaxSensitivity() 
-                    + ":" +String.format("%.02f", ss.getMeanSensitivity()) 
-                    + ":" +  ss.sortForPrint();
+        for (SpecSet ss : ssf) {
+            outStr += "\n" + ss.getMaxSensitivity()
+                    + ":" + String.format("%.02f", ss.getMeanSensitivity())
+                    + ":" + ss.sortForPrint();
         }
         outStr += "]";
         return outStr;
     }
-
 }
