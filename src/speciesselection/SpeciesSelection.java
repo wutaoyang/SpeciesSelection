@@ -32,8 +32,14 @@ public class SpeciesSelection {
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
 
-    public static void specSel(String[] args) throws FileNotFoundException {
-        specSel(args, false);
+    /**
+     * Default specSel method outputs truncated results
+     * @param args
+     * @return 
+     * @throws FileNotFoundException 
+     */
+    public static ArrayList<Double> specSel(String[] args) throws FileNotFoundException {
+        return specSel(args, false);
     }
 
     /**
@@ -41,9 +47,10 @@ public class SpeciesSelection {
      * @param args
      * @param allResults set true for full output, otherwise output will be
      * produced up until 3 consecutive meanSensitivity increases
+     * @return 
      * @throws FileNotFoundException
      */
-    public static void specSel(String[] args, boolean allResults) throws FileNotFoundException {
+    public static ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException {
         //construct the bipartite graph between species and indicators.
         SpecRTGraph specRTGraph = new SpecRTGraph();
 
@@ -103,12 +110,14 @@ public class SpeciesSelection {
         int count = 0;
         double prevMeanSens = 10000;// large initial value greater than any sensitivity
         int i = startSize;
+        ArrayList<Double> minSensitivities = new ArrayList<>();
         while (i <= endSize && (count < 3 || allResults)) {
             consSpecSetFamily = specRTGraph.getDomSpecSets(i, numOfSpeciesSet, mssf);
             if (consSpecSetFamily.size() > 0)//check for increasing mean sensitivity
             {
                 SpecSet firstSSF = consSpecSetFamily.get(0);
                 double meanSens = firstSSF.getMeanSensitivity();
+                minSensitivities.add(meanSens);
                 if (meanSens > prevMeanSens) {
                     count++;
                 } else {
@@ -121,6 +130,7 @@ public class SpeciesSelection {
             i++;
         }
         System.out.println("The output is stored in " + outFileName);
+        return minSensitivities;
     }
 
     //process the given String for a line of the data file
