@@ -25,10 +25,12 @@ public class SpeciesSelection {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
-        // TODO code application logic here
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
-
+        specSel(args);
+    } 
+    
+    public static void specSel(String[] args) throws FileNotFoundException {
         //construct the bipartite graph between species and indicators.
         SpecRTGraph sig = new SpecRTGraph();
 
@@ -40,8 +42,6 @@ public class SpeciesSelection {
 
         if (args.length > 0) {
             fileName = args[0];
-
-            numWordsInName = 1;
         }
 
         String outFileName = fileName + "_result.txt";  //default file for output
@@ -87,23 +87,26 @@ public class SpeciesSelection {
 
         MinSpecSetFamily mssf = sig.getMinDomSpecSets();
 
+
         for (int i = startSize; i <= endSize; i++) {
             // System.out.println("In the main loop "+i);
-            SpecSetFamily consFamily = sig.getDomSpecSets(i, numOfSpeciesSet, mssf);
+            SpecSetFamily consSpecSetFamily = sig.getDomSpecSets(i, numOfSpeciesSet, mssf);
             outPut.println("For " + i + "  species");
-            outPut.println(consFamily);
+            outPut.println(consSpecSetFamily);
         }
         System.out.println("The output is stored in " + outFileName);
-    } //main 
+
+    }
+    
 
     //process the given String for a line of the data file
     public static void processLine(String text, SpecRTGraph sig, int numWordsInName) {
         Scanner data = new Scanner(text);
         //creat a new species
-        String spName = data.next();//+" "+data.next();
-        if (numWordsInName == 2) {
-            spName = spName + " " + data.next();
-        }
+        int spName = data.nextInt();//+" "+data.next();
+//        if (numWordsInName == 2) {
+//            spName = spName + " " + data.next();
+//        }
         Species inSpec = new Species(spName);
 
         int spReliance = data.nextInt();
@@ -111,7 +114,7 @@ public class SpeciesSelection {
         int spSensitivity = data.nextInt();
         inSpec.setReliance(spReliance);
 
-        //the indication inforamtion
+        //the indication information
         int index = 0;
 
         //test variable
@@ -132,7 +135,7 @@ public class SpeciesSelection {
                 }
             }
         }
-
+//        System.out.println("Line Processed");
     } //process a line
 
 }

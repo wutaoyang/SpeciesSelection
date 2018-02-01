@@ -14,18 +14,18 @@ import java.util.*;
  */
 public class Species implements Comparable<Species>{
     
-   protected String speciesName;    
+   protected int speciesName;    
    protected  int reliance;  
     
    protected ArrayList<ResourceType> rtList;
     
     public Species(){
-        rtList=new ArrayList<ResourceType>();
+        rtList=new ArrayList<>();
     }
     
-    public Species(String name){
+    public Species(int name){
         speciesName=name;
-        rtList=new ArrayList<ResourceType>();
+        rtList=new ArrayList<>();
     }
     
     
@@ -38,19 +38,19 @@ public class Species implements Comparable<Species>{
         
         return reliance*rtList.size();
     }
-    
-    
+        
     /**
      * 
      * @param otherSpec  Another species
      * @return the sensitivity of the current minus that of the otherSpec.
      */
     
+   @Override
     public int compareTo(Species otherSpec){
         return this.getSensitivity()-otherSpec.getSensitivity();
     }
     
-    public String getName(){
+    public Integer getName(){
         return speciesName;
     }
     
@@ -67,15 +67,13 @@ public class Species implements Comparable<Species>{
         rtList.add(newInd);
     }
     
-    
     //return true iff the rticator in this object is used by other 
     //
     public boolean isBelow(Species other){
         return other.rtList.containsAll(rtList);
     }
     
-    
-    
+   @Override
     public String toString(){
         
          StringBuilder specStr=new StringBuilder();//"Species: ");

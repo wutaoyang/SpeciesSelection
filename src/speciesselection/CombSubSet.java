@@ -19,11 +19,9 @@ import java.util.*;
  */
 public class CombSubSet {
     
-    private int maxNumber;
-    private int cardSize;
+    private final int maxNumber;
+    private final int cardSize;
    
-    
-    
     //store all subsets with given cardSize and 
     //all elements bounded above by maxNumber (not included) 
     //and below by zero (included)
@@ -38,7 +36,7 @@ public class CombSubSet {
         
         this.cardSize=cardSize;
         this.maxNumber=maxNumber;
-        subSets=new ArrayList<ArrayList<Integer>>();
+        subSets=new ArrayList<>();
         initialize();
     }
     
@@ -51,7 +49,7 @@ public class CombSubSet {
       
         //case 1
          if(cardSize==maxNumber){
-            ArrayList<Integer> tmpSet=new ArrayList<Integer>();
+            ArrayList<Integer> tmpSet=new ArrayList<>();
             for(int i=0;i<maxNumber;i++){
                 Integer tmp=new Integer(i);
                         tmpSet.add(tmp);
