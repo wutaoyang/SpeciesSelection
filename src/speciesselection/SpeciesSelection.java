@@ -12,7 +12,8 @@ import java.util.*;
 
 /**
  *
- * @author taoyang wu (taoyang.wu@uea.ac.uk)
+ * @author taoyang wu (taoyang.wu@uea.ac.uk) March 2014
+ * Further developed by Stephen Whiddett (s.whiddett@uea.ac.uk) Jan-May 2018
  */
 public class SpeciesSelection {
 
@@ -28,7 +29,7 @@ public class SpeciesSelection {
         long start = System.nanoTime();
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
-        specSel(args);
+        specSel(args, true);
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
 
@@ -54,7 +55,7 @@ public class SpeciesSelection {
         //construct the bipartite graph between species and indicators.
         SpecRTGraph specRTGraph = new SpecRTGraph();
 
-        String fileName = "Forest_D_ALL.txt"; //default input data
+        String fileName = "Forest1.txt"; //default input data
         if (args.length > 0) {
             fileName = args[0];
         }
@@ -79,6 +80,9 @@ public class SpeciesSelection {
         outPut.println("The dataset:" + fileName);
         outPut.println("The dataset contains " + specRTGraph.numSpecies() + " species and "
                 + specRTGraph.numResourceTypes() + " resource types");
+        
+        
+        
         
         int startSize = 2;
         int endSize = specRTGraph.numSpecies() - 1;
@@ -171,4 +175,6 @@ public class SpeciesSelection {
             }
         }
     }
+    
+   
 }

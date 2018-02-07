@@ -107,17 +107,12 @@ public class SpecTreeNode {
                 System.out.println("Time:" + ((System.nanoTime() - start) / 1000000));
             }
         }
+        
         ArrayList<SpecTreeNode> result = new ArrayList<>();
         if (isLeaf()) {
             result.add(this);
         }
 
-//       result.addAll(
-//               chList.parallelStream()
-//                       .map(SpecTreeNode::getLeavesBelow)
-//                       .flatMap(Collection::stream)
-//                       .collect(Collectors.toList())
-//       );
         for (SpecTreeNode stn : chList) {
             result.addAll(stn.getLeavesBelow());
         }
