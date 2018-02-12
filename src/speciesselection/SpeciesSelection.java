@@ -9,13 +9,20 @@ package speciesselection;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
- * @author taoyang wu (taoyang.wu@uea.ac.uk) March 2014
- * Further developed by Stephen Whiddett (s.whiddett@uea.ac.uk) Jan-May 2018
+ * @author taoyang wu (taoyang.wu@uea.ac.uk) March 2014 Further developed by
+ * Stephen Whiddett (s.whiddett@uea.ac.uk) Jan-May 2018
  */
-public class SpeciesSelection {
+public class SpeciesSelection implements Runnable {
+
+    String[] args;
+    boolean truncate;
+    ArrayList<Double> result;
+    boolean finished;
 
     /**
      * @param args the command line arguments The first argument is the name for
@@ -33,11 +40,40 @@ public class SpeciesSelection {
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
 
+    public SpeciesSelection(String[] args, boolean truncate) {
+        this.args = args;
+        this.truncate = truncate;
+        this.finished = false;
+    }
+
+    @Override
+    public void run() {
+        long start = System.nanoTime();
+        System.out.println("The Indicator Species Selection Project.");
+        System.out.println("By Taoyang Wu, Version 0.2, March 2014");
+        try {
+            result = specSel(args, truncate);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finished = true;
+        System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public ArrayList<Double> getResult() {
+        return result;
+    }
+
     /**
      * Default specSel method outputs truncated results
+     *
      * @param args
-     * @return 
-     * @throws FileNotFoundException 
+     * @return
+     * @throws FileNotFoundException
      */
     public static ArrayList<Double> specSel(String[] args) throws FileNotFoundException {
         return specSel(args, false);
@@ -48,7 +84,7 @@ public class SpeciesSelection {
      * @param args
      * @param allResults set true for full output, otherwise output will be
      * produced up until 3 consecutive meanSensitivity increases
-     * @return 
+     * @return
      * @throws FileNotFoundException
      */
     public static ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException {
@@ -80,15 +116,12 @@ public class SpeciesSelection {
         outPut.println("The dataset:" + fileName);
         outPut.println("The dataset contains " + specRTGraph.numSpecies() + " species and "
                 + specRTGraph.numResourceTypes() + " resource types");
-        
-        
-        
-        
+
         int startSize = 2;
         int endSize = specRTGraph.numSpecies() - 1;
-        
+
         //the number of species sets for each size, 11 is the default size;
-        int numOfSpeciesSet = 11; 
+        int numOfSpeciesSet = 11;
 
         if (args.length > 2) {
             numOfSpeciesSet = Integer.parseInt(args[2]) + 1;
@@ -130,9 +163,7 @@ public class SpeciesSelection {
                     count = 0;
                 }
                 prevMeanSens = meanSens;
-            }
-            else
-            {
+            } else {
                 minSensitivities.add(0.0);
             }
             outPut.println("For " + i + "  species");
@@ -175,6 +206,5 @@ public class SpeciesSelection {
             }
         }
     }
-    
-   
+
 }

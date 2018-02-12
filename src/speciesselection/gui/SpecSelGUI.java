@@ -11,10 +11,13 @@ import java.awt.Dimension;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.filechooser.FileView;
 import speciesselection.SpeciesSelection;
 
 /**
@@ -26,12 +29,14 @@ public class SpecSelGUI extends javax.swing.JFrame {
     // variable to get result of file open/save dialog
     private int fileChooserResult;
     private String workingDir;
+    boolean cancelled;
 
     /**
      * Creates new form SpecSelGUI
      */
     public SpecSelGUI() {
         initComponents();
+        jButtonCancel.setVisible(false);
         workingDir = System.getProperty("user.dir");
     }
 
@@ -50,6 +55,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jTextFieldDataFilePath = new javax.swing.JTextField();
         jButtonProcess = new javax.swing.JButton();
         jCheckBoxTruncate = new javax.swing.JCheckBox();
+        jButtonCancel = new javax.swing.JButton();
+        jPanelBottom = new javax.swing.JPanel();
+        jLabelProcessTime = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
@@ -57,7 +65,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelMain.setPreferredSize(new java.awt.Dimension(600, 400));
         jPanelMain.setLayout(new java.awt.BorderLayout());
 
-        jPanel1.setPreferredSize(new java.awt.Dimension(782, 40));
+        jPanel1.setPreferredSize(new java.awt.Dimension(782, 60));
 
         jButtonSelectDataFile.setText("Select Data File");
         jButtonSelectDataFile.addActionListener(new java.awt.event.ActionListener() {
@@ -78,11 +86,18 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jCheckBoxTruncate.setSelected(true);
         jCheckBoxTruncate.setText("Truncate Results");
 
+        jButtonCancel.setText("Cancel");
+        jButtonCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCancelActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jButtonSelectDataFile)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -90,7 +105,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jCheckBoxTruncate)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
-                .addComponent(jButtonProcess)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButtonCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonProcess, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -101,10 +118,32 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     .addComponent(jTextFieldDataFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonProcess)
                     .addComponent(jCheckBoxTruncate))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonCancel)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jPanelMain.add(jPanel1, java.awt.BorderLayout.PAGE_START);
+
+        jPanelBottom.setMinimumSize(new java.awt.Dimension(100, 30));
+        jPanelBottom.setPreferredSize(new java.awt.Dimension(782, 30));
+
+        jLabelProcessTime.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+
+        javax.swing.GroupLayout jPanelBottomLayout = new javax.swing.GroupLayout(jPanelBottom);
+        jPanelBottom.setLayout(jPanelBottomLayout);
+        jPanelBottomLayout.setHorizontalGroup(
+            jPanelBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelBottomLayout.createSequentialGroup()
+                .addGap(0, 601, Short.MAX_VALUE)
+                .addComponent(jLabelProcessTime, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanelBottomLayout.setVerticalGroup(
+            jPanelBottomLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jLabelProcessTime, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
+        );
+
+        jPanelMain.add(jPanelBottom, java.awt.BorderLayout.PAGE_END);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -128,20 +167,68 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
     private void jButtonProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonProcessActionPerformed
         try {
+            jButtonProcess.setEnabled(false);
             String fileName = jTextFieldDataFilePath.getText();
             if (!fileName.equals("")) {
+                // Clear any existing plot
+                BorderLayout layout = (BorderLayout) jPanelMain.getLayout();
+                Component center = layout.getLayoutComponent(BorderLayout.CENTER);
+                if (center != null) {
+                    jPanelMain.remove(center);
+                    jPanelMain.repaint();
+                }
+
                 //Check for results truncation
                 boolean truncate = !jCheckBoxTruncate.isSelected();
-                
+
                 String[] args = {fileName};
                 //run solution and draw graph
-                drawGraph(SpeciesSelection.specSel(args, truncate));
+                SpeciesSelection specSel = new SpeciesSelection(args, truncate);
+                Thread t = new Thread(specSel);
+                t.start();
+                long startTime = System.nanoTime();
+                cancelled = false;
+                jButtonCancel.setVisible(true);
+
+                new Thread() {
+                    @Override
+                    public void run() {
+                        while (!specSel.isFinished() && !cancelled) {
+                            double seconds = (System.nanoTime() - startTime) / 1000000000.0;
+                            String secs = String.format("%.2f", seconds);
+                            jLabelProcessTime.setText("Processing Time: " + secs + " secs");
+                            try {
+                                Thread.sleep(91);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                        
+                        jButtonCancel.setVisible(false);
+                        jButtonProcess.setEnabled(true);
+                        
+                        if(specSel.isFinished())
+                        {
+                            ArrayList<Double> result = specSel.getResult();
+                            drawGraph(result);
+                        }
+                        else
+                        {
+                            t.stop();//.interrupt();
+                        }
+                        
+                    }
+                }.start();
+
+                
             } else {
                 System.out.println("No file selected");
             }
         } catch (Exception e) {
             System.out.println("Error Processing Data: " + e);
         }
+        System.out.println("Process Complete");
+        
     }//GEN-LAST:event_jButtonProcessActionPerformed
 
     private void drawGraph(ArrayList<Double> meanSensitivities) {
@@ -170,6 +257,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonSelectDataFileActionPerformed
 
+    private void jButtonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelActionPerformed
+        cancelled = true;
+        jButtonCancel.setVisible(false);
+    }//GEN-LAST:event_jButtonCancelActionPerformed
+
     // launches JChooser and returns path of file selected for load or save
     private String getTextFilePath(String option) {
         // use JFileChooser to select album text file
@@ -177,6 +269,17 @@ public class SpecSelGUI extends javax.swing.JFrame {
             String filePath;
             // launch file chooser in current working directory
             JFileChooser fileChooser = new JFileChooser(workingDir);
+
+            //lock file chooser to working directory
+            final File dirToLock = new File(workingDir);
+            fileChooser.setFileView(new FileView() {
+                @Override
+                public Boolean isTraversable(File f) {
+                    return dirToLock.equals(f);
+                }
+            });
+
+            // filter for text files
             FileFilter filter = new FileNameExtensionFilter("Text File", "txt");
             fileChooser.setFileFilter(filter);
 
@@ -240,10 +343,13 @@ public class SpecSelGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButtonCancel;
     private javax.swing.JButton jButtonProcess;
     private javax.swing.JButton jButtonSelectDataFile;
     private javax.swing.JCheckBox jCheckBoxTruncate;
+    private javax.swing.JLabel jLabelProcessTime;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanelBottom;
     private javax.swing.JPanel jPanelMain;
     private javax.swing.JTextField jTextFieldDataFilePath;
     // End of variables declaration//GEN-END:variables

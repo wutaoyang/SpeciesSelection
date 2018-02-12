@@ -14,9 +14,11 @@ import java.util.*;
 public class SpecTreeNode {
     protected Species spec;
     protected SpecTreeNode parent;
-    protected ArrayList<SpecTreeNode> chList;
+    protected ArrayList<SpecTreeNode> chList, chCopy;
     private static int count = 0;
     private static long start = 0;
+    private ArrayList<SpecTreeNode> leavesBelow = null;
+    private int oldLeavesBelowSize = 0, oldChListSize = 0;
 
     public SpecTreeNode() {
         chList = new ArrayList<>();
@@ -92,21 +94,38 @@ public class SpecTreeNode {
         return result;
     }
 
+    private boolean chListChanged()
+    {
+        if(chCopy.equals(chList))
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    public ArrayList<SpecTreeNode> getLeavesBelow2() {
+ 
+        leavesBelow = getLeavesBelow();
+        if(leavesBelow.size() == oldLeavesBelowSize)
+        {
+            System.out.println("Same size: " + leavesBelow.size() + ":" + oldLeavesBelowSize + " chList: " + chList.size() + ":" + oldChListSize);
+        }
+        else
+        {
+            System.out.println("Diff size: " + leavesBelow.size() + ":" + oldLeavesBelowSize + " chList: " + chList.size() + ":" + oldChListSize);
+        }
+        
+        oldChListSize = chList.size();
+        oldLeavesBelowSize = leavesBelow.size();
+        return leavesBelow;
+    }
+    
     /**
      *
      * @return the collection of leave nodes below the current one
      */
     public ArrayList<SpecTreeNode> getLeavesBelow() {
-        if (count == 0) {
-            start = System.nanoTime();
-        }
-        count++;
-        if (count % 10000000 == 0) {
-            System.out.println("Count " + count);
-            if (count == 50000000) {
-                System.out.println("Time:" + ((System.nanoTime() - start) / 1000000));
-            }
-        }
+        count();// count number of times this method is called
         
         ArrayList<SpecTreeNode> result = new ArrayList<>();
         if (isLeaf()) {
@@ -119,6 +138,20 @@ public class SpecTreeNode {
         return result;
     }
 
+    private void count()
+    {
+        if (count == 0) {
+            start = System.nanoTime();
+        }
+        count++;
+        if (count % 10000000 == 0) {
+            System.out.println("Count " + count);
+            if (count == 50000000) {
+                System.out.println("Time:" + ((System.nanoTime() - start) / 1000000));
+            }
+        }
+    }
+    
     /**
      * @param spec A species
      * @return true if the species is contained in an ancestor of the node
