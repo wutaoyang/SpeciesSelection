@@ -103,7 +103,8 @@ public class SpecTreeNode {
         return true;
     }
     
-    public ArrayList<SpecTreeNode> getLeavesBelow2() {
+    // Test code to see if we can build leaves fewer times
+    public ArrayList<SpecTreeNode> getLeavesBelow2() throws InterruptedException {
  
         leavesBelow = getLeavesBelow();
         if(leavesBelow.size() == oldLeavesBelowSize)
@@ -123,9 +124,14 @@ public class SpecTreeNode {
     /**
      *
      * @return the collection of leave nodes below the current one
+     * @throws java.lang.InterruptedException
      */
-    public ArrayList<SpecTreeNode> getLeavesBelow() {
+    public ArrayList<SpecTreeNode> getLeavesBelow() throws InterruptedException {
         count();// count number of times this method is called
+        if(Thread.currentThread().isInterrupted())
+        {
+            throw new InterruptedException();// throw when cancel requested
+        }
         
         ArrayList<SpecTreeNode> result = new ArrayList<>();
         if (isLeaf()) {

@@ -8,6 +8,8 @@
 package speciesselection;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -99,15 +101,24 @@ public class SpecRTGraph {
      * MOST PROCESSING HAPPENS HERE
      *
      * @return The collection of 'irreducible' dominated sets
+     * @throws java.lang.InterruptedException
      */
-    public MinSpecSetFamily getMinDomSpecSets() {
+    public MinSpecSetFamily getMinDomSpecSetsParallel() throws InterruptedException {
         ResourceType minRT = this.getFirstEssentialResourceType();
         if (minRT == null || minRT.noSpecies()) {
             System.out.println("There is something wrong with the "
                     + "minimal rticator, such as adjacent to no species. ");
         }
+
         MinSpecSetFamily result = minRT.specList.parallelStream()
-                .flatMap(spec -> getMinimalConstSpecTreeRootedAt(spec).getLeaves().parallelStream())
+                .flatMap(spec -> {
+                    try {
+                        return getMinimalConstSpecTreeRootedAt(spec).getLeaves().stream();
+                    } catch (InterruptedException e) {
+                        System.out.println("Returning null from SpecRTGraph.getMinDomSpecSets()");
+                        return null;// TODO: DOES NOT RETURN NULL FOR ENTIRE METHOD
+                    }
+                })
                 .map(leaf -> new SpecSet(leaf.getAncestors()))
                 .collect(MinSpecSetFamily::new, MinSpecSetFamily::addSpecSet, MinSpecSetFamily::addMSSF);
         return result;
@@ -117,8 +128,9 @@ public class SpecRTGraph {
      * Method superceded by parallel stream approach
      *
      * @return The collection of 'irreducible' dominated sets
+     * @throws java.lang.InterruptedException
      */
-    public MinSpecSetFamily getMinDomSpecSetsOld() {
+    public MinSpecSetFamily getMinDomSpecSets() throws InterruptedException {
         MinSpecSetFamily result = new MinSpecSetFamily();
         ResourceType minRT = this.getFirstEssentialResourceType();
         if (minRT == null || minRT.noSpecies()) {
@@ -130,17 +142,14 @@ public class SpecRTGraph {
             for (SpecTreeNode leaf : leafList) {
                 result.addSpecSet(new SpecSet(leaf.getAncestors()));
             }
-
         }
         return result;
     }
 
-    public SpecTree getMinSpecTree() {
+    public SpecTree getMinSpecTree() throws InterruptedException {
         ArrayList<ResourceType> essRT = this.getEssentialResourceTypes();
         Species root = essRT.get(0).getFirstSpecies();
-
         return this.getMinimalConstSpecTreeRootedAt(root);
-
     }
 
     /**
@@ -149,7 +158,7 @@ public class SpecRTGraph {
      * @return A minimal constitute species tree with root specified by
      * rootSpec; null if rootSpec is not a species
      */
-    public SpecTree getMinimalConstSpecTreeRootedAt(Species rootSpec) {
+    public SpecTree getMinimalConstSpecTreeRootedAt(Species rootSpec) throws InterruptedException {
         if (!this.containsSpecies(rootSpec)) {
             return null;
         }
@@ -170,7 +179,7 @@ public class SpecRTGraph {
         return returnTree;
     }
 
-    private SpecTreeNode getFirstNonCompleteLeaf(SpecTree st, ArrayList<ResourceType> rtList) {
+    private SpecTreeNode getFirstNonCompleteLeaf(SpecTree st, ArrayList<ResourceType> rtList) throws InterruptedException {
         ArrayList<SpecTreeNode> leafList = st.getLeaves();
         for (SpecTreeNode stn : leafList) {
             if (getFirstNonDominatedRT(stn.getAncestors(), rtList) != null) {

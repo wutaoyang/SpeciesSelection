@@ -31,7 +31,7 @@ public class SpecTree {
         return root.numNodesBelow();
     }
     
-    public ArrayList<SpecTreeNode> getLeaves(){
+    public ArrayList<SpecTreeNode> getLeaves() throws InterruptedException {
         return root.getLeavesBelow();
     }
      

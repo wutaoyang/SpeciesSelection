@@ -32,7 +32,7 @@ public class SpeciesSelection implements Runnable {
      * argument for the maximal size of species in a species set
      * @throws java.io.FileNotFoundException
      */
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException, InterruptedException {
         long start = System.nanoTime();
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
@@ -53,7 +53,10 @@ public class SpeciesSelection implements Runnable {
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
         try {
             result = specSel(args, truncate);
-        } catch (FileNotFoundException ex) {
+        } catch (FileNotFoundException ex) { 
+            Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            System.out.println("Thread interrupted");
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         }
         finished = true;
@@ -75,7 +78,7 @@ public class SpeciesSelection implements Runnable {
      * @return
      * @throws FileNotFoundException
      */
-    public static ArrayList<Double> specSel(String[] args) throws FileNotFoundException {
+    public static ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException {
         return specSel(args, false);
     }
 
@@ -87,7 +90,7 @@ public class SpeciesSelection implements Runnable {
      * @return
      * @throws FileNotFoundException
      */
-    public static ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException {
+    public static ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException {
         //construct the bipartite graph between species and indicators.
         SpecRTGraph specRTGraph = new SpecRTGraph();
 
@@ -151,6 +154,11 @@ public class SpeciesSelection implements Runnable {
         minSensitivities.add(0.0);
         minSensitivities.add(0.0);
         while (i <= endSize && (count < 3 || allResults)) {
+            if(Thread.currentThread().isInterrupted())
+            {
+                throw new InterruptedException();// throw if cancel requested
+            }
+            
             consSpecSetFamily = specRTGraph.getDomSpecSets(i, numOfSpeciesSet, mssf);
             if (consSpecSetFamily.size() > 0)//check for increasing mean sensitivity
             {
