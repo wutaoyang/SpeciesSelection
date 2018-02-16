@@ -206,8 +206,8 @@
                               </Group>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="jSpinnerInitialSpeciesPct" pref="65" max="32767" attributes="0"/>
-                                  <Component id="jSpinnerAllowableExpDiverencePct" max="32767" attributes="0"/>
+                                  <Component id="jSpinnerInitialSpeciesPct" max="32767" attributes="0"/>
+                                  <Component id="jSpinnerAllowableExpDiverencePct" pref="65" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -267,13 +267,13 @@
             <Component class="javax.swing.JSpinner" name="jSpinnerInitialSpeciesPct">
               <Properties>
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="50" maximum="100" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                  <SpinnerModel initial="14" minimum="14" numberType="java.lang.Integer" stepSize="1" type="number"/>
                 </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel1">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Initial % of Species:"/>
+                <Property name="text" type="java.lang.String" value="Initial No of Species:"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel2">

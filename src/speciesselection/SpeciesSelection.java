@@ -99,7 +99,7 @@ public class SpeciesSelection implements Runnable {
             fileName = args[0];
         }
 
-        String outFileName = fileName + "_result.txt";  //default file for output
+        String outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";  //default file for output
         if (args.length > 1) {
             outFileName = args[1];
         }
@@ -113,6 +113,7 @@ public class SpeciesSelection implements Runnable {
             String text = input.nextLine();
             processLine(text, specRTGraph);
         }
+        input.close();
 
         //Output the results to a file
         PrintStream outPut = new PrintStream(new File(outFileName));
@@ -178,12 +179,14 @@ public class SpeciesSelection implements Runnable {
             outPut.println(consSpecSetFamily);
             i++;
         }
+        outPut.close();
         System.out.println("The output is stored in " + outFileName);
         return minSensitivities;
     }
 
     //process the given String for a line of the data file
     public static void processLine(String text, SpecRTGraph sig) {
+//        System.out.println("text: " + text);
         Scanner data = new Scanner(text);
         //create a new species
         int spName = data.nextInt();

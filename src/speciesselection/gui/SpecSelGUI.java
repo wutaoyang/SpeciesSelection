@@ -9,6 +9,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -172,9 +173,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         jTextFieldDataFilePath1.setText("Forest_D_ALL.txt");
 
-        jSpinnerInitialSpeciesPct.setModel(new javax.swing.SpinnerNumberModel(50, 1, 100, 1));
+        jSpinnerInitialSpeciesPct.setModel(new javax.swing.SpinnerNumberModel(14, 14, null, 1));
 
-        jLabel1.setText("Initial % of Species:");
+        jLabel1.setText("Initial No of Species:");
 
         jLabel2.setText("Allowable % Exp divergence:");
 
@@ -208,8 +209,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
                             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jSpinnerInitialSpeciesPct, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
-                            .addComponent(jSpinnerAllowableExpDiverencePct)))
+                            .addComponent(jSpinnerInitialSpeciesPct)
+                            .addComponent(jSpinnerAllowableExpDiverencePct, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)))
                     .addGroup(jPanelAnalyseLayout.createSequentialGroup()
                         .addComponent(jLabel3)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -375,15 +376,15 @@ public class SpecSelGUI extends javax.swing.JFrame {
             try {
                 File file = new File(fileName);
                 jSpinnerInitialSpeciesPct.commitEdit();
-                int initialSpeciesPct = (Integer) jSpinnerInitialSpeciesPct.getValue();
+                int initialNoSpecies = (Integer) jSpinnerInitialSpeciesPct.getValue();
                 jSpinnerAllowableExpDiverencePct.commitEdit();
                 int expMarginPct = (Integer) jSpinnerAllowableExpDiverencePct.getValue();
-                ProblemSpecies problemSpec = new ProblemSpecies(file, initialSpeciesPct, expMarginPct);
+                ProblemSpecies problemSpec = new ProblemSpecies(file, initialNoSpecies, expMarginPct);
                                 
                 // print results to GUI
                 jTextFieldProblemSpecies.setText(problemSpec.toString());
             } 
-            catch (ParseException ex) {
+            catch (ParseException | FileNotFoundException ex) {
                 Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
             
