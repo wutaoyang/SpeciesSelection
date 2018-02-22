@@ -123,6 +123,7 @@ public class SpeciesSelection implements Runnable {
      * @throws FileNotFoundException
      */
     public ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException {
+        this.args = args;
         //construct the bipartite graph between species and indicators.
         specRTGraph = new SpecRTGraph();
 
