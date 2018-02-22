@@ -1,10 +1,11 @@
 package preprocessing;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Class representing a set of x,y coordinates for a 2D plot
  * @author mre16utu
  */
 public class PlotPoints {
@@ -49,7 +50,13 @@ public class PlotPoints {
     @Override
     public String toString()
     {
-        return "MyPoints";
+        DecimalFormat df = new DecimalFormat("#.##");
+        String str = "Plot Points:\n X,      Y";
+        for(int i = 0; i < xList.size(); i++)
+        {
+            str += "\n" + df.format(xList.get(i)) + ",   " + df.format(yList.get(i));
+        }
+        return str;
     }
 
 }

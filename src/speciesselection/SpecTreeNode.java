@@ -127,10 +127,10 @@ public class SpecTreeNode {
      * @throws java.lang.InterruptedException
      */
     public ArrayList<SpecTreeNode> getLeavesBelow() throws InterruptedException {
-        count();// count number of times this method is called
+//        count();// count number of times this method is called
         if(Thread.currentThread().isInterrupted())
         {
-            throw new InterruptedException();// throw when cancel requested
+            throw new InterruptedException("Thread interrupted in SpecTreeNode.getLeavesBelow()");// throw when cancel requested
         }
         
         ArrayList<SpecTreeNode> result = new ArrayList<>();

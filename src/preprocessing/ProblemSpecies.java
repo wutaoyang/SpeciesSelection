@@ -5,9 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
-import speciesselection.Species;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import speciesselection.MinSpecSetFamily;
 import speciesselection.SpeciesSelection;
 import trendlines.ExpTrendLine;
 import trendlines.TrendLine;
@@ -18,30 +19,51 @@ import trendlines.TrendLine;
  *
  * @author mre16utu
  */
-public class ProblemSpecies {
+public class ProblemSpecies implements Runnable {
 
     ArrayList<Integer> probSpecies;
-    boolean insufficient;
+    boolean insufficient, finished, hasChanged;
+    File file;
+    int initialNoSpecies, expMarginPct, minPoints;
+    PlotPoints points;
 
     public ProblemSpecies(File file, int initialNoSpecies, int expMarginPct) throws FileNotFoundException {
+        this.file = file;
+        this.initialNoSpecies = initialNoSpecies;
+        this.expMarginPct = expMarginPct;        
         this.insufficient = false;
+        this.finished = false;
+        this.points = new PlotPoints();
         this.probSpecies = new ArrayList<>();
-        findProblemSpecies(file, initialNoSpecies, expMarginPct);
+        this.minPoints = 3; // minimum number of points required before we start fitting an exponential curve to the data
+        
+    }
+    
+    public boolean isFinished() {
+        return finished;
+    }
+    
+    public ArrayList<Integer> getProblemSpecies()
+    {
+        return probSpecies;
+    }
+    
+    public PlotPoints getPoints()
+    {
+        return points;
     }
 
-    private void findProblemSpecies(File file, int initialNoSpecies, int expMarginPct) throws FileNotFoundException {
+    private void findProblemSpecies(File file, int initialNoSpecies, int expMarginPct, int minNoSpeciesToFitExpCurve) throws FileNotFoundException, InterruptedException {
+        long startPsTime = System.currentTimeMillis();
         List<String> fileAsList = readFileToList(file);
         System.out.println(listAsString(fileAsList));
 
         int numSpecies = fileAsList.size();
-//        int initialSubsetSize = Math.max(1, numSpecies * initialNoSpecies / 100);
         String fileName = file.getName();
         String fileExt = fileName.substring(fileName.lastIndexOf("."));
         fileName = fileName.substring(0, fileName.lastIndexOf("."));
 
-        int minNoSpeciesToFitExpCurve = 3;
         if (numSpecies - initialNoSpecies > minNoSpeciesToFitExpCurve) {
-            PlotPoints points = new PlotPoints();
 
             for (int i = initialNoSpecies; i < numSpecies; i++) {
                 String tempFileName = fileName + "_" + i + fileExt;
@@ -51,7 +73,6 @@ public class ProblemSpecies {
                     if(!probSpecies.contains(j))
                     {
                         String str = fileAsList.get(j);
-//                      System.out.println("str: " + str);
                         out.println(str);
                     }
                 }
@@ -59,25 +80,35 @@ public class ProblemSpecies {
                 out.close();
 
                 String[] args = {tempFileName};
-                SpeciesSelection specSel = new SpeciesSelection(args, true);
+                SpeciesSelection specSel = new SpeciesSelection(args, false);// run with truncated results to reduce processing time (allResults = false)
                 long startTime = System.nanoTime();
-                specSel.run();
+                MinSpecSetFamily mssf = specSel.getMssf();
+                int mssfSize = mssf.size();
                 long totalTimeMs = (System.nanoTime() - startTime) / 1000000;
                 System.out.println("File: " + tempFileName + ", took: " + totalTimeMs + "ms");
 
-                // add new point to plot points list
-                points.addPoint(i - probSpecies.size(), totalTimeMs);
+                // produce output for final run
+                if(i == numSpecies-1)
+                {
+                    specSel.outputResults(mssf, tempFileName);
+                }
                 
-                //once enough points, check if the last point added is within limits
+                // add new point to plot points list
+                points.addPoint(i - probSpecies.size(), mssfSize);
+                
+                // once enough initial points are generated to fit an exponential 
+                // curve, begin checking if the last point added is within limits
                 if (points.size() > minNoSpeciesToFitExpCurve) {
                     if (!withinExpMargin(points, expMarginPct)) {
-                        System.err.println("Problem Species: " + i);
+                        System.err.println("Problem Species: " + i); // TODO get i from species ID uncase the species not in order or some missing
                         probSpecies.add(i);
+                        hasChanged = true;
                     }
                 }
 
             }
             System.out.println("Points:\n" + points);
+            System.out.println("Problem Species Time Taken: " + (System.currentTimeMillis() - startPsTime)/3600000.0 + " hours");
         } else {
             System.out.println("Insufficient Species");
             insufficient = true;
@@ -90,7 +121,10 @@ public class ProblemSpecies {
         double[] yArr = points.getYArr();
         TrendLine t = new ExpTrendLine();
         t.setValues(yArr, xArr);
-        double errMargin = t.predict(xArr[xArr.length - 1])/yArr[yArr.length - 1];
+        double xLast = xArr[xArr.length - 1];
+        double yLast = yArr[yArr.length - 1];
+        // error factor = measurement / prediction
+        double errMargin = yLast/t.predict(xLast);
         System.err.println("Margin: " + errMargin);
         return errMargin < (1 + (expMarginPct / 100.0));
     }
@@ -133,6 +167,27 @@ public class ProblemSpecies {
             }
         }
         return str;
+    }
+
+    @Override
+    public void run() {
+        try 
+        {
+            findProblemSpecies(file, initialNoSpecies, expMarginPct, minPoints);
+        } 
+        catch (FileNotFoundException | InterruptedException ex) {
+            Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        finished = true;
+    }
+
+    public boolean hasChanged() {
+        if(hasChanged)
+        {
+            hasChanged=false;
+            return true;
+        }
+        return false;
     }
 
 }

@@ -20,9 +20,10 @@ import java.util.logging.Logger;
 public class SpeciesSelection implements Runnable {
 
     String[] args;
-    boolean truncate;
+    boolean allResults;
     ArrayList<Double> result;
     boolean finished;
+    SpecRTGraph specRTGraph;
 
     /**
      * @param args the command line arguments The first argument is the name for
@@ -33,16 +34,21 @@ public class SpeciesSelection implements Runnable {
      * @throws java.io.FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException, InterruptedException {
+        SpeciesSelection speciesSelection = new SpeciesSelection();
         long start = System.nanoTime();
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
-        specSel(args, true);
+        speciesSelection.specSel(args, true);
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
 
-    public SpeciesSelection(String[] args, boolean truncate) {
+    public SpeciesSelection() {
+        this.finished = false;
+    }
+
+    public SpeciesSelection(String[] args, boolean allResults) {
         this.args = args;
-        this.truncate = truncate;
+        this.allResults = allResults;
         this.finished = false;
     }
 
@@ -52,8 +58,8 @@ public class SpeciesSelection implements Runnable {
         System.out.println("The Indicator Species Selection Project.");
         System.out.println("By Taoyang Wu, Version 0.2, March 2014");
         try {
-            result = specSel(args, truncate);
-        } catch (FileNotFoundException ex) { 
+            result = specSel(args, allResults);
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             System.out.println("Thread interrupted");
@@ -77,9 +83,35 @@ public class SpeciesSelection implements Runnable {
      * @param args
      * @return
      * @throws FileNotFoundException
+     * @throws java.lang.InterruptedException
      */
-    public static ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException {
+    public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException {
         return specSel(args, false);
+    }
+
+    private static void processFile(String fileName, SpecRTGraph specRTGraph) throws FileNotFoundException {
+        try {
+            System.out.println("The dataset is taken from file " + fileName);
+            File f = new File(fileName);
+            Scanner input = new Scanner(f);
+            String titleInformation = input.nextLine();
+            while (input.hasNext()) {
+                String text = input.nextLine();
+                processLine(text, specRTGraph);
+            }
+            input.close();
+        } catch (Exception e) {
+            System.out.println("Error in SpeciesSelection.processFile()");
+        }
+
+    }
+
+    // Method for use with Problem Species identification
+    public MinSpecSetFamily getMssf() throws InterruptedException, FileNotFoundException {
+        String fileName = this.args[0];
+        specRTGraph = new SpecRTGraph();
+        processFile(fileName, specRTGraph);
+        return specRTGraph.getMinDomSpecSets();
     }
 
     /**
@@ -90,31 +122,31 @@ public class SpeciesSelection implements Runnable {
      * @return
      * @throws FileNotFoundException
      */
-    public static ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException {
+    public ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException {
         //construct the bipartite graph between species and indicators.
-        SpecRTGraph specRTGraph = new SpecRTGraph();
+        specRTGraph = new SpecRTGraph();
 
         String fileName = "Forest1.txt"; //default input data
         if (args.length > 0) {
             fileName = args[0];
         }
 
+        processFile(fileName, specRTGraph);
+
+        long startMssf = System.nanoTime();
+        MinSpecSetFamily mssf = specRTGraph.getMinDomSpecSets();
+        System.out.println("MSSF: " + mssf.size());
+        System.out.println("MSSF time: " + ((System.nanoTime() - startMssf) / 1000000.0));
+
+        return outputResults(mssf, fileName);
+
+    }
+
+    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName) throws InterruptedException, FileNotFoundException {
         String outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";  //default file for output
         if (args.length > 1) {
             outFileName = args[1];
         }
-
-        System.out.println("The dataset is taken from file " + fileName);
-
-        File f = new File(fileName);
-        Scanner input = new Scanner(f);
-        String titleInformation = input.nextLine();
-        while (input.hasNext()) {
-            String text = input.nextLine();
-            processLine(text, specRTGraph);
-        }
-        input.close();
-
         //Output the results to a file
         PrintStream outPut = new PrintStream(new File(outFileName));
         outPut.println("The dataset:" + fileName);
@@ -140,11 +172,6 @@ public class SpeciesSelection implements Runnable {
             }
         }
 
-        long startMssf = System.nanoTime();
-        MinSpecSetFamily mssf = specRTGraph.getMinDomSpecSets();
-        System.out.println("MSSF: " + mssf.size());
-        System.out.println("MSSF time: " + ((System.nanoTime() - startMssf) / 1000000.0));
-
         mssf.sortBySensitivity();
         Collections.sort(specRTGraph.rtNode);
         SpecSetFamily consSpecSetFamily;
@@ -155,11 +182,10 @@ public class SpeciesSelection implements Runnable {
         minSensitivities.add(0.0);
         minSensitivities.add(0.0);
         while (i <= endSize && (count < 3 || allResults)) {
-            if(Thread.currentThread().isInterrupted())
-            {
+            if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();// throw if cancel requested
             }
-            
+
             consSpecSetFamily = specRTGraph.getDomSpecSets(i, numOfSpeciesSet, mssf);
             if (consSpecSetFamily.size() > 0)//check for increasing mean sensitivity
             {
