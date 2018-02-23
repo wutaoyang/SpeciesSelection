@@ -1,44 +1,87 @@
 package preprocessing;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import trendlines.ExpTrendLine;
+import trendlines.TrendLine;
 
 /**
- * Class representing a set of x,y coordinates for a 2D plot
+ * Class representing a set of x,y coordinates for a 2D plot with support to
+ * listen for changes to the size of the list
+ *
  * @author mre16utu
  */
 public class PlotPoints {
 
-    List<Double> xList;
-    List<Double> yList;
+    private PropertyChangeSupport pcs;
+    private List<Double> xList;
+    private List<Double> yList;
+    private List<Double> margins;
+    private List<String> fileNames;
+    public static final int minPointsToFitCurve = 3;
 
     public PlotPoints() {
-        xList = new ArrayList<>();
-        yList = new ArrayList<>();
-    }
-    
-    public void addPoint(double x, double y)
-    {
-        xList.add(x);
-        yList.add(y);
+        xList     = new ArrayList<>();
+        yList     = new ArrayList<>();
+        margins   = new ArrayList<>();
+        fileNames = new ArrayList<>();
+        pcs       = new PropertyChangeSupport(this);
     }
 
-    public int size()
-    {
+    public void addPoint(double x, double y, String fileName) {
+        xList.add(x);
+        yList.add(y);
+        fileNames.add(fileName);
+        setMargin();
+        pcs.firePropertyChange("size", null, this.size());
+    }
+
+    // Calculates the margin of error (multiplication factor) for the last added
+    // point in comparison to a fitted exponential trendline
+    private void setMargin() {
+        if (this.size() > minPointsToFitCurve) {
+            double[] xArr = this.getXArr();
+            double[] yArr = this.getYArr();
+            TrendLine t = new ExpTrendLine();
+            t.setValues(yArr, xArr);
+            double xLast = xArr[xArr.length - 1];
+            double yLast = yArr[yArr.length - 1];
+            // error factor = measurement / prediction
+            double errMargin = yLast / t.predict(xLast);
+            System.err.println("Margin: " + errMargin);
+            margins.add(errMargin);
+        } else {
+            margins.add(0.0);
+        }
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
+
+    public int size() {
         return xList.size();
     }
     
-    public double[] getXArr()
-    {
+    public double getLastMargin() {
+        return margins.get(margins.size() - 1);
+    }
+
+    public double[] getXArr() {
         return doubleListToArray(xList);
     }
-    
-    public double[] getYArr()
-    {
+
+    public double[] getYArr() {
         return doubleListToArray(yList);
     }
-    
+
     private double[] doubleListToArray(List<Double> list) {
         double[] target = new double[list.size()];
         for (int i = 0; i < target.length; i++) {
@@ -46,15 +89,22 @@ public class PlotPoints {
         }
         return target;
     }
-    
+
     @Override
-    public String toString()
-    {
-        DecimalFormat df = new DecimalFormat("#.##");
-        String str = "Plot Points:\n X,      Y";
-        for(int i = 0; i < xList.size(); i++)
-        {
-            str += "\n" + df.format(xList.get(i)) + ",   " + df.format(yList.get(i));
+    public String toString() {
+        DecimalFormat df0 = new DecimalFormat("#.##");
+        DecimalFormat df2 = new DecimalFormat("0.000");
+        String str = "Plot Points:\n "
+                + " X"
+                + "          Y"
+                + "      Margin"
+                + "       DataFile";
+        for (int i = 0; i < xList.size(); i++) {
+            str += "\n" 
+                    + String.format("%3s", df0.format(xList.get(i))) + "," 
+                    + String.format("%8s", df0.format(yList.get(i))) + "," 
+                    + String.format("%7s", df2.format(margins.get(i))) + ",    " 
+                    + fileNames.get(i);
         }
         return str;
     }

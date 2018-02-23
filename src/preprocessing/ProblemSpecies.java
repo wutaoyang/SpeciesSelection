@@ -1,5 +1,7 @@
 package preprocessing;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -10,8 +12,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import speciesselection.MinSpecSetFamily;
 import speciesselection.SpeciesSelection;
-import trendlines.ExpTrendLine;
-import trendlines.TrendLine;
 
 /**
  * Identifies list of species that cause faster than exponential growth in
@@ -21,22 +21,24 @@ import trendlines.TrendLine;
  */
 public class ProblemSpecies implements Runnable {
 
+    private PropertyChangeSupport pcs;
     ArrayList<Integer> probSpecies;
-    boolean insufficient, finished, hasChanged;
+    boolean insufficient, finished;
     File file;
     int initialNoSpecies, expMarginPct, minPoints;
     PlotPoints points;
+    Options option;
 
-    public ProblemSpecies(File file, int initialNoSpecies, int expMarginPct) throws FileNotFoundException {
+    public ProblemSpecies(File file, int initialNoSpecies, int expMarginPct, Options option) throws FileNotFoundException {
+        this.pcs  = new PropertyChangeSupport(this);
         this.file = file;
         this.initialNoSpecies = initialNoSpecies;
-        this.expMarginPct = expMarginPct;        
+        this.expMarginPct = expMarginPct;
+        this.option = option;
         this.insufficient = false;
         this.finished = false;
         this.points = new PlotPoints();
         this.probSpecies = new ArrayList<>();
-        this.minPoints = 3; // minimum number of points required before we start fitting an exponential curve to the data
-        
     }
     
     public boolean isFinished() {
@@ -52,8 +54,22 @@ public class ProblemSpecies implements Runnable {
     {
         return points;
     }
+    
+    private void addProbSpecies(int i)
+    {
+        probSpecies.add(i);
+        pcs.firePropertyChange("size", null, probSpecies.size());
+    }
+    
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
+    }
 
-    private void findProblemSpecies(File file, int initialNoSpecies, int expMarginPct, int minNoSpeciesToFitExpCurve) throws FileNotFoundException, InterruptedException {
+    private void findProblemSpecies(File file, int initialNoSpecies, int expMarginPct) throws FileNotFoundException, InterruptedException {
         long startPsTime = System.currentTimeMillis();
         List<String> fileAsList = readFileToList(file);
         System.out.println(listAsString(fileAsList));
@@ -63,7 +79,7 @@ public class ProblemSpecies implements Runnable {
         String fileExt = fileName.substring(fileName.lastIndexOf("."));
         fileName = fileName.substring(0, fileName.lastIndexOf("."));
 
-        if (numSpecies - initialNoSpecies > minNoSpeciesToFitExpCurve) {
+        if (numSpecies - initialNoSpecies > PlotPoints.minPointsToFitCurve) {
 
             for (int i = initialNoSpecies; i < numSpecies; i++) {
                 String tempFileName = fileName + "_" + i + fileExt;
@@ -87,25 +103,23 @@ public class ProblemSpecies implements Runnable {
                 long totalTimeMs = (System.nanoTime() - startTime) / 1000000;
                 System.out.println("File: " + tempFileName + ", took: " + totalTimeMs + "ms");
 
-                // produce output for final run
-                if(i == numSpecies-1)
+                // produce output if requested
+                if(option == Options.ALL || (i == numSpecies - 1 && option == Options.FINAL))
                 {
                     specSel.outputResults(mssf, tempFileName);
                 }
-                
+                                
                 // add new point to plot points list
-                points.addPoint(i - probSpecies.size(), mssfSize);
-                
+                points.addPoint(i - probSpecies.size(), mssfSize, tempFileName);
+                               
                 // once enough initial points are generated to fit an exponential 
                 // curve, begin checking if the last point added is within limits
-                if (points.size() > minNoSpeciesToFitExpCurve) {
-                    if (!withinExpMargin(points, expMarginPct)) {
+                if (points.size() > PlotPoints.minPointsToFitCurve) {
+                    if (!withinExpMargin(expMarginPct)) {
                         System.err.println("Problem Species: " + i); // TODO get i from species ID uncase the species not in order or some missing
-                        probSpecies.add(i);
-                        hasChanged = true;
+                        this.addProbSpecies(i);
                     }
                 }
-
             }
             System.out.println("Points:\n" + points);
             System.out.println("Problem Species Time Taken: " + (System.currentTimeMillis() - startPsTime)/3600000.0 + " hours");
@@ -114,19 +128,10 @@ public class ProblemSpecies implements Runnable {
             insufficient = true;
         }
     }
-
+    
     // checks if last point in the arrays is within the acceptable margin of an exponential fitted curve
-    private boolean withinExpMargin(PlotPoints points, int expMarginPct) {
-        double[] xArr = points.getXArr();
-        double[] yArr = points.getYArr();
-        TrendLine t = new ExpTrendLine();
-        t.setValues(yArr, xArr);
-        double xLast = xArr[xArr.length - 1];
-        double yLast = yArr[yArr.length - 1];
-        // error factor = measurement / prediction
-        double errMargin = yLast/t.predict(xLast);
-        System.err.println("Margin: " + errMargin);
-        return errMargin < (1 + (expMarginPct / 100.0));
+    private boolean withinExpMargin(int expMarginPct) {
+        return points.getLastMargin() < (1 + (expMarginPct / 100.0));
     }
 
     private List<String> readFileToList(File file) throws FileNotFoundException {
@@ -138,7 +143,6 @@ public class ProblemSpecies implements Runnable {
             list.add(line);
         }
         scanner.close();
-//        list.remove(0);//remove titles line
         return list;
     }
 
@@ -173,21 +177,12 @@ public class ProblemSpecies implements Runnable {
     public void run() {
         try 
         {
-            findProblemSpecies(file, initialNoSpecies, expMarginPct, minPoints);
+            findProblemSpecies(file, initialNoSpecies, expMarginPct);
         } 
         catch (FileNotFoundException | InterruptedException ex) {
             Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
         }
         finished = true;
-    }
-
-    public boolean hasChanged() {
-        if(hasChanged)
-        {
-            hasChanged=false;
-            return true;
-        }
-        return false;
     }
 
 }
