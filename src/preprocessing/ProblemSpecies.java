@@ -72,7 +72,7 @@ public class ProblemSpecies implements Runnable {
     private void findProblemSpecies(File file, int initialNoSpecies, int expMarginPct) throws FileNotFoundException, InterruptedException {
         long startPsTime = System.currentTimeMillis();
         List<String> fileAsList = readFileToList(file);
-        System.out.println(listAsString(fileAsList));
+//        System.out.println(listAsString(fileAsList));
 
         int numSpecies = fileAsList.size();
         String fileName = file.getName();
@@ -85,15 +85,20 @@ public class ProblemSpecies implements Runnable {
                 String tempFileName = fileName + "_" + i + fileExt;
                 System.out.println(tempFileName);
                 PrintWriter out = new PrintWriter(tempFileName);
+                String str = "";
                 for (int j = 0; j <= i; j++) {
                     if(!probSpecies.contains(j))
                     {
-                        String str = fileAsList.get(j);
+                        str = fileAsList.get(j);
                         out.println(str);
                     }
                 }
                 out.flush();
                 out.close();
+                
+                // get species number from the last line of the current data file
+                int currentSpecies = Integer.parseInt(str.replaceFirst(".*?(\\d+).*", "$1"));
+                System.out.println("currentSpecies: " + currentSpecies + ", i: " + i);
 
                 String[] args = {tempFileName};
                 SpeciesSelection specSel = new SpeciesSelection(args, false);// run with truncated results to reduce processing time (allResults = false)
@@ -110,14 +115,16 @@ public class ProblemSpecies implements Runnable {
                 }
                                 
                 // add new point to plot points list
-                points.addPoint(i - probSpecies.size(), mssfSize, tempFileName);
+                points.addPoint(i - probSpecies.size(), mssfSize, tempFileName, totalTimeMs);
+                
+                
                                
                 // once enough initial points are generated to fit an exponential 
                 // curve, begin checking if the last point added is within limits
                 if (points.size() > PlotPoints.minPointsToFitCurve) {
                     if (!withinExpMargin(expMarginPct)) {
-                        System.err.println("Problem Species: " + i); // TODO get i from species ID uncase the species not in order or some missing
-                        this.addProbSpecies(i);
+                        System.err.println("Problem Species: " + currentSpecies);
+                        this.addProbSpecies(currentSpecies);
                     }
                 }
             }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package speciesselection.gui;
 
 import java.awt.BorderLayout;
@@ -30,7 +25,7 @@ import preprocessing.ProblemSpecies;
 import speciesselection.SpeciesSelection;
 
 /**
- *
+ * GUI for Species Selection software
  * @author mre16utu
  */
 public class SpecSelGUI extends javax.swing.JFrame {
@@ -61,9 +56,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanelMain = new javax.swing.JPanel();
+        jPanelProcess = new javax.swing.JPanel();
         jPanelTop = new javax.swing.JPanel();
-        jButtonSelectDataFile = new javax.swing.JButton();
+        jButtonSelectDataFileP = new javax.swing.JButton();
         jTextFieldDataFilePath = new javax.swing.JTextField();
         jButtonProcess = new javax.swing.JButton();
         jCheckBoxTruncate = new javax.swing.JCheckBox();
@@ -71,7 +66,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelBottom = new javax.swing.JPanel();
         jLabelProcessTime = new javax.swing.JLabel();
         jPanelAnalyse = new javax.swing.JPanel();
-        jButtonSelectDataFile1 = new javax.swing.JButton();
+        jButtonSelectDataFileA = new javax.swing.JButton();
         jTextFieldDataFilePath1 = new javax.swing.JTextField();
         jSpinnerInitialSpeciesPct = new javax.swing.JSpinner();
         jLabel1 = new javax.swing.JLabel();
@@ -89,19 +84,23 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jRadioButtonNone = new javax.swing.JRadioButton();
         jRadioButtonFinal = new javax.swing.JRadioButton();
         jRadioButtonAll = new javax.swing.JRadioButton();
+        jLabelProcessCompletedTimeA = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextAreaKey = new javax.swing.JTextArea();
+        jPanelProbability = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
 
-        jPanelMain.setPreferredSize(new java.awt.Dimension(600, 400));
-        jPanelMain.setLayout(new java.awt.BorderLayout());
+        jPanelProcess.setPreferredSize(new java.awt.Dimension(600, 400));
+        jPanelProcess.setLayout(new java.awt.BorderLayout());
 
         jPanelTop.setPreferredSize(new java.awt.Dimension(782, 60));
 
-        jButtonSelectDataFile.setText("Select Data File");
-        jButtonSelectDataFile.addActionListener(new java.awt.event.ActionListener() {
+        jButtonSelectDataFileP.setText("Select Data File");
+        jButtonSelectDataFileP.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSelectDataFileActionPerformed(evt);
+                jButtonSelectDataFilePActionPerformed(evt);
             }
         });
 
@@ -130,7 +129,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelTopLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButtonSelectDataFile)
+                .addComponent(jButtonSelectDataFileP)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextFieldDataFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -145,7 +144,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelTopLayout.createSequentialGroup()
                 .addGroup(jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonSelectDataFile)
+                    .addComponent(jButtonSelectDataFileP)
                     .addComponent(jTextFieldDataFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonProcess)
                     .addComponent(jCheckBoxTruncate))
@@ -154,7 +153,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanelMain.add(jPanelTop, java.awt.BorderLayout.PAGE_START);
+        jPanelProcess.add(jPanelTop, java.awt.BorderLayout.PAGE_START);
 
         jPanelBottom.setMinimumSize(new java.awt.Dimension(100, 30));
         jPanelBottom.setPreferredSize(new java.awt.Dimension(782, 30));
@@ -174,14 +173,14 @@ public class SpecSelGUI extends javax.swing.JFrame {
             .addComponent(jLabelProcessTime, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE)
         );
 
-        jPanelMain.add(jPanelBottom, java.awt.BorderLayout.PAGE_END);
+        jPanelProcess.add(jPanelBottom, java.awt.BorderLayout.PAGE_END);
 
-        jTabbedPane1.addTab("Process", jPanelMain);
+        jTabbedPane1.addTab("Process", jPanelProcess);
 
-        jButtonSelectDataFile1.setText("Select Data File");
-        jButtonSelectDataFile1.addActionListener(new java.awt.event.ActionListener() {
+        jButtonSelectDataFileA.setText("Select Data File");
+        jButtonSelectDataFileA.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSelectDataFile1ActionPerformed(evt);
+                jButtonSelectDataFileAActionPerformed(evt);
             }
         });
 
@@ -193,9 +192,12 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         jLabel2.setText("Allowable % Exp divergence:");
 
-        jSpinnerAllowableExpDivergencePct.setModel(new javax.swing.SpinnerNumberModel(15, 1, 100, 1));
+        jSpinnerAllowableExpDivergencePct.setModel(new javax.swing.SpinnerNumberModel(1, 1, 100, 1));
 
         jLabel3.setText("Problem Species:");
+        jLabel3.setMaximumSize(new java.awt.Dimension(107, 14));
+        jLabel3.setMinimumSize(new java.awt.Dimension(107, 14));
+        jLabel3.setPreferredSize(new java.awt.Dimension(107, 14));
 
         jTextFieldProblemSpecies.setText("results");
 
@@ -206,6 +208,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             }
         });
 
+        jLabelProcessTimeA.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabelProcessTimeA.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
 
         jButtonCancelA.setText("Cancel");
@@ -261,6 +264,16 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addComponent(jRadioButtonAll))
         );
 
+        jLabelProcessCompletedTimeA.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+
+        jTextAreaKey.setEditable(false);
+        jTextAreaKey.setBackground(new java.awt.Color(240, 240, 240));
+        jTextAreaKey.setColumns(20);
+        jTextAreaKey.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
+        jTextAreaKey.setRows(5);
+        jTextAreaKey.setText("Key:\nX        - Number of species in DataFile\nY        - MinSpecSetFamily (MSSF) size\nMargin   - Y / predicted Y (Exponential Curve fitting)\nDataFile - name of subset file processed\nTime     - HH:MM:SS.ss time taken to generate MSSF");
+        jScrollPane2.setViewportView(jTextAreaKey);
+
         javax.swing.GroupLayout jPanelAnalyseLayout = new javax.swing.GroupLayout(jPanelAnalyse);
         jPanelAnalyse.setLayout(jPanelAnalyseLayout);
         jPanelAnalyseLayout.setHorizontalGroup(
@@ -279,7 +292,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                                     .addComponent(jSpinnerInitialSpeciesPct)
                                     .addComponent(jSpinnerAllowableExpDivergencePct, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)))
                             .addGroup(jPanelAnalyseLayout.createSequentialGroup()
-                                .addComponent(jButtonSelectDataFile1)
+                                .addComponent(jButtonSelectDataFileA)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jTextFieldDataFilePath1, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(18, 18, 18)
@@ -289,13 +302,19 @@ public class SpecSelGUI extends javax.swing.JFrame {
                             .addComponent(jButtonCancelA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButtonProblemSpecies, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanelAnalyseLayout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(36, 36, 36)
-                        .addComponent(jTextFieldProblemSpecies))
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jTextFieldProblemSpecies, javax.swing.GroupLayout.PREFERRED_SIZE, 670, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanelAnalyseLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 288, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabelProcessTimeA, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanelAnalyseLayout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabelProcessTimeA, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                                    .addComponent(jLabelProcessCompletedTimeA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(jScrollPane2))))
                 .addContainerGap())
         );
         jPanelAnalyseLayout.setVerticalGroup(
@@ -304,7 +323,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanelAnalyseLayout.createSequentialGroup()
                         .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButtonSelectDataFile1)
+                            .addComponent(jButtonSelectDataFileA)
                             .addComponent(jTextFieldDataFilePath1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButtonProblemSpecies))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -321,18 +340,34 @@ public class SpecSelGUI extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
                 .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jTextFieldProblemSpecies, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)
                     .addGroup(jPanelAnalyseLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2)
+                        .addGap(146, 146, 146)
+                        .addComponent(jLabelProcessCompletedTimeA, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabelProcessTimeA, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
         jTabbedPane1.addTab("Analyse", jPanelAnalyse);
+
+        javax.swing.GroupLayout jPanelProbabilityLayout = new javax.swing.GroupLayout(jPanelProbability);
+        jPanelProbability.setLayout(jPanelProbabilityLayout);
+        jPanelProbabilityLayout.setHorizontalGroup(
+            jPanelProbabilityLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 799, Short.MAX_VALUE)
+        );
+        jPanelProbabilityLayout.setVerticalGroup(
+            jPanelProbabilityLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 490, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("Probability", jPanelProbability);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -354,11 +389,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
             String fileName = jTextFieldDataFilePath.getText();
             if (!fileName.equals("")) {
                 // Clear any existing plot
-                BorderLayout layout = (BorderLayout) jPanelMain.getLayout();
+                BorderLayout layout = (BorderLayout) jPanelProcess.getLayout();
                 Component center = layout.getLayoutComponent(BorderLayout.CENTER);
                 if (center != null) {
-                    jPanelMain.remove(center);
-                    jPanelMain.repaint();
+                    jPanelProcess.remove(center);
+                    jPanelProcess.repaint();
                 }
 
                 //Check for results truncation
@@ -421,7 +456,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
     private void drawGraph(ArrayList<Double> meanSensitivities) {
         // Draw the graph to GUI
-        JPanel panel = jPanelMain;
+        JPanel panel = jPanelProcess;
         Dimension dim = new Dimension(600, 400);
         GraphPanel graph = new GraphPanel(meanSensitivities, "SpecSet Size", "Minimum Mean Sensitivity");
         graph.setPreferredSize(dim);
@@ -430,9 +465,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
         panel.setVisible(true);
     }
 
-    private void jButtonSelectDataFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDataFileActionPerformed
+    private void jButtonSelectDataFilePActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDataFilePActionPerformed
         selectDataFile(jTextFieldDataFilePath);
-    }//GEN-LAST:event_jButtonSelectDataFileActionPerformed
+    }//GEN-LAST:event_jButtonSelectDataFilePActionPerformed
 
     private void selectDataFile(JTextField textField) {
         try {
@@ -454,9 +489,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jButtonCancelP.setVisible(false);
     }//GEN-LAST:event_jButtonCancelPActionPerformed
 
-    private void jButtonSelectDataFile1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDataFile1ActionPerformed
+    private void jButtonSelectDataFileAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDataFileAActionPerformed
         selectDataFile(jTextFieldDataFilePath1);
-    }//GEN-LAST:event_jButtonSelectDataFile1ActionPerformed
+    }//GEN-LAST:event_jButtonSelectDataFileAActionPerformed
 
     private void jButtonProblemSpeciesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonProblemSpeciesActionPerformed
         jButtonProblemSpecies.setEnabled(false);
@@ -518,6 +553,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         jTextAreaPoints.setText(problemSpec.getPoints().toString());
+                        jLabelProcessCompletedTimeA.setText("Last Process Complete: " + toTimeString((System.nanoTime() - startTime) / 1000000000.0));
                     }
                 });
 
@@ -619,27 +655,31 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButtonCancelP;
     private javax.swing.JButton jButtonProblemSpecies;
     private javax.swing.JButton jButtonProcess;
-    private javax.swing.JButton jButtonSelectDataFile;
-    private javax.swing.JButton jButtonSelectDataFile1;
+    private javax.swing.JButton jButtonSelectDataFileA;
+    private javax.swing.JButton jButtonSelectDataFileP;
     private javax.swing.JCheckBox jCheckBoxTruncate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabelProcessCompletedTimeA;
     private javax.swing.JLabel jLabelProcessTime;
     private javax.swing.JLabel jLabelProcessTimeA;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanelAnalyse;
     private javax.swing.JPanel jPanelBottom;
-    private javax.swing.JPanel jPanelMain;
+    private javax.swing.JPanel jPanelProbability;
+    private javax.swing.JPanel jPanelProcess;
     private javax.swing.JPanel jPanelTop;
     private javax.swing.JRadioButton jRadioButtonAll;
     private javax.swing.JRadioButton jRadioButtonFinal;
     private javax.swing.JRadioButton jRadioButtonNone;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSpinner jSpinnerAllowableExpDivergencePct;
     private javax.swing.JSpinner jSpinnerInitialSpeciesPct;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTextArea jTextAreaKey;
     private javax.swing.JTextArea jTextAreaPoints;
     private javax.swing.JTextField jTextFieldDataFilePath;
     private javax.swing.JTextField jTextFieldDataFilePath1;
