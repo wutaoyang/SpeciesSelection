@@ -141,7 +141,7 @@ public class ProblemSpecies implements Runnable {
         return points.getLastMargin() < (1 + (expMarginPct / 100.0));
     }
 
-    private List<String> readFileToList(File file) throws FileNotFoundException {
+    public static List<String> readFileToList(File file) throws FileNotFoundException {
         String line;
         List<String> list = new ArrayList<>();
         Scanner scanner = new Scanner(file);
