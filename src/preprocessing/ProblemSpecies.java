@@ -25,6 +25,7 @@ public class ProblemSpecies implements Runnable {
     private ArrayList<Integer> probSpecies;
     private boolean insufficient, finished;
     private File file;
+    private FileList fileList;// list of files created by this class
     private int initialNoSpecies, expMarginPct, minPoints;
     private PlotPoints points;
     private Options option;
@@ -39,6 +40,12 @@ public class ProblemSpecies implements Runnable {
         this.finished = false;
         this.points = new PlotPoints();
         this.probSpecies = new ArrayList<>();
+        this.fileList = new FileList();
+    }
+    
+    public void deleteFiles()
+    {
+        fileList.delete();
     }
     
     public boolean isFinished() {
@@ -90,21 +97,20 @@ public class ProblemSpecies implements Runnable {
                 for (int j = 0; j <= i; j++) {
                     // get jth line from dataset
                     str = fileAsList.get(j);
-                    // get species number from the last line of the current data file
+                    // get species number from the jth line 
                     currentSpecies = Integer.parseInt(str.replaceFirst(".*?(\\d+).*", "$1"));
-                    System.out.println("currentSpecies: " + currentSpecies + ", i: " + i);
+//                    System.out.println("currentSpecies: " + currentSpecies + ", i: " + i);
                     
                     //check if species is problem species or not                    
                     if(!probSpecies.contains(currentSpecies))
                     {
                         //add species to latest file
                         out.println(str);
-//                        System.out.println("Debug: i = " + i + ", j = " + j + ", str: " + str);
                     }
                 }
                 out.flush();
                 out.close();
-                
+                fileList.add(new File(tempFileName));
                 
 
                 String[] args = {tempFileName};
@@ -119,6 +125,7 @@ public class ProblemSpecies implements Runnable {
                 if(option == Options.ALL || (i == numSpecies - 1 && option == Options.FINAL))
                 {
                     specSel.outputResults(mssf, tempFileName);
+                    fileList.add(new File(specSel.getResultsFileName()));
                 }
                                 
                 // add new point to plot points list

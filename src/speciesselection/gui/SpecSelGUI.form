@@ -198,7 +198,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="jPanelLower" max="32767" attributes="0"/>
-                          <Component id="jPanelUpper" pref="809" max="32767" attributes="0"/>
+                          <Component id="jPanelUpper" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -210,7 +210,7 @@
                       <Component id="jPanelUpper" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="jPanelLower" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="114" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="119" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -228,12 +228,13 @@
                           <Component id="jTextFieldDataFilePathA" min="-2" pref="416" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jPanelRadioButtons" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jButtonProblemSpecies" min="-2" max="-2" attributes="0"/>
-                              <Component id="jButtonCancelA" min="-2" pref="133" max="-2" attributes="0"/>
+                              <Component id="jButtonCancelA" max="32767" attributes="0"/>
+                              <Component id="jButtonProblemSpecies" pref="139" max="32767" attributes="0"/>
+                              <Component id="jButtonDeleteFilesA" alignment="0" max="32767" attributes="0"/>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                       <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
@@ -275,9 +276,11 @@
                                   <Component id="jButtonProblemSpecies" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jButtonCancelA" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="jButtonDeleteFilesA" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace min="0" pref="59" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="46" max="32767" attributes="0"/>
                       </Group>
                       <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
@@ -453,6 +456,14 @@
                     <Property name="text" type="java.lang.String" value="results"/>
                   </Properties>
                 </Component>
+                <Component class="javax.swing.JButton" name="jButtonDeleteFilesA">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Delete Files"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDeleteFilesAActionPerformed"/>
+                  </Events>
+                </Component>
               </SubComponents>
             </Container>
             <Container class="javax.swing.JPanel" name="jPanelLower">
@@ -483,19 +494,19 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="341" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="336" max="32767" attributes="0"/>
                       <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="jScrollPaneKey" pref="113" max="32767" attributes="0"/>
-                                      <EmptySpace min="146" pref="146" max="-2" attributes="0"/>
+                                  <Component id="jScrollPanePoints" pref="314" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Component id="jScrollPaneKey" min="-2" pref="129" max="-2" attributes="0"/>
+                                      <EmptySpace pref="125" max="32767" attributes="0"/>
                                       <Component id="jLabelProcessCompletedTimeA" min="-2" pref="27" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="jLabelProcessTimeA" min="-2" pref="27" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="jScrollPanePoints" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
@@ -676,7 +687,7 @@
                 <Component class="javax.swing.JSpinner" name="jSpinnerSubsetSize">
                   <Properties>
                     <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                      <SpinnerModel initial="50" minimum="12" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                      <SpinnerModel initial="30" minimum="12" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
                   </Properties>
                 </Component>
@@ -710,6 +721,8 @@
                                   <Group type="103" groupAlignment="0" attributes="0">
                                       <Component id="jButtonRunSubsets" pref="119" max="32767" attributes="0"/>
                                       <Component id="jButtonDeleteFiles" max="32767" attributes="0"/>
+                                      <Component id="jButtonViewResults" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="jButtonCancelProb" alignment="0" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -724,8 +737,12 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jButtonRunSubsets" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jButtonCancelProb" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="jButtonDeleteFiles" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="245" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jButtonViewResults" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="187" max="32767" attributes="0"/>
                           <Component id="jLabelFinishedThreads" min="-2" pref="28" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabelProcessTimeProb" min="-2" pref="27" max="-2" attributes="0"/>
@@ -769,9 +786,27 @@
                 <Component class="javax.swing.JButton" name="jButtonDeleteFiles">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Delete Files"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonDeleteFilesActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonViewResults">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="View Results"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonViewResultsActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonCancelProb">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Cancel"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonCancelProbActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>

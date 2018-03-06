@@ -80,10 +80,10 @@ public class SubSetGenerator implements Comparator<String>{
     }
     
     @Override
-    public int compare(String o1, String o2) {
-        Scanner scanner1 = new Scanner(o1);
+    public int compare(String str1, String str2) {
+        Scanner scanner1 = new Scanner(str1);
         Integer no1 = scanner1.nextInt();
-        Scanner scanner2 = new Scanner(o2);
+        Scanner scanner2 = new Scanner(str2);
         Integer no2 = scanner2.nextInt();
         return no1.compareTo(no2);
     }

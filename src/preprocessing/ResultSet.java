@@ -14,14 +14,12 @@ public class ResultSet {
     private final int setSize;
     private double maxSensitivity;
     private double meanSensitivity;
-//    private List<int[]> setList;
-    private Set<Integer> setInts;// set of all ints that appear in an optimal solution
+    private final Set<Integer> setInts;// set of all ints that appear in an optimal solution
 
     public ResultSet(int setSize) {
         this.setSize = setSize;
         this.maxSensitivity = -1;
         this.meanSensitivity = -1;
-//        this.setList = new ArrayList<>();
         this.setInts = new TreeSet<>();
     }
     
@@ -34,7 +32,12 @@ public class ResultSet {
     {
         return setInts;
     }
-
+    
+    public boolean isEmpty()
+    {
+        return setInts.isEmpty();
+    }
+    
     public void add(String line)// format 54:41.33:[24, 72, 77]]
     {
         try {
@@ -56,13 +59,11 @@ public class ResultSet {
                     throw new Exception("Error: Set size mismatch");
                 }
 
-                int[] ints = new int[setSize];
+//                int[] ints = new int[setSize];
                 for (int i = 0; i < setSize; i++) {
-                    ints[i] = Integer.parseInt(strInts[i]);
+//                    ints[i] = Integer.parseInt(strInts[i]);
                     setInts.add(Integer.parseInt(strInts[i]));
                 }
-
-//                setList.add(ints);
             }
 
         } catch (Exception e) {

@@ -209,6 +209,7 @@ public class SpeciesSelection implements Runnable {
         minSensitivities.add(0.0);
         while (i <= endSize && (count < 3 || allResults)) {
             if (Thread.currentThread().isInterrupted()) {
+                outPut.close();
                 throw new InterruptedException();// throw if cancel requested
             }
 

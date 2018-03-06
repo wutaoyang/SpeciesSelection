@@ -19,7 +19,7 @@ public final class Universe {
     /**
      * Creates a universe from a list of strings as found in a species selection 
      * dataset. The list of strings should exclude the header line. Each string 
-     * should being with 4 int values and be followed by a series of ones and 
+     * should begin with 4 int values and be followed by a series of ones and 
      * zeros
      * 
      * @param list 

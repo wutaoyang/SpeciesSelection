@@ -16,12 +16,12 @@ import trendlines.TrendLine;
  */
 public class PlotPoints {
 
-    private PropertyChangeSupport pcs;
-    private List<Double> xList;
-    private List<Double> yList;
-    private List<Double> margins;
-    private List<String> fileNames;
-    private List<Long>   times;
+    private final PropertyChangeSupport pcs;
+    private final List<Double> xList;
+    private final List<Double> yList;
+    private final List<Double> margins;
+    private final List<String> fileNames;
+    private final List<Long>   times;
     public static final int minPointsToFitCurve = 3;
 
     public PlotPoints() {
