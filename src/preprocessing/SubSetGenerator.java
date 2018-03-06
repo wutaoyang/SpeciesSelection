@@ -16,8 +16,9 @@ import java.util.Scanner;
  */
 public class SubSetGenerator implements Comparator<String>{
     
-    public void generateSubsets(File file, int subsetSize, int noSubsets) throws FileNotFoundException
+    public FileList generateSubsets(File file, int subsetSize, int noSubsets) throws FileNotFoundException
     {
+        FileList fileNames = new FileList();
         // read file adding each line to a list
         List<String> fileAsList = ProblemSpecies.readFileToList(file);
                 
@@ -49,8 +50,11 @@ public class SubSetGenerator implements Comparator<String>{
             subset.add(0, header);
             // Write out file for subset
             String fileName = file.getName();
-            writeSubsetToFile(subsetFileName(fileName, i), subset);
+            String subsetFileName = subsetFileName(fileName, i);
+            fileNames.add(new File(subsetFileName));
+            writeSubsetToFile(subsetFileName, subset);
         }
+        return fileNames;
     }
     
     private String subsetFileName(String fileName, int i)

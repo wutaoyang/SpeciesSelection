@@ -8,8 +8,6 @@
 package speciesselection;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -18,7 +16,7 @@ import java.util.logging.Logger;
 public class SpecRTGraph {
 
     //The bipartite graph is represented by two 'adjacent' lists
-    //Here each species is associated with a list of resorce types (RT), and
+    //Here each species is associated with a list of resource types (RT), and
     //each RT is associated with a list of species.
     protected ArrayList<Species> specNode;
     protected ArrayList<ResourceType> rtNode;
@@ -36,6 +34,16 @@ public class SpecRTGraph {
 
     public int numSpecies() {
         return specNode.size();
+    }
+    
+    public List<Integer> speciesIDs()
+    {
+        List<Integer> iDs = new ArrayList<>();
+        for(Species species : specNode)
+        {
+            iDs.add(species.getName());
+        }
+        return iDs;
     }
 
     public int numResourceTypes() {

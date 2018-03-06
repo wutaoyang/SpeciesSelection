@@ -7,21 +7,31 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileView;
+import preprocessing.FileList;
+import preprocessing.MutableBoolean;
 import preprocessing.Options;
 import preprocessing.PlotPoints;
 import preprocessing.ProblemSpecies;
+import preprocessing.ResultSet;
 import preprocessing.SubSetGenerator;
 import speciesselection.SpeciesSelection;
 
@@ -36,6 +46,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private int fileChooserResult;
     private String workingDir;
     private volatile boolean cancelled;
+
+    FileList fileList;
+//    private static int count;
 
     /**
      * Creates new form SpecSelGUI
@@ -101,6 +114,12 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jSpinnerSubsetSize = new javax.swing.JSpinner();
         jButtonGenerate = new javax.swing.JButton();
         jPanelProbLower = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextAreaSubsetFiles = new javax.swing.JTextArea();
+        jButtonRunSubsets = new javax.swing.JButton();
+        jLabelFinishedThreads = new javax.swing.JLabel();
+        jLabelProcessTimeProb = new javax.swing.JLabel();
+        jButtonDeleteFiles = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
@@ -274,60 +293,61 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelUpper.setLayout(jPanelUpperLayout);
         jPanelUpperLayout.setHorizontalGroup(
             jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 799, Short.MAX_VALUE)
+            .addGroup(jPanelUpperLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButtonSelectDataFileA)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextFieldDataFilePathA, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jPanelRadioButtons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonProblemSpecies)
+                    .addComponent(jButtonCancelA, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanelUpperLayout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(jPanelUpperLayout.createSequentialGroup()
+                            .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jLabelAllowedDiv, javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabelNoSpec, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                             .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(jPanelUpperLayout.createSequentialGroup()
-                                    .addComponent(jButtonSelectDataFileA)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jTextFieldDataFilePathA, javax.swing.GroupLayout.PREFERRED_SIZE, 416, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(jPanelUpperLayout.createSequentialGroup()
-                                    .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(jLabelAllowedDiv, javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(jLabelNoSpec, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(jSpinnerInitialSpeciesPct, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jSpinnerAllowableExpDivergencePct, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGap(18, 18, 18)
-                            .addComponent(jPanelRadioButtons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jButtonProblemSpecies, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                                .addComponent(jButtonCancelA, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)))
+                                .addComponent(jSpinnerInitialSpeciesPct, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jSpinnerAllowableExpDivergencePct, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(0, 0, Short.MAX_VALUE))
                         .addGroup(jPanelUpperLayout.createSequentialGroup()
-                            .addComponent(jLabelProbSpec, javax.swing.GroupLayout.PREFERRED_SIZE, 103, Short.MAX_VALUE)
+                            .addComponent(jLabelProbSpec, javax.swing.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(jTextFieldProblemSpecies, javax.swing.GroupLayout.PREFERRED_SIZE, 672, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addContainerGap()))
         );
         jPanelUpperLayout.setVerticalGroup(
             jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 151, Short.MAX_VALUE)
+            .addGroup(jPanelUpperLayout.createSequentialGroup()
+                .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButtonSelectDataFileA)
+                        .addComponent(jTextFieldDataFilePathA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanelRadioButtons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanelUpperLayout.createSequentialGroup()
+                        .addComponent(jButtonProblemSpecies)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonCancelA)))
+                .addGap(0, 59, Short.MAX_VALUE))
             .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanelUpperLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(jPanelUpperLayout.createSequentialGroup()
-                            .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jButtonSelectDataFileA)
-                                .addComponent(jTextFieldDataFilePathA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButtonProblemSpecies))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                            .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabelNoSpec)
-                                .addComponent(jSpinnerInitialSpeciesPct, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jButtonCancelA))
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabelAllowedDiv)
-                                .addComponent(jSpinnerAllowableExpDivergencePct, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addComponent(jPanelRadioButtons, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(46, 46, 46)
+                    .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelNoSpec)
+                        .addComponent(jSpinnerInitialSpeciesPct, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabelAllowedDiv)
+                        .addComponent(jSpinnerAllowableExpDivergencePct, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGap(15, 15, 15)
                     .addGroup(jPanelUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jLabelProbSpec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jTextFieldProblemSpecies, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -392,11 +412,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelAnalyseLayout.setHorizontalGroup(
             jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelAnalyseLayout.createSequentialGroup()
-                .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanelLower, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanelAnalyseLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jPanelUpper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(jPanelAnalyseLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanelLower, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanelUpper, javax.swing.GroupLayout.PREFERRED_SIZE, 809, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanelAnalyseLayout.setVerticalGroup(
@@ -419,11 +437,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         jTextFieldFilePathProb.setText("Forest1.txt");
 
-        jLabelNoSubsets.setText("No. Subsets");
+        jLabelNoSubsets.setText("No. Subsets:");
 
         jSpinnerNoSubsets.setModel(new javax.swing.SpinnerNumberModel(10, 0, null, 1));
 
-        jLabelSubsetSize.setText("Subset Size");
+        jLabelSubsetSize.setText("Subset Size:");
 
         jSpinnerSubsetSize.setModel(new javax.swing.SpinnerNumberModel(50, 12, null, 1));
 
@@ -438,59 +456,99 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelProbUpper.setLayout(jPanelProbUpperLayout);
         jPanelProbUpperLayout.setHorizontalGroup(
             jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelProbUpperLayout.createSequentialGroup()
-                .addContainerGap()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelProbUpperLayout.createSequentialGroup()
                 .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanelProbUpperLayout.createSequentialGroup()
-                        .addComponent(jLabelNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(5, 5, 5)
+                        .addComponent(jButtonSelectDataFileProb)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSpinnerNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jTextFieldFilePathProb, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanelProbUpperLayout.createSequentialGroup()
-                        .addComponent(jLabelSubsetSize, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSpinnerSubsetSize, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(611, Short.MAX_VALUE))
-            .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanelProbUpperLayout.createSequentialGroup()
-                    .addGap(5, 5, 5)
-                    .addComponent(jButtonSelectDataFileProb)
-                    .addGap(6, 6, 6)
-                    .addComponent(jTextFieldFilePathProb, javax.swing.GroupLayout.PREFERRED_SIZE, 452, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
-                    .addComponent(jButtonGenerate)
-                    .addGap(5, 5, 5)))
+                        .addContainerGap()
+                        .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanelProbUpperLayout.createSequentialGroup()
+                                .addComponent(jLabelSubsetSize, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jSpinnerSubsetSize, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(jPanelProbUpperLayout.createSequentialGroup()
+                                .addComponent(jLabelNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jSpinnerNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButtonGenerate)
+                .addContainerGap())
         );
         jPanelProbUpperLayout.setVerticalGroup(
             jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelProbUpperLayout.createSequentialGroup()
-                .addContainerGap(46, Short.MAX_VALUE)
+                .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonSelectDataFileProb)
+                    .addComponent(jTextFieldFilePathProb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonGenerate))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelNoSubsets)
                     .addComponent(jSpinnerNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelSubsetSize)
                     .addComponent(jSpinnerSubsetSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21))
-            .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(jPanelProbUpperLayout.createSequentialGroup()
-                    .addGap(19, 19, 19)
-                    .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButtonSelectDataFileProb)
-                        .addComponent(jTextFieldFilePathProb, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jButtonGenerate))
-                    .addContainerGap(76, Short.MAX_VALUE)))
+                .addGap(39, 39, 39))
         );
+
+        jTextAreaSubsetFiles.setColumns(20);
+        jTextAreaSubsetFiles.setRows(5);
+        jScrollPane1.setViewportView(jTextAreaSubsetFiles);
+
+        jButtonRunSubsets.setText("Run Subsets");
+        jButtonRunSubsets.setEnabled(false);
+        jButtonRunSubsets.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonRunSubsetsActionPerformed(evt);
+            }
+        });
+
+        jLabelProcessTimeProb.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
+
+        jButtonDeleteFiles.setText("Delete Files");
+        jButtonDeleteFiles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonDeleteFilesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanelProbLowerLayout = new javax.swing.GroupLayout(jPanelProbLower);
         jPanelProbLower.setLayout(jPanelProbLowerLayout);
         jPanelProbLowerLayout.setHorizontalGroup(
             jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanelProbLowerLayout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelProbLowerLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                            .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanelProbLowerLayout.createSequentialGroup()
+                        .addGap(390, 390, 390)
+                        .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButtonRunSubsets, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
+                            .addComponent(jButtonDeleteFiles, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap())
         );
         jPanelProbLowerLayout.setVerticalGroup(
             jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 373, Short.MAX_VALUE)
+            .addComponent(jScrollPane1)
+            .addGroup(jPanelProbLowerLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButtonRunSubsets)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonDeleteFiles)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 245, Short.MAX_VALUE)
+                .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanelProbabilityLayout = new javax.swing.GroupLayout(jPanelProbability);
@@ -503,8 +561,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelProbabilityLayout.setVerticalGroup(
             jPanelProbabilityLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelProbabilityLayout.createSequentialGroup()
-                .addComponent(jPanelProbUpper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanelProbUpper, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanelProbLower, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -545,33 +603,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 SpeciesSelection specSel = new SpeciesSelection(args, truncate);
                 Thread t = new Thread(specSel);
                 t.start();
-                long startTime = System.nanoTime();
-                cancelled = false;
-                jButtonCancelP.setVisible(true);
-
-                new Thread() {
-                    @Override
-                    public void run() {
-                        while (!specSel.isFinished() && !cancelled) {
-                            double seconds = (System.nanoTime() - startTime) / 1000000000.0;
-                            jLabelProcessTime.setText("Processing Time: " + toTimeString(seconds));
-                            try {
-                                Thread.sleep(91);
-                            } catch (InterruptedException ex) {
-                                Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                        jButtonCancelP.setVisible(false);
-                        jButtonProcess.setEnabled(true);
-                        // If processing finished then display result graph, else the process was cancelled so stop the processing thread.
-                        if (specSel.isFinished()) {
-                            ArrayList<Double> result = specSel.getResult();
-                            drawGraph(result);
-                        } else {
-                            t.interrupt();
-                        }
-                    }
-                }.start();
+                timeProcess(specSel, t);
 
             } else {
                 System.out.println("No file selected");
@@ -580,8 +612,37 @@ public class SpecSelGUI extends javax.swing.JFrame {
             System.out.println("Error Processing Data: " + e);
         }
         System.out.println("Process Complete");
-
     }//GEN-LAST:event_jButtonProcessActionPerformed
+
+    private void timeProcess(SpeciesSelection specSel, Thread t) {
+        cancelled = false;
+        jButtonCancelP.setVisible(true);
+        long startTime = System.nanoTime();
+        new Thread() {
+            @Override
+            public void run() {
+                while (!specSel.isFinished() && !cancelled) {
+                    double seconds = (System.nanoTime() - startTime) / 1000000000.0;
+                    jLabelProcessTime.setText("Processing Time: " + toTimeString(seconds));
+                    try {
+                        Thread.sleep(91);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                jButtonCancelP.setVisible(false);
+                jButtonProcess.setEnabled(true);
+                // If processing finished then display result graph, else the 
+                // process was cancelled so stop the processing thread.
+                if (specSel.isFinished()) {
+                    ArrayList<Double> result = specSel.getResult();
+                    drawGraph(result);
+                } else {
+                    t.interrupt();
+                }
+            }
+        }.start();
+    }
 
     private String toTimeString(double seconds) {
         int hours = (int) seconds / 3600;
@@ -671,7 +732,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
                         jButtonCancelA.setVisible(false);
                         jButtonProblemSpecies.setEnabled(true);
-                        // If processing finished then display results, else the process was cancelled so stop the processing thread.
+                        // If processing finished then display results, else the process was cancelled so interrupt the processing thread.
                         if (problemSpec.isFinished()) {
                             PlotPoints points = problemSpec.getPoints();
                             jTextAreaPoints.setText(points.toString());
@@ -715,26 +776,205 @@ public class SpecSelGUI extends javax.swing.JFrame {
         String fileName = jTextFieldFilePathProb.getText();
         if (!fileName.equals("")) {
 
-            try 
-            {
+            try {
                 File file = new File(fileName);
                 SubSetGenerator pc = new SubSetGenerator();
-                pc.generateSubsets(file, (int)jSpinnerSubsetSize.getValue(), (int)jSpinnerNoSubsets.getValue());
-            } 
-            catch (FileNotFoundException ex) 
-            {
+                fileList = pc.generateSubsets(file, (int) jSpinnerSubsetSize.getValue(), (int) jSpinnerNoSubsets.getValue());
+                jTextAreaSubsetFiles.setText(fileList.toString());
+                jButtonRunSubsets.setEnabled(true);
+            } catch (FileNotFoundException ex) {
                 Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
         }
 
 
     }//GEN-LAST:event_jButtonGenerateActionPerformed
 
+    
+
     private void jButtonSelectDataFileProbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDataFileProbActionPerformed
         selectDataFile(jTextFieldFilePathProb);
     }//GEN-LAST:event_jButtonSelectDataFileProbActionPerformed
 
+    private void jButtonRunSubsetsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonRunSubsetsActionPerformed
+        List<SpeciesSelection> specSelList = new ArrayList<>();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    MutableBoolean running = new MutableBoolean(true);
+                    timerLabel(running, jLabelProcessTimeProb);
+                    int numberFiles = fileList.size();
+                    jLabelFinishedThreads.setText(finishedThreads(0, numberFiles));
+                    CountDownLatch latch = new CountDownLatch(numberFiles);
+                    for (File file : fileList) {
+                        String fileName = file.getName();
+                        // TODO RUN THE FILES
+                        if (!fileName.equals("")) {
+                            String[] args = {fileName};
+                            //run solution
+                            SpeciesSelection specSel = new SpeciesSelection(args, true);
+                            specSelList.add(specSel);// add the thread to the list so we can check for all threads to be finished.
+                            
+                            // Create listener to listen for specSel finished
+                            specSel.addPropertyChangeListener(new PropertyChangeListener() {
+                                @Override
+                                public void propertyChange(PropertyChangeEvent evt) {
+                                    latch.countDown();
+                                    jLabelFinishedThreads.setText(finishedThreads(numberFiles-(int)latch.getCount(), numberFiles));
+                                }
+                            });
+                            Thread t = new Thread(specSel);
+                            t.start();
+                        }
+                    }
+                    // add results files to fileList so we can delete them after use
+                    for(SpeciesSelection specSel : specSelList)
+                    {
+                        fileList.add(new File(specSel.getResultsFileName()));
+                    }
+                    // watch for all threads to finish
+                    latch.await();
+                    
+                    running.setFalse();
+                    System.out.println("Finished all threads");
+                    calcProbs(specSelList);
+                } catch (FileNotFoundException | InterruptedException ex) {
+                    Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }.start();
+    }//GEN-LAST:event_jButtonRunSubsetsActionPerformed
+
+    private void jButtonDeleteFilesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonDeleteFilesActionPerformed
+        fileList.delete();
+        jTextAreaSubsetFiles.setText("Files Deleted");
+    }//GEN-LAST:event_jButtonDeleteFilesActionPerformed
+
+    private void calcProbs(List<SpeciesSelection> specSelList) throws FileNotFoundException
+    {
+        // Calculate probabilities of each species appearing in a result set
+        
+        //      speciesID, count
+        HashMap<Integer, Integer> speciesUsage = new HashMap<>();//Keep count of number of times each species was included in a subset
+        
+        //      setSize          speciesID, count
+        HashMap<Integer, HashMap<Integer, Integer>> optimalOccurence = new HashMap<>();// Keep count of number of times each species was included in optimal solution for each set size
+        
+        for(SpeciesSelection specSel : specSelList)
+        {
+            List<Integer> iDs = specSel.speciesIDs();
+            List<ResultSet> results = specSel.readResultsFile();
+            
+            // Keep count of number of times each species was included in a subset
+            for(Integer i : iDs)
+            {
+                if(!speciesUsage.containsKey(i))
+                {
+                    speciesUsage.put(i, 1);
+                }
+                else
+                {
+                    speciesUsage.put(i, speciesUsage.get(i) + 1);
+                }
+            }
+            
+            // Keep count of number of times each species was included in optimal solution for each set size
+            for(ResultSet resultSet : results)
+            {
+                int setSize = resultSet.getSetSize();
+                //get opt occ map for given set size
+                HashMap<Integer, Integer> tempMap;
+                if(optimalOccurence.containsKey(setSize))
+                {
+                    tempMap = optimalOccurence.get(setSize);
+                }
+                else
+                {
+                    tempMap = new HashMap<>();
+                    optimalOccurence.put(setSize, tempMap);
+                }
+                
+                // get set of species that existed in optimal solutions 
+                Set<Integer> intSet = resultSet.getSetInts();
+                for(Integer speciesID : intSet)
+                {
+                    if(!tempMap.containsKey(speciesID))
+                    {
+                        tempMap.put(speciesID, 1);
+                    }
+                    else
+                    {
+                        tempMap.put(speciesID, tempMap.get(speciesID) + 1);
+                    }
+                }
+            }
+        }
+        
+        // calculate the probabilities for each species in each set size
+        //Output the results to a file
+        PrintStream outPut = new PrintStream(new File("probabilities.txt"));
+        DecimalFormat df = new DecimalFormat("0.##"); 
+        for(Integer setSize : optimalOccurence.keySet())
+        {
+            System.out.println("Probs for set size: " + setSize);
+            outPut.println("Probs for set size: " + setSize);
+            String speciesStr = "Species: ";
+            String probStr    = "Probs  : ";
+            
+            HashMap<Integer, Integer> temp = optimalOccurence.get(setSize);
+            List<Integer> keys = new ArrayList<>(temp.keySet());
+            Collections.sort(keys);
+            for(Integer speciesID : keys)
+            {
+//                System.out.println("Species " + speciesID + ": " + (temp.get(speciesID)/(double)(speciesUsage.get(speciesID))));
+                speciesStr += String.format("%1$5s", speciesID);
+                double prob = temp.get(speciesID)/(double)(speciesUsage.get(speciesID));
+                probStr += String.format("%1$5s", df.format(prob));
+                
+            }
+            System.out.println(speciesStr);
+            System.out.println(probStr);
+            outPut.println(speciesStr);
+            outPut.println(probStr);
+            
+        }
+        outPut.close();
+        
+    }
+    
+    
+    private String finishedThreads(int finished, int total)
+    {
+        return "Finished: " + finished + " of " + total;
+    }
+    
+    
+    /**
+     * Sets text of 'timeLabel' to display constantly updating processing time 
+     * until 'running' is set to false
+     * 
+     * @param running
+     * @param timeLabel 
+     */
+    private void timerLabel(MutableBoolean running, JLabel timeLabel) {
+        long startTime = System.nanoTime();
+        new Thread() {
+            @Override
+            public void run() {
+                while (running.isTrue()) {
+                    double seconds = (System.nanoTime() - startTime) / 1000000000.0;
+                    timeLabel.setText("Processing Time: " + toTimeString(seconds));
+                    try {
+                        Thread.sleep(91);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }.start();
+    }
+    
     // launches JChooser and returns path of file selected for load or save
     private String getTextFilePath(String option) {
         // use JFileChooser to select album text file
@@ -819,21 +1059,25 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButtonCancelA;
     private javax.swing.JButton jButtonCancelP;
+    private javax.swing.JButton jButtonDeleteFiles;
     private javax.swing.JButton jButtonGenerate;
     private javax.swing.JButton jButtonProblemSpecies;
     private javax.swing.JButton jButtonProcess;
+    private javax.swing.JButton jButtonRunSubsets;
     private javax.swing.JButton jButtonSelectDataFileA;
     private javax.swing.JButton jButtonSelectDataFileP;
     private javax.swing.JButton jButtonSelectDataFileProb;
     private javax.swing.JCheckBox jCheckBoxTruncate;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabelAllowedDiv;
+    private javax.swing.JLabel jLabelFinishedThreads;
     private javax.swing.JLabel jLabelNoSpec;
     private javax.swing.JLabel jLabelNoSubsets;
     private javax.swing.JLabel jLabelProbSpec;
     private javax.swing.JLabel jLabelProcessCompletedTimeA;
     private javax.swing.JLabel jLabelProcessTime;
     private javax.swing.JLabel jLabelProcessTimeA;
+    private javax.swing.JLabel jLabelProcessTimeProb;
     private javax.swing.JLabel jLabelSubsetSize;
     private javax.swing.JPanel jPanelAnalyse;
     private javax.swing.JPanel jPanelBottom;
@@ -848,6 +1092,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRadioButtonAll;
     private javax.swing.JRadioButton jRadioButtonFinal;
     private javax.swing.JRadioButton jRadioButtonNone;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPaneKey;
     private javax.swing.JScrollPane jScrollPanePoints;
     private javax.swing.JSpinner jSpinnerAllowableExpDivergencePct;
@@ -857,6 +1102,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextAreaKey;
     private javax.swing.JTextArea jTextAreaPoints;
+    private javax.swing.JTextArea jTextAreaSubsetFiles;
     private javax.swing.JTextField jTextFieldDataFilePath;
     private javax.swing.JTextField jTextFieldDataFilePathA;
     private javax.swing.JTextField jTextFieldFilePathProb;

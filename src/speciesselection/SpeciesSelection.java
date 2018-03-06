@@ -7,10 +7,13 @@
  */
 package speciesselection;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import preprocessing.ResultSet;
 
 /**
  *
@@ -19,11 +22,14 @@ import java.util.logging.Logger;
  */
 public class SpeciesSelection implements Runnable {
 
-    String[] args;
-    boolean allResults;
-    ArrayList<Double> result;
-    boolean finished;
-    SpecRTGraph specRTGraph;
+    private PropertyChangeSupport pcs;
+    private String[] args;
+    private boolean allResults, finished;
+    private ArrayList<Double> result;
+    private SpecRTGraph specRTGraph;
+
+    private final String theDataset = "The dataset:";
+    private final String theDatasetContains = "The dataset contains ";
 
     /**
      * @param args the command line arguments The first argument is the name for
@@ -32,6 +38,7 @@ public class SpeciesSelection implements Runnable {
      * argument for the minimal size of species in a species set The fifth
      * argument for the maximal size of species in a species set
      * @throws java.io.FileNotFoundException
+     * @throws java.lang.InterruptedException
      */
     public static void main(String[] args) throws FileNotFoundException, InterruptedException {
         SpeciesSelection speciesSelection = new SpeciesSelection();
@@ -47,6 +54,7 @@ public class SpeciesSelection implements Runnable {
     }
 
     public SpeciesSelection(String[] args, boolean allResults) {
+        this.pcs = new PropertyChangeSupport(this);
         this.args = args;
         this.allResults = allResults;
         this.finished = false;
@@ -66,6 +74,7 @@ public class SpeciesSelection implements Runnable {
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         }
         finished = true;
+        pcs.firePropertyChange("finished", null, finished);
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
 
@@ -75,6 +84,14 @@ public class SpeciesSelection implements Runnable {
 
     public ArrayList<Double> getResult() {
         return result;
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
     }
 
     /**
@@ -142,16 +159,23 @@ public class SpeciesSelection implements Runnable {
         return outputResults(mssf, fileName);
 
     }
+    
+    public String getResultsFileName()
+    {
+        String fileName = args[0];
+        return fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";
+    }
 
-    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName) throws InterruptedException, FileNotFoundException {
-        String outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";  //default file for output
+    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName)
+            throws InterruptedException, FileNotFoundException {
+        String outFileName = getResultsFileName();
         if (args.length > 1) {
             outFileName = args[1];
         }
         //Output the results to a file
         PrintStream outPut = new PrintStream(new File(outFileName));
-        outPut.println("The dataset:" + fileName);
-        outPut.println("The dataset contains " + specRTGraph.numSpecies() + " species and "
+        outPut.println(theDataset + fileName);
+        outPut.println(theDatasetContains + specRTGraph.numSpecies() + " species and "
                 + specRTGraph.numResourceTypes() + " resource types");
 
         int startSize = 2;
@@ -180,6 +204,7 @@ public class SpeciesSelection implements Runnable {
         double prevMeanSens = 10000;// large initial value greater than any sensitivity
         int i = startSize;
         ArrayList<Double> minSensitivities = new ArrayList<>();
+        // there are never results for 0 or 1 size arrays so add zeros for those
         minSensitivities.add(0.0);
         minSensitivities.add(0.0);
         while (i <= endSize && (count < 3 || allResults)) {
@@ -208,12 +233,12 @@ public class SpeciesSelection implements Runnable {
         }
         outPut.close();
         System.out.println("The output is stored in " + outFileName);
+        // return list of minimum mean sensitivity for each set size
         return minSensitivities;
     }
 
     //process the given String for a line of the data file
     public static void processLine(String text, SpecRTGraph sig) {
-//        System.out.println("text: " + text);
         Scanner data = new Scanner(text);
         //create a new species
         int spName = data.nextInt();
@@ -242,6 +267,56 @@ public class SpeciesSelection implements Runnable {
                     sig.addEdge(inSpec, newInd);
                 }
             }
+        }
+    }
+    
+    public List<Integer> speciesIDs()
+    {
+        return specRTGraph.speciesIDs();
+    }
+
+    public List<ResultSet> readResultsFile() {
+        try 
+        {
+            File file = new File(getResultsFileName());
+            Scanner scanner = new Scanner(file);
+            String lineOne = scanner.nextLine();// e.g. The dataset:Forest1.txt
+            String lineTwo = scanner.nextLine();// e.g. The dataset contains 40 species and 37 resource types
+            // check that the file contents are consistent with a results file
+            if (!(lineOne.contains(theDataset) && lineTwo.contains(theDatasetContains))) {
+                System.err.println("readResultsFile returned false");
+                return null;
+            }
+
+            //create list in which to return all result sets for this SpeciesSelection
+            List<ResultSet> results = new ArrayList<>();
+            
+            // process all lines of the results file
+            ResultSet resultSet = null;
+            while (scanner.hasNext()) {
+                String line = scanner.nextLine();
+                if (line.contains("For ")) {
+                    if (null != resultSet) {
+//                        System.out.println("RS str: " + resultSet.toString());
+                    }
+                    Scanner scan = new Scanner(line.substring(4));
+                    int setSize = scan.nextInt();
+                    resultSet = new ResultSet(setSize);
+                    results.add(resultSet);
+//                    System.out.println("Set size: " + resultSet.getSetSize());
+                }
+                if (Character.isDigit(line.charAt(0))) {
+                    resultSet.add(line);
+                }
+            }
+            scanner.close();
+            return results;
+        } 
+        catch (FileNotFoundException ex) 
+        {
+            Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error in SpeciesSelection.readResultsFile()");
+            return null;
         }
     }
 

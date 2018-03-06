@@ -22,12 +22,12 @@ import speciesselection.SpeciesSelection;
 public class ProblemSpecies implements Runnable {
 
     private PropertyChangeSupport pcs;
-    ArrayList<Integer> probSpecies;
-    boolean insufficient, finished;
-    File file;
-    int initialNoSpecies, expMarginPct, minPoints;
-    PlotPoints points;
-    Options option;
+    private ArrayList<Integer> probSpecies;
+    private boolean insufficient, finished;
+    private File file;
+    private int initialNoSpecies, expMarginPct, minPoints;
+    private PlotPoints points;
+    private Options option;
 
     public ProblemSpecies(File file, int initialNoSpecies, int expMarginPct, Options option) throws FileNotFoundException {
         this.pcs  = new PropertyChangeSupport(this);
@@ -86,19 +86,26 @@ public class ProblemSpecies implements Runnable {
                 System.out.println(tempFileName);
                 PrintWriter out = new PrintWriter(tempFileName);
                 String str = "";
+                int currentSpecies = -1;
                 for (int j = 0; j <= i; j++) {
-                    if(!probSpecies.contains(j))
+                    // get jth line from dataset
+                    str = fileAsList.get(j);
+                    // get species number from the last line of the current data file
+                    currentSpecies = Integer.parseInt(str.replaceFirst(".*?(\\d+).*", "$1"));
+                    System.out.println("currentSpecies: " + currentSpecies + ", i: " + i);
+                    
+                    //check if species is problem species or not                    
+                    if(!probSpecies.contains(currentSpecies))
                     {
-                        str = fileAsList.get(j);
+                        //add species to latest file
                         out.println(str);
+//                        System.out.println("Debug: i = " + i + ", j = " + j + ", str: " + str);
                     }
                 }
                 out.flush();
                 out.close();
                 
-                // get species number from the last line of the current data file
-                int currentSpecies = Integer.parseInt(str.replaceFirst(".*?(\\d+).*", "$1"));
-                System.out.println("currentSpecies: " + currentSpecies + ", i: " + i);
+                
 
                 String[] args = {tempFileName};
                 SpeciesSelection specSel = new SpeciesSelection(args, false);// run with truncated results to reduce processing time (allResults = false)
