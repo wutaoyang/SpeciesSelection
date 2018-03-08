@@ -1,5 +1,10 @@
 package preprocessing;
 
+/**
+ * Wrapper for a boolean that allows a boolean to be passed by reference and for
+ * the value of that boolean to be changed
+ * @author mre16utu
+ */
 public class MutableBoolean {
 
     private boolean value;

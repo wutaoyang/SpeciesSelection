@@ -15,14 +15,14 @@ import trendlines.TrendLine;
  * @author mre16utu
  */
 public class PlotPoints {
-
-    private final PropertyChangeSupport pcs;
+    
     private final List<Double> xList;
     private final List<Double> yList;
     private final List<Double> margins;
     private final List<String> fileNames;
     private final List<Long>   times;
-    public static final int minPointsToFitCurve = 3;
+    private final PropertyChangeSupport pcs;
+    public static final int MIN_POINTS_TO_FIT_CURVE = 3;
 
     public PlotPoints() {
         xList     = new ArrayList<>();
@@ -33,6 +33,7 @@ public class PlotPoints {
         pcs       = new PropertyChangeSupport(this);
     }
 
+    // adds a new plot point and fires a property changed event
     public void addPoint(double x, double y, String fileName, long time) {
         xList.add(x);
         yList.add(y);
@@ -45,7 +46,7 @@ public class PlotPoints {
     // Calculates the margin of error (multiplication factor) for the last added
     // point in comparison to a fitted exponential trendline
     private void setMargin() {
-        if (this.size() > minPointsToFitCurve) {
+        if (this.size() > MIN_POINTS_TO_FIT_CURVE) {
             double[] xArr = this.getXArr();
             double[] yArr = this.getYArr();
             TrendLine t = new ExpTrendLine();
@@ -61,6 +62,8 @@ public class PlotPoints {
         }
     }
 
+    // allow listener to be added to a PlotPoints object so that property 
+    // changes can be used to fire additional actions
     public void addPropertyChangeListener(PropertyChangeListener l) {
         pcs.addPropertyChangeListener(l);
     }
@@ -68,7 +71,7 @@ public class PlotPoints {
     public void removePropertyChangeListener(PropertyChangeListener l) {
         pcs.removePropertyChangeListener(l);
     }
-
+    
     public int size() {
         return xList.size();
     }
@@ -85,6 +88,7 @@ public class PlotPoints {
         return doubleListToArray(yList);
     }
 
+    // converts List<Double> to double[]
     private double[] doubleListToArray(List<Double> list) {
         double[] target = new double[list.size()];
         for (int i = 0; i < target.length; i++) {
@@ -93,16 +97,34 @@ public class PlotPoints {
         return target;
     }
     
+    // Converts a number of seconds to a consistently formatted string of the 
+    // form HH:MM:SS.ss
     private String toTimeString(double seconds) {
-        int hours = (int) seconds / 3600;
+        int hours   =  (int) seconds / 3600;
         int minutes = ((int) seconds % 3600) / 60;
-        seconds = seconds % 60;
+        seconds     = seconds % 60;
         DecimalFormat df1 = new DecimalFormat("00");
         DecimalFormat df2 = new DecimalFormat("00.00");
-        String time = df1.format(hours) + ":"
-                + df1.format(minutes) + ":"
-                + df2.format(seconds);
+        String time       = df1.format(hours) + ":"
+                          + df1.format(minutes) + ":"
+                          + df2.format(seconds);
         return time;
+    }
+    
+    // Creates padding based on length of data file name
+    private String padding()
+    {
+        int spacing = 4;
+        if(!fileNames.isEmpty())
+        {
+            spacing += fileNames.get(0).length();
+        }
+        String padding = "";
+        for(int i = 0; i < spacing; i++)
+        {
+            padding += " ";
+        }
+        return padding;
     }
 
     @Override
@@ -114,7 +136,8 @@ public class PlotPoints {
                 + "          Y"
                 + "      Margin"
                 + "       DataFile"
-                + "               Time";
+                + padding()
+                + "Time";
         for (int i = 0; i < xList.size(); i++) {
             str += "\n" 
                     + String.format("%3s", df0.format(xList.get(i))) + "," 
@@ -125,5 +148,4 @@ public class PlotPoints {
         }
         return str;
     }
-
 }

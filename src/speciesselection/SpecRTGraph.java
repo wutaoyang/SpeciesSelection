@@ -90,7 +90,7 @@ public class SpecRTGraph {
         rtEnd.addSpecies(specEnd);
     }
 
-    public SpecSetFamily getDomSpecSets(int setSize, int targetNum, MinSpecSetFamily mssf) {
+    public SpecSetFamily getDomSpecSets(int setSize, int targetNum, MinSpecSetFamily mssf) throws SpecSelException {
         SpecSetFamily result = new SpecSetFamily();
         result.setNumSetsLimit(targetNum);
         int maxRTex = mssf.size();
@@ -165,6 +165,7 @@ public class SpecRTGraph {
      * @param rootSpec A species
      * @return A minimal constitute species tree with root specified by
      * rootSpec; null if rootSpec is not a species
+     * @throws java.lang.InterruptedException
      */
     public SpecTree getMinimalConstSpecTreeRootedAt(Species rootSpec) throws InterruptedException {
         if (!this.containsSpecies(rootSpec)) {

@@ -97,7 +97,7 @@ public class SpecSet implements Comparable<SpecSet> {
         return result;
     }
 
-    public SpecSetFamily extendToFamily(ArrayList<Species> inSpecList, int targetSetSize, int targetFamilyNum) {
+    public SpecSetFamily extendToFamily(ArrayList<Species> inSpecList, int targetSetSize, int targetFamilyNum) throws SpecSelException {
         SpecSetFamily result = new SpecSetFamily();
 
         //find the elements that are not in the current set
@@ -116,7 +116,9 @@ public class SpecSet implements Comparable<SpecSet> {
         int maxNum = rangSize.getSize();
 
         if (maxNum > tmpSpecList.size()) {
-            System.out.println("Something is wrong about tmpSpecList");
+            String str = "Something is wrong about tmpSpecList";
+            System.out.println(str);
+            throw new SpecSelException("Exception in SpecSet.extendToFamily: " + str);
         }
 
         CombSubSet rangSets = new CombSubSet(extNum, maxNum);

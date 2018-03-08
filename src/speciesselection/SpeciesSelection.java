@@ -30,7 +30,7 @@ public class SpeciesSelection implements Runnable {
 
     private final String theDataset = "The dataset:";
     private final String theDatasetContains = "The dataset contains ";
-
+    
     /**
      * @param args the command line arguments The first argument is the name for
      * the input file The second argument is the name for the output file The
@@ -39,18 +39,25 @@ public class SpeciesSelection implements Runnable {
      * argument for the maximal size of species in a species set
      * @throws java.io.FileNotFoundException
      * @throws java.lang.InterruptedException
+     * @throws speciesselection.SpecSelException
      */
-    public static void main(String[] args) throws FileNotFoundException, InterruptedException {
+    public static void main(String[] args) throws FileNotFoundException, InterruptedException, SpecSelException {
         SpeciesSelection speciesSelection = new SpeciesSelection();
         long start = System.nanoTime();
-        System.out.println("The Indicator Species Selection Project.");
-        System.out.println("By Taoyang Wu, Version 0.2, March 2014");
+        printIntro();
         speciesSelection.specSel(args, true);
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
+    }
+    
+    private static void printIntro()
+    {
+        System.out.println("The Indicator Species Selection Project.");
+        System.out.println("By Taoyang Wu & S.Whiddett, Version X.X, March 2018");
     }
 
     public SpeciesSelection() {
         this.finished = false;
+//        this.errorOccurred = false;
     }
 
     public SpeciesSelection(String[] args, boolean allResults) {
@@ -58,19 +65,23 @@ public class SpeciesSelection implements Runnable {
         this.args = args;
         this.allResults = allResults;
         this.finished = false;
+//        this.errorOccurred = false;
     }
 
     @Override
     public void run() {
         long start = System.nanoTime();
-        System.out.println("The Indicator Species Selection Project.");
-        System.out.println("By Taoyang Wu, Version 0.2, March 2014");
+        printIntro();
         try {
             result = specSel(args, allResults);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             System.out.println("Thread interrupted");
+            pcs.firePropertyChange("interrupted", null, null);
+            Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SpecSelException ex){
+            pcs.firePropertyChange("errorOccurred", null, null);
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         }
         finished = true;
@@ -102,7 +113,7 @@ public class SpeciesSelection implements Runnable {
      * @throws FileNotFoundException
      * @throws java.lang.InterruptedException
      */
-    public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException {
+    public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException, SpecSelException {
         return specSel(args, false);
     }
 
@@ -138,8 +149,9 @@ public class SpeciesSelection implements Runnable {
      * produced up until 3 consecutive meanSensitivity increases
      * @return
      * @throws FileNotFoundException
+     * @throws java.lang.InterruptedException
      */
-    public ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException {
+    public ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException, SpecSelException {
         this.args = args;
         //construct the bipartite graph between species and indicators.
         specRTGraph = new SpecRTGraph();
@@ -167,7 +179,7 @@ public class SpeciesSelection implements Runnable {
     }
 
     public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName)
-            throws InterruptedException, FileNotFoundException {
+            throws InterruptedException, FileNotFoundException, SpecSelException {
         String outFileName = getResultsFileName();
         if (args.length > 1) {
             outFileName = args[1];
