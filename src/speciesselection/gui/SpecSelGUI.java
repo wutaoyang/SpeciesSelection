@@ -162,6 +162,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jLabelSubsetSize = new javax.swing.JLabel();
         jSpinnerSubsetSize = new javax.swing.JSpinner();
         jButtonGenerate = new javax.swing.JButton();
+        jCheckBoxTruncateProbs = new javax.swing.JCheckBox();
         jPanelProbLower = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextAreaSubsetFiles = new javax.swing.JTextArea();
@@ -516,6 +517,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
             }
         });
 
+        jCheckBoxTruncateProbs.setSelected(true);
+        jCheckBoxTruncateProbs.setText("Truncate Results");
+
         javax.swing.GroupLayout jPanelProbUpperLayout = new javax.swing.GroupLayout(jPanelProbUpper);
         jPanelProbUpper.setLayout(jPanelProbUpperLayout);
         jPanelProbUpperLayout.setHorizontalGroup(
@@ -538,8 +542,10 @@ public class SpecSelGUI extends javax.swing.JFrame {
                                 .addComponent(jLabelNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(jSpinnerNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButtonGenerate)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+                .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jCheckBoxTruncateProbs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonGenerate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanelProbUpperLayout.setVerticalGroup(
@@ -552,12 +558,13 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelNoSubsets)
-                    .addComponent(jSpinnerNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jSpinnerNoSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jCheckBoxTruncateProbs))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelProbUpperLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabelSubsetSize)
                     .addComponent(jSpinnerSubsetSize, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(39, 39, 39))
+                .addGap(41, 41, 41))
         );
 
         jTextAreaSubsetFiles.setColumns(20);
@@ -954,6 +961,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         int cores = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
 //        System.err.println("Number Cores: " + cores);
         ExecutorService executor = Executors.newFixedThreadPool(cores);
+        boolean truncate = jCheckBoxTruncateProbs.isSelected();
         
         new Thread() {
             @Override
@@ -971,7 +979,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                         if (!fileName.equals("")) {
                             String[] args = {fileName};
                             //create runnable specSel object
-                            SpeciesSelection specSel = new SpeciesSelection(args, true);
+                            SpeciesSelection specSel = new SpeciesSelection(args, !truncate);
                             // add the specSel to the list
                             specSelList.add(specSel);
                             
@@ -979,7 +987,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                             specSel.addPropertyChangeListener(new PropertyChangeListener() {
                                 @Override
                                 public void propertyChange(PropertyChangeEvent evt) {
-                                    System.out.println("evt: " + evt.getPropertyName());
+//                                    System.out.println("evt: " + evt.getPropertyName());
                                     
                                     if(evt.getPropertyName().equals("errorOccurred")){
                                         jLabelErrorProbs.setText("An error occurred - try larger subsets");
@@ -1383,6 +1391,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButtonViewResults;
     private javax.swing.JCheckBox jCheckBoxOverwriteProbs;
     private javax.swing.JCheckBox jCheckBoxTruncate;
+    private javax.swing.JCheckBox jCheckBoxTruncateProbs;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabelAllowedDiv;
     private javax.swing.JLabel jLabelErrorProbs;

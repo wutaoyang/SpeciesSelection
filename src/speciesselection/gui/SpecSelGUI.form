@@ -625,8 +625,11 @@
                                   </Group>
                               </Group>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
-                          <Component id="jButtonGenerate" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="110" max="32767" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="jCheckBoxTruncateProbs" max="32767" attributes="0"/>
+                              <Component id="jButtonGenerate" max="32767" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -643,13 +646,14 @@
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabelNoSubsets" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jSpinnerNoSubsets" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="jCheckBoxTruncateProbs" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabelSubsetSize" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jSpinnerSubsetSize" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -699,6 +703,12 @@
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonGenerateActionPerformed"/>
                   </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="jCheckBoxTruncateProbs">
+                  <Properties>
+                    <Property name="selected" type="boolean" value="true"/>
+                    <Property name="text" type="java.lang.String" value="Truncate Results"/>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
