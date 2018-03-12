@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -50,7 +52,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     // variable to get result of file open/save dialog
     private int fileChooserResult;
     private String workingDir, fileName;
-    private volatile boolean cancelled;
+    private volatile boolean cancelled, errorOccurred;
 
     // Global member variables 
     private List<Thread> threads;
@@ -170,6 +172,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jButtonViewResults = new javax.swing.JButton();
         jButtonCancelProb = new javax.swing.JButton();
         jLabelErrorProbs = new javax.swing.JLabel();
+        jCheckBoxOverwriteProbs = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
@@ -597,6 +600,10 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jLabelErrorProbs.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabelErrorProbs.setForeground(new java.awt.Color(204, 0, 0));
 
+        jCheckBoxOverwriteProbs.setSelected(true);
+        jCheckBoxOverwriteProbs.setText("Overwrite probabilities.txt?");
+        jCheckBoxOverwriteProbs.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+
         javax.swing.GroupLayout jPanelProbLowerLayout = new javax.swing.GroupLayout(jPanelProbLower);
         jPanelProbLower.setLayout(jPanelProbLowerLayout);
         jPanelProbLowerLayout.setHorizontalGroup(
@@ -604,9 +611,16 @@ public class SpecSelGUI extends javax.swing.JFrame {
             .addGroup(jPanelProbLowerLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 410, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelProbLowerLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                            .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanelProbLowerLayout.createSequentialGroup()
-                        .addGap(260, 260, 260)
+                        .addComponent(jCheckBoxOverwriteProbs, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(26, 26, 26)
                         .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jButtonDeleteFiles, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButtonViewResults, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -614,14 +628,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                             .addGroup(jPanelProbLowerLayout.createSequentialGroup()
                                 .addComponent(jButtonRunSubsets, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelProbLowerLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
-                            .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanelProbLowerLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabelErrorProbs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jLabelErrorProbs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(2355, 2355, 2355))
         );
         jPanelProbLowerLayout.setVerticalGroup(
@@ -630,7 +637,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanelProbLowerLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jButtonRunSubsets)
+                        .addGroup(jPanelProbLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButtonRunSubsets)
+                            .addComponent(jCheckBoxOverwriteProbs))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButtonCancelProb)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -923,9 +932,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_jButtonGenerateActionPerformed
-
     
-
     private void jButtonSelectDataFileProbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDataFileProbActionPerformed
         selectDataFile(jTextFieldFilePathProb, jSpinnerSubsetSize);
     }//GEN-LAST:event_jButtonSelectDataFileProbActionPerformed
@@ -938,27 +945,37 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jButtonGenerate.setEnabled(false);
         jButtonCancelProb.setEnabled(true);
         List<SpeciesSelection> specSelList = new ArrayList<>();
-        
+        errorOccurred = false;
         threads = new ArrayList<>();
+        
+        // get number of available cores, then run the processes in a threadpool 
+        // executor with one process per core. Leave one core available for GUI 
+        // main thread and ensure at least 1 process in the executor
+        int cores = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+//        System.err.println("Number Cores: " + cores);
+        ExecutorService executor = Executors.newFixedThreadPool(cores);
+        
         new Thread() {
             @Override
             public void run() {
                 try {
                     MutableBoolean running = new MutableBoolean(true);
+                    
                     timerLabel(running, jLabelProcessTimeProb);
                     int numberFiles = fileList.size();
                     jLabelFinishedThreads.setText(finishedThreads(0, numberFiles));
                     CountDownLatch latch = new CountDownLatch(numberFiles);
                     for (File file : fileList) {
                         String fileName = file.getName();
-                        // TODO RUN THE FILES
+                        // RUN THE FILES
                         if (!fileName.equals("")) {
                             String[] args = {fileName};
-                            //run solution
+                            //create runnable specSel object
                             SpeciesSelection specSel = new SpeciesSelection(args, true);
-                            specSelList.add(specSel);// add the thread to the list so we can check for all threads to be finished.
+                            // add the specSel to the list
+                            specSelList.add(specSel);
                             
-                            // Create listener to listen for specSel finished
+                            // Create listener to listen for specSel finished or error
                             specSel.addPropertyChangeListener(new PropertyChangeListener() {
                                 @Override
                                 public void propertyChange(PropertyChangeEvent evt) {
@@ -966,6 +983,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                                     
                                     if(evt.getPropertyName().equals("errorOccurred")){
                                         jLabelErrorProbs.setText("An error occurred - try larger subsets");
+                                        errorOccurred = true;
                                     }
                                     
                                     if(evt.getPropertyName().equals("finished")){
@@ -974,9 +992,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
                                     }
                                 }
                             });
-                            Thread t = new Thread(specSel);
-                            threads.add(t);
-                            t.start();
+                            // submit specSel to the executor queue to be run
+                            executor.submit(specSel);
+//                            Thread t = new Thread(specSel);
+//                            threads.add(t);
+//                            t.start();
                         }
                     }
                     // add results files to fileList so we can delete them after use
@@ -990,7 +1010,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     running.setFalse();
                     System.out.println("Finished all threads");
                     
-                    if(!subSetsCancelled)
+                    // Calculate probabilities and save to file
+                    if(!subSetsCancelled && !errorOccurred)
                     {
                         boolean probsSaved = calcProbs(specSelList);
                         String savedString = probsSaved ? "\n*** Output in " + currentProbsFileName + " ***" : "\n*** Save Cancelled ***";
@@ -1161,12 +1182,20 @@ public class SpecSelGUI extends javax.swing.JFrame {
         // calculate the probabilities for each species in each set size and
         // Check if probabilities results file all ready exists
         File file = new File(currentProbsFileName);
-        if(fileExists(file))
+        if(!jCheckBoxOverwriteProbs.isSelected() && fileExists(file))
         {
             String newFileName = getTextFilePath("SAVE");
+            // ensure file ends with .txt
+            String suffix = ".txt";
+            if(!newFileName.endsWith(suffix))
+            {
+                newFileName += suffix;
+            }
+            
             if (fileChooserResult == JFileChooser.APPROVE_OPTION) {
                 currentProbsFileName = newFileName;
                 file = new File(currentProbsFileName);
+                jCheckBoxOverwriteProbs.setText("Overwrite " + currentProbsFileName + "?");
             }
             else
             {
@@ -1352,6 +1381,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JButton jButtonSelectDataFileP;
     private javax.swing.JButton jButtonSelectDataFileProb;
     private javax.swing.JButton jButtonViewResults;
+    private javax.swing.JCheckBox jCheckBoxOverwriteProbs;
     private javax.swing.JCheckBox jCheckBoxTruncate;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabelAllowedDiv;

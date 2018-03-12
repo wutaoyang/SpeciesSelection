@@ -57,7 +57,6 @@ public class SpeciesSelection implements Runnable {
 
     public SpeciesSelection() {
         this.finished = false;
-//        this.errorOccurred = false;
     }
 
     public SpeciesSelection(String[] args, boolean allResults) {
@@ -65,7 +64,6 @@ public class SpeciesSelection implements Runnable {
         this.args = args;
         this.allResults = allResults;
         this.finished = false;
-//        this.errorOccurred = false;
     }
 
     @Override
@@ -112,6 +110,7 @@ public class SpeciesSelection implements Runnable {
      * @return
      * @throws FileNotFoundException
      * @throws java.lang.InterruptedException
+     * @throws speciesselection.SpecSelException
      */
     public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException, SpecSelException {
         return specSel(args, false);
@@ -128,7 +127,7 @@ public class SpeciesSelection implements Runnable {
                 processLine(text, specRTGraph);
             }
             input.close();
-        } catch (Exception e) {
+        } catch (FileNotFoundException e) {
             System.out.println("Error in SpeciesSelection.processFile()");
         }
 
@@ -150,6 +149,7 @@ public class SpeciesSelection implements Runnable {
      * @return
      * @throws FileNotFoundException
      * @throws java.lang.InterruptedException
+     * @throws speciesselection.SpecSelException
      */
     public ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException, SpecSelException {
         this.args = args;
