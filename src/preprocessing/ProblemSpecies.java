@@ -142,8 +142,9 @@ public class ProblemSpecies implements Runnable {
                 fileList.add(new File(tempFileName));
                 
                 String[] args = {tempFileName};
+                int truncateThreshold = 3;
                 // run with truncated results to reduce processing time (allResults = false)
-                SpeciesSelection specSel = new SpeciesSelection(args, false);
+                SpeciesSelection specSel = new SpeciesSelection(args, false, truncateThreshold);
                 long startTime = System.nanoTime();
                 MinSpecSetFamily mssf = specSel.getMssf();
                 int mssfSize = mssf.size();
@@ -153,7 +154,7 @@ public class ProblemSpecies implements Runnable {
                 // produce output if requested
                 if(option == Options.ALL || (i == numSpecies - 1 && option == Options.FINAL))
                 {
-                    specSel.outputResults(mssf, tempFileName);
+                    specSel.outputResults(mssf, tempFileName, truncateThreshold);
                     fileList.add(new File(specSel.getResultsFileName()));
                 }
                                 

@@ -27,6 +27,7 @@ public class SpeciesSelection implements Runnable {
     private boolean allResults, finished;
     private ArrayList<Double> result;
     private SpecRTGraph specRTGraph;
+    private int truncateThreshold;
 
     private final String theDataset = "The dataset:";
     private final String theDatasetContains = "The dataset contains ";
@@ -45,7 +46,7 @@ public class SpeciesSelection implements Runnable {
         SpeciesSelection speciesSelection = new SpeciesSelection();
         long start = System.nanoTime();
         printIntro();
-        speciesSelection.specSel(args, true);
+        speciesSelection.specSel(args, true, 3);
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
     
@@ -59,11 +60,12 @@ public class SpeciesSelection implements Runnable {
         this.finished = false;
     }
 
-    public SpeciesSelection(String[] args, boolean allResults) {
+    public SpeciesSelection(String[] args, boolean allResults, int truncateThreshold) {
         this.pcs = new PropertyChangeSupport(this);
         this.args = args;
         this.allResults = allResults;
         this.finished = false;
+        this.truncateThreshold = truncateThreshold;
     }
 
     @Override
@@ -71,7 +73,7 @@ public class SpeciesSelection implements Runnable {
         long start = System.nanoTime();
         printIntro();
         try {
-            result = specSel(args, allResults);
+            result = specSel(args, allResults, truncateThreshold);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -113,7 +115,7 @@ public class SpeciesSelection implements Runnable {
      * @throws speciesselection.SpecSelException
      */
     public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException, SpecSelException {
-        return specSel(args, false);
+        return specSel(args, false, 3);
     }
 
     private static void processFile(String fileName, SpecRTGraph specRTGraph) throws FileNotFoundException {
@@ -145,13 +147,13 @@ public class SpeciesSelection implements Runnable {
      *
      * @param args
      * @param allResults set true for full output, otherwise output will be
-     * produced up until 3 consecutive meanSensitivity increases
+     * produced up until truncateThreshold consecutive meanSensitivity increases
      * @return
      * @throws FileNotFoundException
      * @throws java.lang.InterruptedException
      * @throws speciesselection.SpecSelException
      */
-    public ArrayList<Double> specSel(String[] args, boolean allResults) throws FileNotFoundException, InterruptedException, SpecSelException {
+    public ArrayList<Double> specSel(String[] args, boolean allResults, int truncateThreshold) throws FileNotFoundException, InterruptedException, SpecSelException {
         this.args = args;
         //construct the bipartite graph between species and indicators.
         specRTGraph = new SpecRTGraph();
@@ -168,7 +170,7 @@ public class SpeciesSelection implements Runnable {
         System.out.println("MSSF: " + mssf.size());
         System.out.println("MSSF time: " + ((System.nanoTime() - startMssf) / 1000000.0));
 
-        return outputResults(mssf, fileName);
+        return outputResults(mssf, fileName, truncateThreshold);
 
     }
     
@@ -178,7 +180,17 @@ public class SpeciesSelection implements Runnable {
         return fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";
     }
 
-    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName)
+    /**
+     * 
+     * @param mssf
+     * @param fileName
+     * @param truncateThreshold - number of rises in min mean sensitivity when truncating results output
+     * @return
+     * @throws InterruptedException
+     * @throws FileNotFoundException
+     * @throws SpecSelException 
+     */
+    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName, int truncateThreshold)
             throws InterruptedException, FileNotFoundException, SpecSelException {
         String outFileName = getResultsFileName();
         if (args.length > 1) {
@@ -219,7 +231,7 @@ public class SpeciesSelection implements Runnable {
         // there are never results for 0 or 1 size arrays so add zeros for those
         minSensitivities.add(0.0);
         minSensitivities.add(0.0);
-        while (i <= endSize && (count < 3 || allResults)) {
+        while (i <= endSize && (count < truncateThreshold || allResults)) {
             if (Thread.currentThread().isInterrupted()) {
                 outPut.close();
                 throw new InterruptedException();// throw if cancel requested
