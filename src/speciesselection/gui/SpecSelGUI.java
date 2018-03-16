@@ -9,21 +9,18 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -34,11 +31,12 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileView;
 import preprocessing.FileList;
+import preprocessing.FileUtils;
 import preprocessing.MutableBoolean;
 import preprocessing.Options;
 import preprocessing.PlotPoints;
+import preprocessing.ProbabilityCalculator;
 import preprocessing.ProblemSpecies;
-import preprocessing.ResultSet;
 import preprocessing.SubSetGenerator;
 import speciesselection.SpeciesSelection;
 
@@ -55,14 +53,15 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private volatile boolean cancelled, errorOccurred;
 
     // Global member variables 
-    private List<Thread> threads;
+//    private List<Thread> threads;
     private FileList fileList, resFileList;
     private ProblemSpecies problemSpec;
     private static final String DEFAULT_PROBS_FILENAME = "probabilities.txt";
     private static String currentProbsFileName;
     private boolean subSetsCancelled;
     private int noSubsets, subsetSize;
-
+    private ArrayList<Future> futures;
+    private CountDownLatch latch;
     /**
      * Creates new form SpecSelGUI
      */
@@ -74,6 +73,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jButtonDeleteFilesA.setVisible(false);
         workingDir = System.getProperty("user.dir");
         initSpinners();
+        futures = new ArrayList<>();
     }
     
     private void initSpinners()
@@ -85,7 +85,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             if(!probsFilename.equals(""))
             {
                 File file = new File(probsFilename);
-                if(fileExists(file))
+                if(FileUtils.fileExists(file))
                 {
                     setNumberSpinnerMax(jSpinnerSubsetSize, noSpeciesInFile(probsFilename)-1);
                 }
@@ -96,7 +96,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             if(!analyseFilename.equals(""))
             {
                 File file = new File(analyseFilename);
-                if(fileExists(file))
+                if(FileUtils.fileExists(file))
                 {
                     setNumberSpinnerMax(jSpinnerInitialNoSpecies, noSpeciesInFile(analyseFilename)-1);
                 }
@@ -108,6 +108,17 @@ public class SpecSelGUI extends javax.swing.JFrame {
         }
     }
 
+    private ExecutorService initialiseExecutorService()
+    {
+        // get number of available cores, then run the processes in a threadpool 
+        // executor with one process per core. Leave one core available for GUI 
+        // main thread and ensure at least 1 process in the executor
+        int cores = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+//        System.err.println("Number Cores: " + cores);
+        return Executors.newFixedThreadPool(cores);
+    }
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -169,6 +180,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jSpinnerTruncateThreshold = new javax.swing.JSpinner();
         jLabel1 = new javax.swing.JLabel();
+        jSpinnerProbsThreshold = new javax.swing.JSpinner();
+        jLabel2 = new javax.swing.JLabel();
         jButtonRunSubsets = new javax.swing.JButton();
         jButtonCancelProb = new javax.swing.JButton();
         jButtonDeleteFiles = new javax.swing.JButton();
@@ -177,11 +190,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jLabelProcessTimeProb = new javax.swing.JLabel();
         jLabelErrorProbs = new javax.swing.JLabel();
         jCheckBoxOverwriteProbs = new javax.swing.JCheckBox();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        jPanelAbout = new javax.swing.JPanel();
+        jLabelAboutProcess = new javax.swing.JLabel();
+        jLabelAboutAnalyse = new javax.swing.JLabel();
+        jLabelAboutProbability = new javax.swing.JLabel();
+        jLabelAboutInputOutput = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
@@ -578,11 +591,16 @@ public class SpecSelGUI extends javax.swing.JFrame {
             }
         });
 
+        jCheckBoxTruncateProbs.setSelected(true);
         jCheckBoxTruncateProbs.setText("Truncate Results");
 
         jSpinnerTruncateThreshold.setModel(new javax.swing.SpinnerNumberModel(3, 1, 10, 1));
 
         jLabel1.setText("Truncate Threshold");
+
+        jSpinnerProbsThreshold.setModel(new javax.swing.SpinnerNumberModel(0.1d, 0.0d, 1.0d, 0.01d));
+
+        jLabel2.setText("Probability Threshold");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -590,9 +608,16 @@ public class SpecSelGUI extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(4, 4, 4)
-                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jSpinnerTruncateThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(5, 5, 5)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jSpinnerProbsThreshold)
+                    .addComponent(jSpinnerTruncateThreshold, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -600,7 +625,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(jSpinnerTruncateThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jSpinnerProbsThreshold, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addContainerGap())
         );
 
         jButtonRunSubsets.setText("Run Subsets");
@@ -627,7 +656,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             }
         });
 
-        jButtonViewResults.setText("View Results");
+        jButtonViewResults.setText("View Probabilities");
         jButtonViewResults.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonViewResultsActionPerformed(evt);
@@ -649,6 +678,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
             .addGroup(jPanelRightLayout.createSequentialGroup()
                 .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabelErrorProbs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanelRightLayout.createSequentialGroup()
+                        .addGap(194, 194, 194)
+                        .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
+                            .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelRightLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -657,14 +691,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
                             .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jCheckBoxTruncateProbs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButtonGenerate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jCheckBoxOverwriteProbs, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jCheckBoxOverwriteProbs, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
                             .addComponent(jButtonRunSubsets, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButtonViewResults, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanelRightLayout.createSequentialGroup()
-                        .addGap(194, 194, 194)
-                        .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
-                            .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(jButtonViewResults, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanelRightLayout.setVerticalGroup(
@@ -675,7 +704,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addComponent(jCheckBoxTruncateProbs)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jCheckBoxOverwriteProbs)
                 .addGap(18, 18, 18)
                 .addComponent(jButtonRunSubsets)
@@ -685,13 +714,13 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addComponent(jButtonDeleteFiles)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButtonViewResults)
-                .addGap(37, 37, 37)
+                .addGap(34, 34, 34)
                 .addComponent(jLabelErrorProbs, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(51, 51, 51)
+                .addGap(36, 36, 36)
                 .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(90, 90, 90))
+                .addGap(105, 105, 105))
         );
 
         javax.swing.GroupLayout jPanelProbabilityLayout = new javax.swing.GroupLayout(jPanelProbability);
@@ -712,42 +741,42 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Probability", jPanelProbability);
 
-        jLabel2.setText("<html><b>Process</b> - Use this tab for standard Species Selection. There is an option to truncate results. If selecetd, this will generate output until 3 consecutive increases in minimum mean sensitivity are detected. No truncation produces full results output.</html>");
+        jLabelAboutProcess.setText("<html><b>Process</b> - Use this tab for standard Species Selection. There is an option to truncate results. If selecetd, this will generate output until 3 consecutive increases in minimum mean sensitivity are detected. No truncation produces full results output.</html>");
 
-        jLabel3.setText("<html><b>Analyse</b> - This tab allows 'Problem Species' (PS), that cause greater than exponential growth to the processing time of a Species Selection dataset, to be identified. This is achieved by comparing MinSpecSetFamily size to that predicted by an exponental curve fitted to the previous data points. Initial No of Species should be set to a value processing takes a short amount of time. Allowable % Exp dovergence should be low on an initial run but could be increased on subsequent runs if too many PS are detected.</html>");
+        jLabelAboutAnalyse.setText("<html><b>Analyse</b> - This tab allows 'Problem Species' (PS), that cause greater than exponential growth to the processing time of a Species Selection dataset, to be identified. This is achieved by comparing MinSpecSetFamily size to that predicted by an exponental curve fitted to the previous data points. Initial No of Species should be set to a value processing takes a short amount of time. Allowable % Exp dovergence should be low on an initial run but could be increased on subsequent runs if too many PS are detected.</html>");
 
-        jLabel5.setText("<html><b>Probability</b> - Calculates the probability that each species will appear in an optimal result set when a Species Selection dataset is randomly sampled for subsets of the specified size and number. Truncation is allowed and the number of min mean sensitivity increases required prior to truncation can be specified. The default is 3. The option is available to overwrite that previous probabilities txt file. If unselected, the user can specified a filename for the output. Delete Files will remove subset and subset results files but will leave the probabilities file alone. View Results will open that last saved probabilities file in notepad.</html>");
+        jLabelAboutProbability.setText("<html><b>Probability</b> - Calculates the probability that each species will appear in an optimal result set when a Species Selection dataset is randomly sampled for subsets of the specified size and number. Truncation is allowed and the number of min mean sensitivity increases required prior to truncation can be specified. The default is 3. A probability threshold is also provided. Species with a maximum probability of inclusion below this threshold will be excluded from the subset of species written out to 'filename'_ProbsSet.txt. The default is 0.1. The option is available to overwrite that previous probabilities txt file. If unselected, the user can specified a filename for the output. Delete Files will remove subset and subset results files but will leave the probabilities file alone. View Results will open that last saved probabilities file in notepad.</html>");
 
-        jLabel6.setText("Input files must be in same directory at SpeciesSelection.jar and all output files are written to that same directory.");
+        jLabelAboutInputOutput.setText("Input files must be in same directory at SpeciesSelection.jar and all output files are written to that same directory.");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout jPanelAboutLayout = new javax.swing.GroupLayout(jPanelAbout);
+        jPanelAbout.setLayout(jPanelAboutLayout);
+        jPanelAboutLayout.setHorizontalGroup(
+            jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAboutLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE))
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 791, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jLabelAboutProbability, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(jLabelAboutAnalyse, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addComponent(jLabelAboutProcess, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE))
+                    .addComponent(jLabelAboutInputOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 791, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+        jPanelAboutLayout.setVerticalGroup(
+            jPanelAboutLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelAboutLayout.createSequentialGroup()
+                .addComponent(jLabelAboutInputOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabelAboutProcess, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabelAboutAnalyse, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(243, Short.MAX_VALUE))
+                .addComponent(jLabelAboutProbability, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(206, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("About", jPanel2);
+        jTabbedPane1.addTab("About", jPanelAbout);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -873,7 +902,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     
     private int noSpeciesInFile(String fileName) throws FileNotFoundException
     {
-        List<String> list = ProblemSpecies.readFileToList(new File(fileName));
+        List<String> list = FileUtils.readFileToList(new File(fileName));
         return list.size()-1;
     }
     
@@ -1022,15 +1051,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jButtonCancelProb.setEnabled(true);
         List<SpeciesSelection> specSelList = new ArrayList<>();
         errorOccurred = false;
-        threads = new ArrayList<>();
+//        threads = new ArrayList<>();
+        ExecutorService executor = initialiseExecutorService();
         
-        // get number of available cores, then run the processes in a threadpool 
-        // executor with one process per core. Leave one core available for GUI 
-        // main thread and ensure at least 1 process in the executor
-        int cores = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-//        System.err.println("Number Cores: " + cores);
-        ExecutorService executor = Executors.newFixedThreadPool(cores);
         boolean truncate = jCheckBoxTruncateProbs.isSelected();
+        SpecSelGUI thisGUI = this;
         
         new Thread() {
             @Override
@@ -1042,7 +1067,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     int numberFiles = fileList.size();
                     int truncateThreshold = (int)jSpinnerTruncateThreshold.getValue();
                     jLabelFinishedThreads.setText(finishedThreads(0, numberFiles));
-                    CountDownLatch latch = new CountDownLatch(numberFiles);
+                    latch = new CountDownLatch(numberFiles);
                     for (File file : fileList) {
                         String fileName = file.getName();
                         // RUN THE FILES
@@ -1070,11 +1095,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
                                     }
                                 }
                             });
-                            // submit specSel to the executor queue to be run
-                            executor.submit(specSel);
-//                            Thread t = new Thread(specSel);
-//                            threads.add(t);
-//                            t.start();
+                            // submit specSel to the executor queue to be run. Also add each job to a Futures list so that we can cancel the jobs if necessary
+                            futures.add(executor.submit(specSel));
+
                         }
                     }
                     // add results files to fileList so we can delete them after use
@@ -1091,8 +1114,15 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     // Calculate probabilities and save to file
                     if(!subSetsCancelled && !errorOccurred)
                     {
-                        boolean probsSaved = calcProbs(specSelList);
-                        String savedString = probsSaved ? "\n*** Output in " + currentProbsFileName + " ***" : "\n*** Save Cancelled ***";
+                        ProbabilityCalculator probsCalc = new ProbabilityCalculator(thisGUI, FileUtils.readFileToList(new File(fileName)));
+                        boolean probsSaved = probsCalc.calcProbs(specSelList);
+                        String subDatasetFilename = FileUtils.removeExt(fileName) + "_ProbsSet.txt";
+                        if(probsSaved)
+                        {
+                            probsCalc.generateSubDataset(subDatasetFilename);
+                        }
+                        String savedString = probsSaved ? "\n*** Output in " + currentProbsFileName + " ***\n" + "*** Sub DataSet in " + subDatasetFilename + " ***"
+                                : "\n*** Save Cancelled ***";
                         
                         jTextAreaSubsetFiles.setText(fileList.toString() + "\n" + resFileList.toString() + savedString);
                     }
@@ -1160,165 +1190,24 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private void jButtonCancelProbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelProbActionPerformed
         jButtonRunSubsets.setEnabled(true);
         subSetsCancelled = true;
-        System.out.println("Threads: " + threads.size());
-        for(Thread t : threads)
+        
+        System.out.println("Futures: " + futures.size());
+        for(Future future : futures)
         {
-            t.interrupt();
+            future.cancel(true);
+        }
+        futures.clear();
+
+        while(latch.getCount()>0)
+        {
+            latch.countDown();
         }
     }//GEN-LAST:event_jButtonCancelProbActionPerformed
 
     
-    /**
-     * Calculates the probability that a species will appear in an optimal 
-     * solution, for each solution set size, when that species is included in the subset 
-     * @param specSelList
-     * @throws FileNotFoundException 
-     */
-    private boolean calcProbs(List<SpeciesSelection> specSelList) throws FileNotFoundException
-    {
-        //      setSize          speciesID, count
-        HashMap<Integer, HashMap<Integer, Integer>> optimalOccurence = new HashMap<>();
-        // optimalOccurence is used to keep count of number of times each species 
-        // was included in optimal solution for each set size
-        
-        //      setSize          speciesID, count
-        HashMap<Integer, HashMap<Integer, Integer>> speciesSetSizeUsage = new HashMap<>();
-        // speciesSetSizeUsage is used such that for each species and each solution 
-        // set size, we keep count of number of times the species was included in 
-        // a subset when a solution was found for the set size
-        
-        
-        for(SpeciesSelection specSel : specSelList)
-        {
-            List<Integer> iDs = specSel.speciesIDs();
-            List<ResultSet> results = specSel.readResultsFile();
-            
-            // Keep count of number of times each species was included in optimal solution for each set size
-            for(ResultSet resultSet : results)
-            {
-                int setSize = resultSet.getSetSize();
-                //get optimal occurrance map for given set size
-                HashMap<Integer, Integer> tempMap;
-                if(optimalOccurence.containsKey(setSize))
-                {
-                    tempMap = optimalOccurence.get(setSize);
-                }
-                else
-                {
-                    tempMap = new HashMap<>();
-                    optimalOccurence.put(setSize, tempMap);
-                }
-                
-                // get the set of species that existed in optimal solutions 
-                Set<Integer> intSet = resultSet.getSetInts();
-                for(Integer speciesID : intSet)
-                {
-                    if(!tempMap.containsKey(speciesID))
-                    {
-                        tempMap.put(speciesID, 1);
-                    }
-                    else
-                    {
-                        tempMap.put(speciesID, tempMap.get(speciesID) + 1);
-                    }
-                }
-                
-                
-                // For each species and each solution set size, keep count of number
-                // of times the species was included in a subset and a solution was 
-                // found for the set size
-                if(!resultSet.isEmpty()) // only count the species usage if a result was found for the set size
-                {
-                    //get optimal occurrance map for given set size
-                    HashMap<Integer, Integer> tempMap2;
-                    if(speciesSetSizeUsage.containsKey(setSize))
-                    {
-                        tempMap2 = speciesSetSizeUsage.get(setSize);
-                    }
-                    else
-                    {
-                        tempMap2 = new HashMap<>();
-                        speciesSetSizeUsage.put(setSize, tempMap2);
-                    }
 
-                    // get the set of species that existed dataset 
-                    for(Integer speciesID : iDs)
-                    {
-                        if(!tempMap2.containsKey(speciesID))
-                        {
-                            tempMap2.put(speciesID, 1);
-                        }
-                        else
-                        {
-                            tempMap2.put(speciesID, tempMap2.get(speciesID) + 1);
-                        }
-                    }
-                }
-            }
-        }
-        
-        // calculate the probabilities for each species in each set size and
-        // Check if probabilities results file all ready exists
-        File file = new File(currentProbsFileName);
-        if(!jCheckBoxOverwriteProbs.isSelected() && fileExists(file))
-        {
-            String newFileName = getTextFilePath("SAVE");
-            // ensure file ends with .txt
-            String suffix = ".txt";
-            if(!newFileName.endsWith(suffix))
-            {
-                newFileName += suffix;
-            }
-            
-            if (fileChooserResult == JFileChooser.APPROVE_OPTION) {
-                currentProbsFileName = newFileName;
-                file = new File(currentProbsFileName);
-                jCheckBoxOverwriteProbs.setText("Overwrite " + currentProbsFileName + "?");
-            }
-            else
-            {
-                // dont save probs if user cancelled save dialog
-                return false;
-            }
-        }
-        
-        // If user did not cancel, save the probabilities
-        // Output the results to a file
-        PrintStream outPut = new PrintStream(file);
-        outPut.println("Source dataset: " + fileName);
-        outPut.println("Probabilities calculated from " + noSubsets + " subsets of size " + subsetSize + "\n");
-        DecimalFormat df = new DecimalFormat("0.##"); 
-        for(Integer setSize : optimalOccurence.keySet())
-        {
-            outPut.println("Probs for set size: " + setSize);
-            String speciesStr = "Species: ";
-            String probStr    = "Probs  : ";
-
-            HashMap<Integer, Integer> tempOptimalOccurence = optimalOccurence.get(setSize);
-            HashMap<Integer, Integer> tempSpeciesSetSizeUsage = speciesSetSizeUsage.get(setSize);
-            List<Integer> keys = new ArrayList<>(tempOptimalOccurence.keySet());
-            Collections.sort(keys);
-            for(Integer speciesID : keys)
-            {
-                speciesStr += String.format("%1$5s", speciesID);
-                double prob = tempOptimalOccurence.get(speciesID)/(double)(tempSpeciesSetSizeUsage.get(speciesID));
-                probStr += String.format("%1$5s", df.format(prob));
-            }
-            outPut.println(speciesStr);
-            outPut.println(probStr);
-        }
-        outPut.close();
-        return true;
-    }
     
-    private boolean fileExists(File file)
-    {
-        if(file.exists() && !file.isDirectory())
-        {
-            return true;
-        }
-        return false;
-    }
+    
     
     private String finishedThreads(int finished, int total)
     {
@@ -1352,7 +1241,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     }
     
     // launches JChooser and returns path of file selected for load or save
-    private String getTextFilePath(String option) {
+    public String getTextFilePath(String option) {
         // use JFileChooser to select album text file
         try {
             String filePath;
@@ -1378,8 +1267,6 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 fileChooserResult = fileChooser.showOpenDialog(c1);
             }
             else if (option.equals("SAVE")) {
-                // disable cancel button
-//                disableCancel(fileChooser);
                 // set custom header text
                 fileChooser.setDialogTitle("Specify file name to Save probabilities");
                 fileChooserResult = fileChooser.showSaveDialog(c1);
@@ -1398,12 +1285,6 @@ public class SpecSelGUI extends javax.swing.JFrame {
         return null;
     }
     
-//    private void disableCancel(JFileChooser chooser)
-//    {
-//        chooser.get
-//        ((JButton)((JPanel)chooser.getComponent(5)).getAccessibleContext().getAccessibleChild(5).getAccessibleContext().getAccessibleChild(2)).setVisible(false);
-//    }
-
     // Method to exact filename and extension from absolutepath as string
     private String getFilenameFromPath(String filePath) {
         return Paths.get(filePath).getFileName().toString();
@@ -1464,10 +1345,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBoxTruncateProbs;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabelAboutAnalyse;
+    private javax.swing.JLabel jLabelAboutInputOutput;
+    private javax.swing.JLabel jLabelAboutProbability;
+    private javax.swing.JLabel jLabelAboutProcess;
     private javax.swing.JLabel jLabelAllowedDiv;
     private javax.swing.JLabel jLabelErrorProbs;
     private javax.swing.JLabel jLabelFinishedThreads;
@@ -1480,7 +1362,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelProcessTimeProb;
     private javax.swing.JLabel jLabelSubsetSize;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanelAbout;
     private javax.swing.JPanel jPanelAnalyse;
     private javax.swing.JPanel jPanelBottom;
     private javax.swing.JPanel jPanelLower;
@@ -1500,6 +1382,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JSpinner jSpinnerAllowableExpDivergencePct;
     private javax.swing.JSpinner jSpinnerInitialNoSpecies;
     private javax.swing.JSpinner jSpinnerNoSubsets;
+    private javax.swing.JSpinner jSpinnerProbsThreshold;
     private javax.swing.JSpinner jSpinnerSubsetSize;
     private javax.swing.JSpinner jSpinnerTruncateThreshold;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -1524,4 +1407,48 @@ public class SpecSelGUI extends javax.swing.JFrame {
             return null;
         }
     }
+    
+    public String getCurrentProbsFileName()
+    {
+        return currentProbsFileName;
+    }
+    
+    public JCheckBox getCheckBoxOverwriteProbs()
+    {
+        return jCheckBoxOverwriteProbs;
+    }
+    
+    public int getNoSubsets()
+    {
+        return noSubsets;        
+    }
+    
+    public int getSubsetSize()
+    {
+        return subsetSize;
+    }
+    
+    public int getFileChooserResult()
+    {
+        return fileChooserResult;
+    }
+    
+    public String getFileName()
+    {
+        return fileName;
+    }
+    
+    public int getTruncateThreshold()
+    {
+        return (int)jSpinnerTruncateThreshold.getValue();
+    }
+
+    public boolean getIsTruncated() {
+        return jCheckBoxTruncateProbs.isSelected();
+    }
+
+    public double getProbsThreshold() {
+        return (double)jSpinnerProbsThreshold.getValue();
+    }
+    
 }

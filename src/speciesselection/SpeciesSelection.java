@@ -148,6 +148,7 @@ public class SpeciesSelection implements Runnable {
      * @param args
      * @param allResults set true for full output, otherwise output will be
      * produced up until truncateThreshold consecutive meanSensitivity increases
+     * @param truncateThreshold
      * @return
      * @throws FileNotFoundException
      * @throws java.lang.InterruptedException

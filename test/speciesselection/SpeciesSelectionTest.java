@@ -51,10 +51,10 @@ public class SpeciesSelectionTest {
         assertTrue(results.contains(forest2Result));
     }
 
-    private static String getResults(String fileName) throws FileNotFoundException, InterruptedException {
+    private static String getResults(String fileName) throws FileNotFoundException, InterruptedException, SpecSelException {
         String[] args = {fileName};
         SpeciesSelection ss = new SpeciesSelection();
-        ss.specSel(args, false);
+        ss.specSel(args, false, 3);
         // Read in results file
         String outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";
         File f = new File(outFileName);

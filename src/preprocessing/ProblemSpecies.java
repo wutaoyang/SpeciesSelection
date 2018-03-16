@@ -105,9 +105,10 @@ public class ProblemSpecies implements Runnable {
      * @throws FileNotFoundException
      * @throws InterruptedException 
      */
-    private void findProblemSpecies(File file, int initialNoSpecies, int expMarginPct) throws FileNotFoundException, InterruptedException, SpecSelException {
+    private void findProblemSpecies(File file, int initialNoSpecies, int expMarginPct) 
+            throws FileNotFoundException, InterruptedException, SpecSelException {
         long startPsTime = System.currentTimeMillis();
-        List<String> fileAsList = readFileToList(file);
+        List<String> fileAsList = FileUtils.readFileToList(file);
         // get number of species in the datafile
         int numSpecies  = fileAsList.size();
         // get full name of the file
@@ -183,18 +184,7 @@ public class ProblemSpecies implements Runnable {
         return points.getLastMargin() < (1 + (expMarginPct / 100.0));
     }
 
-    // Reads a file line by line and adds each line to an ArrayList of Strings
-    public static List<String> readFileToList(File file) throws FileNotFoundException {
-        String line;
-        List<String> list = new ArrayList<>();
-        Scanner scanner = new Scanner(file);
-        while (scanner.hasNextLine()) {
-            line = scanner.nextLine();
-            list.add(line);
-        }
-        scanner.close();
-        return list;
-    }
+    
 
     // Converts a list of strings to a single string separated with line breaks
     public String listAsString(List<String> list) {

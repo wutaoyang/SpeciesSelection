@@ -20,7 +20,7 @@ public class SubSetGenerator implements Comparator<String>{
     {
         FileList fileNames = new FileList();
         // read file adding each line to a list
-        List<String> fileAsList = ProblemSpecies.readFileToList(file);
+        List<String> fileAsList = FileUtils.readFileToList(file);
                 
         // Store header text and remove it from the list
         String header = fileAsList.get(0);
