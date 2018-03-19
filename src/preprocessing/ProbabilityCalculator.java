@@ -1,7 +1,9 @@
 package preprocessing;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,13 +23,13 @@ import speciesselection.gui.SpecSelGUI;
  * @author mre16utu
  */
 public class ProbabilityCalculator {
-    
-    private DecimalFormat df = new DecimalFormat("0.##");
-    private SpecSelGUI specSelGUI;
-    private HashMap<Integer, HashMap<Integer, Double>> probabilities;
-    private Set<Integer> speciesSet;
-    private List<String> fileAsList;// The complete dataset converted to list
-    
+
+    private final DecimalFormat df = new DecimalFormat("0.##");
+    private final SpecSelGUI specSelGUI;
+    private final HashMap<Integer, HashMap<Integer, Double>> probabilities;
+    private final Set<Integer> speciesSet;
+    private final List<String> fileAsList;// The complete dataset converted to list
+    private static String currentProbsFileName;
     
     public ProbabilityCalculator(SpecSelGUI specSelGUI, List<String> fileAsList)
     {
@@ -35,6 +37,7 @@ public class ProbabilityCalculator {
         this.probabilities = new HashMap<>();
         this.speciesSet = new TreeSet<>();
         this.fileAsList = fileAsList;
+        this.currentProbsFileName = "probabilities.txt";
     }
     
     
@@ -57,7 +60,6 @@ public class ProbabilityCalculator {
         // speciesSetSizeUsage is used such that for each species and each solution 
         // set size, we keep count of number of times the species was included in 
         // a subset when a solution was found for the set size
-        
         
         for(SpeciesSelection specSel : specSelList)
         {
@@ -94,7 +96,6 @@ public class ProbabilityCalculator {
                     }
                 }
                 
-                
                 // For each species and each solution set size, keep count of number
                 // of times the species was included in a subset and a solution was 
                 // found for the set size
@@ -130,7 +131,6 @@ public class ProbabilityCalculator {
         
         // calculate the probabilities for each species in each set size and
         // Check if probabilities results file all ready exists
-        String currentProbsFileName = specSelGUI.getCurrentProbsFileName();
         JCheckBox jCheckBoxOverwriteProbs = specSelGUI.getCheckBoxOverwriteProbs();
         File file = new File(currentProbsFileName);
         if(!jCheckBoxOverwriteProbs.isSelected() && FileUtils.fileExists(file))
@@ -235,6 +235,41 @@ public class ProbabilityCalculator {
         return scanner.nextInt();        
     }
     
+    public String getCurrentProbsFileName()
+    {
+        return currentProbsFileName;
+    }
+       
+    public static String viewResults() {
+        try
+        {
+            File f = new File(currentProbsFileName);
+            if(f.exists() && !f.isDirectory()) { 
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().edit(f);
+                    return "";
+                } 
+                else 
+                {
+                    String str = "This PC does not support file edit";
+                    System.out.println(str);
+                    return str;
+                }
+            }
+            else
+            {
+                String str = "File does not exist";
+                System.out.println(str);
+                return str;
+            }
+        }
+        catch(IOException e)
+        {
+            String str = "Error attempting to open " + currentProbsFileName + ": " + e;
+            System.out.println(str);
+            return str;
+        }
+    }
     
     @Override
     public String toString()

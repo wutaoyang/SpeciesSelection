@@ -53,7 +53,9 @@ public class SpeciesSelection implements Runnable {
     private static void printIntro()
     {
         System.out.println("The Indicator Species Selection Project.");
-        System.out.println("By Taoyang Wu & S.Whiddett, Version X.X, March 2018");
+        //System.out.println("By Taoyang Wu, Version 0.2, March 2014");
+        //System.out.println("By Taoyang Wu, Version 1.0, February 2016");
+        System.out.println("By Taoyang Wu & S.Whiddett, Version 2.0, March 2018");
     }
 
     public SpeciesSelection() {
@@ -105,18 +107,7 @@ public class SpeciesSelection implements Runnable {
         pcs.removePropertyChangeListener(l);
     }
 
-    /**
-     * Default specSel method outputs truncated results
-     *
-     * @param args
-     * @return
-     * @throws FileNotFoundException
-     * @throws java.lang.InterruptedException
-     * @throws speciesselection.SpecSelException
-     */
-    public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException, SpecSelException {
-        return specSel(args, false, 3);
-    }
+    
 
     private static void processFile(String fileName, SpecRTGraph specRTGraph) throws FileNotFoundException {
         try {
@@ -142,7 +133,20 @@ public class SpeciesSelection implements Runnable {
         processFile(fileName, specRTGraph);
         return specRTGraph.getMinDomSpecSets();
     }
-
+    
+    /**
+     * Default specSel method outputs truncated results
+     *
+     * @param args
+     * @return
+     * @throws FileNotFoundException
+     * @throws java.lang.InterruptedException
+     * @throws speciesselection.SpecSelException
+     */
+    public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException, SpecSelException {
+        return specSel(args, false, 3);
+    }
+    
     /**
      *
      * @param args
@@ -154,7 +158,8 @@ public class SpeciesSelection implements Runnable {
      * @throws java.lang.InterruptedException
      * @throws speciesselection.SpecSelException
      */
-    public ArrayList<Double> specSel(String[] args, boolean allResults, int truncateThreshold) throws FileNotFoundException, InterruptedException, SpecSelException {
+    public ArrayList<Double> specSel(String[] args, boolean allResults, int truncateThreshold) 
+            throws FileNotFoundException, InterruptedException, SpecSelException {
         this.args = args;
         //construct the bipartite graph between species and indicators.
         specRTGraph = new SpecRTGraph();

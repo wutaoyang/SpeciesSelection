@@ -25,6 +25,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileFilter;
@@ -53,11 +54,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private volatile boolean cancelled, errorOccurred;
 
     // Global member variables 
-//    private List<Thread> threads;
     private FileList fileList, resFileList;
     private ProblemSpecies problemSpec;
-    private static final String DEFAULT_PROBS_FILENAME = "probabilities.txt";
-    private static String currentProbsFileName;
+    
     private boolean subSetsCancelled;
     private int noSubsets, subsetSize;
     private ArrayList<Future> futures;
@@ -67,7 +66,6 @@ public class SpecSelGUI extends javax.swing.JFrame {
      */
     public SpecSelGUI() {
         initComponents();
-        currentProbsFileName = DEFAULT_PROBS_FILENAME;
         jButtonCancelP.setVisible(false);
         jButtonCancelA.setVisible(false);
         jButtonDeleteFilesA.setVisible(false);
@@ -1019,15 +1017,15 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
     private void jButtonGenerateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGenerateActionPerformed
         jLabelErrorProbs.setText("");
-        fileName = jTextFieldFilePathProb.getText();
-        noSubsets = (int)jSpinnerNoSubsets.getValue();
+        fileName   = jTextFieldFilePathProb.getText();
+        noSubsets  = (int)jSpinnerNoSubsets.getValue();
         subsetSize = (int)jSpinnerSubsetSize.getValue();
         
         if (!fileName.equals("")) {
             try {
                 File file = new File(fileName);
                 SubSetGenerator pc = new SubSetGenerator();
-                fileList = pc.generateSubsets(file, subsetSize, noSubsets);
+                fileList    = pc.generateSubsets(file, subsetSize, noSubsets);
                 resFileList = new FileList();
                 jTextAreaSubsetFiles.setText(fileList.toString());
                 jButtonRunSubsets.setEnabled(true);
@@ -1051,7 +1049,6 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jButtonCancelProb.setEnabled(true);
         List<SpeciesSelection> specSelList = new ArrayList<>();
         errorOccurred = false;
-//        threads = new ArrayList<>();
         ExecutorService executor = initialiseExecutorService();
         
         boolean truncate = jCheckBoxTruncateProbs.isSelected();
@@ -1121,7 +1118,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                         {
                             probsCalc.generateSubDataset(subDatasetFilename);
                         }
-                        String savedString = probsSaved ? "\n*** Output in " + currentProbsFileName + " ***\n" + "*** Sub DataSet in " + subDatasetFilename + " ***"
+                        String savedString = probsSaved ? "\n*** Output in " + probsCalc.getCurrentProbsFileName() + " ***\n" + "*** Sub DataSet in " + subDatasetFilename + " ***"
                                 : "\n*** Save Cancelled ***";
                         
                         jTextAreaSubsetFiles.setText(fileList.toString() + "\n" + resFileList.toString() + savedString);
@@ -1152,30 +1149,10 @@ public class SpecSelGUI extends javax.swing.JFrame {
    
     private void jButtonViewResultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonViewResultsActionPerformed
         //Open probability output file in external program
-        try
+        String str = ProbabilityCalculator.viewResults();
+        if(!str.equals(""))
         {
-            File f = new File(currentProbsFileName);
-            if(f.exists() && !f.isDirectory()) { 
-                if (Desktop.isDesktopSupported()) {
-                Desktop.getDesktop().edit(f);
-                } else {
-                    String str = "This PC does not support file edit";
-                    jTextAreaSubsetFiles.setText(str);
-                    System.out.println(str);
-                }
-            }
-            else
-            {
-                String str = "File does not exist";
-                jTextAreaSubsetFiles.setText(str);
-                System.out.println(str);
-            }
-        }
-        catch(IOException e)
-        {
-            String str = "Error attempting to open " + currentProbsFileName + ": " + e;
             jTextAreaSubsetFiles.setText(str);
-            System.out.println(str);
         }
     }//GEN-LAST:event_jButtonViewResultsActionPerformed
 
@@ -1204,17 +1181,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonCancelProbActionPerformed
 
-    
-
-    
-    
-    
     private String finishedThreads(int finished, int total)
     {
         return "Finished: " + finished + " of " + total;
     }
-    
-    
+        
     /**
      * Sets text of 'timeLabel' to display constantly updating processing time 
      * until 'running' is set to false
@@ -1408,10 +1379,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         }
     }
     
-    public String getCurrentProbsFileName()
-    {
-        return currentProbsFileName;
-    }
+
     
     public JCheckBox getCheckBoxOverwriteProbs()
     {
