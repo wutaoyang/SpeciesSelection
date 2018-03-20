@@ -84,11 +84,11 @@ public class SpecSet implements Comparable<SpecSet> {
         return this.getSumSensitivity() * 1.0 / spSet.size();
     }
 
-    public int getMaxSensitivity() {
+    public double getMaxSensitivity() {
         if (spSet.isEmpty()) {
             System.out.print("The species set contains no elements!");
         }
-        int result = 0;
+        double result = 0;
         for (Species sp : spSet) {
             if (result < sp.getSensitivity()) {
                 result = sp.getSensitivity();
@@ -139,7 +139,7 @@ public class SpecSet implements Comparable<SpecSet> {
      *
      * @param inSpecList A set of species to be added into the current family
      * @param targetSize The number of members in the family aimed to get
-     * @return true iff the current family has been extended to the target size
+     * @return true if the current family has been extended to the target size
      */
     public boolean increaseToSize(ArrayList<Species> inSpecList, int targetSize) {
         if (size() > targetSize) {
@@ -159,22 +159,20 @@ public class SpecSet implements Comparable<SpecSet> {
     }
 
     @Override
-    public int compareTo(SpecSet other) {
-        int curSen = this.getMaxSensitivity();
-        int otherSen = other.getMaxSensitivity();
-        if (curSen != otherSen) {
-            return curSen - otherSen;
-        }
-
-        double curMean = this.getMeanSensitivity();
-        double otherMean = other.getMeanSensitivity();
-
-        if (curMean < otherMean) {
+    public int compareTo(SpecSet other){
+        double curSen=this.getMaxSensitivity();
+        double otherSen=other.getMaxSensitivity();
+        if(curSen<otherSen)
             return -1;
-        }
-        if (curMean == otherMean) {
-            return 0;
-        }
+        if(curSen>otherSen)
+            return 1;
+        
+        double curMean=this.getMeanSensitivity();
+        double otherMean=other.getMeanSensitivity();
+     
+        if(curMean<otherMean) return -1;
+        if(curMean==otherMean) return 0;
+        
         return 1;
     }
 

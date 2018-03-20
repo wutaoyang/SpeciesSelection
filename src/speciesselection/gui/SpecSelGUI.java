@@ -2,13 +2,11 @@ package speciesselection.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -25,7 +23,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.filechooser.FileFilter;
@@ -112,7 +109,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         // executor with one process per core. Leave one core available for GUI 
         // main thread and ensure at least 1 process in the executor
         int cores = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-//        System.err.println("Number Cores: " + cores);
+        System.err.println("Number Cores: " + cores);
         return Executors.newFixedThreadPool(cores);
     }
     
@@ -128,6 +125,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanelPreProcess = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
         jPanelProcess = new javax.swing.JPanel();
         jPanelTop = new javax.swing.JPanel();
         jButtonSelectDataFileP = new javax.swing.JButton();
@@ -188,6 +187,10 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jLabelProcessTimeProb = new javax.swing.JLabel();
         jLabelErrorProbs = new javax.swing.JLabel();
         jCheckBoxOverwriteProbs = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
+        jLabelMaxTime = new javax.swing.JLabel();
+        jSpinnerMaxTime = new javax.swing.JSpinner();
+        jLabelSecs = new javax.swing.JLabel();
         jPanelAbout = new javax.swing.JPanel();
         jLabelAboutProcess = new javax.swing.JLabel();
         jLabelAboutAnalyse = new javax.swing.JLabel();
@@ -197,6 +200,36 @@ public class SpecSelGUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
         setResizable(false);
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 789, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 475, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanelPreProcessLayout = new javax.swing.GroupLayout(jPanelPreProcess);
+        jPanelPreProcess.setLayout(jPanelPreProcessLayout);
+        jPanelPreProcessLayout.setHorizontalGroup(
+            jPanelPreProcessLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelPreProcessLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanelPreProcessLayout.setVerticalGroup(
+            jPanelPreProcessLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanelPreProcessLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        jTabbedPane1.addTab("Pre-Process", jPanelPreProcess);
 
         jPanelProcess.setPreferredSize(new java.awt.Dimension(600, 400));
         jPanelProcess.setLayout(new java.awt.BorderLayout());
@@ -669,20 +702,49 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jCheckBoxOverwriteProbs.setSelected(true);
         jCheckBoxOverwriteProbs.setText("Overwrite probabilities.txt?");
 
+        jLabelMaxTime.setText("Max Time:");
+
+        jSpinnerMaxTime.setModel(new javax.swing.SpinnerNumberModel(10, 10, null, 1));
+
+        jLabelSecs.setText("Secs");
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabelMaxTime)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSpinnerMaxTime, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabelSecs)
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(jLabelMaxTime)
+                .addComponent(jSpinnerMaxTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabelSecs))
+        );
+
         javax.swing.GroupLayout jPanelRightLayout = new javax.swing.GroupLayout(jPanelRight);
         jPanelRight.setLayout(jPanelRightLayout);
         jPanelRightLayout.setHorizontalGroup(
             jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelRightLayout.createSequentialGroup()
-                .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelErrorProbs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanelRightLayout.createSequentialGroup()
+                .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabelErrorProbs, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanelRightLayout.createSequentialGroup()
                         .addGap(194, 194, 194)
                         .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
+                            .addComponent(jLabelFinishedThreads, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabelProcessTimeProb, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelRightLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                    .addGroup(jPanelRightLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
                         .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jButtonDeleteFiles, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jButtonCancelProb, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -697,7 +759,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelRightLayout.setVerticalGroup(
             jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelRightLayout.createSequentialGroup()
-                .addComponent(jButtonGenerate)
+                .addGroup(jPanelRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButtonGenerate)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(26, 26, 26)
                 .addComponent(jCheckBoxTruncateProbs)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -728,8 +792,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             .addGroup(jPanelProbabilityLayout.createSequentialGroup()
                 .addComponent(jPanelProbUpper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanelRight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanelRight, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanelProbabilityLayout.setVerticalGroup(
             jPanelProbabilityLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1025,7 +1088,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
             try {
                 File file = new File(fileName);
                 SubSetGenerator pc = new SubSetGenerator();
-                fileList    = pc.generateSubsets(file, subsetSize, noSubsets);
+                fileList    = pc.generateSubsets(file, subsetSize, noSubsets, (int)jSpinnerMaxTime.getValue());
                 resFileList = new FileList();
                 jTextAreaSubsetFiles.setText(fileList.toString());
                 jButtonRunSubsets.setEnabled(true);
@@ -1324,6 +1387,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelAllowedDiv;
     private javax.swing.JLabel jLabelErrorProbs;
     private javax.swing.JLabel jLabelFinishedThreads;
+    private javax.swing.JLabel jLabelMaxTime;
     private javax.swing.JLabel jLabelNoSpec;
     private javax.swing.JLabel jLabelNoSubsets;
     private javax.swing.JLabel jLabelProbSpec;
@@ -1331,12 +1395,16 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabelProcessTime;
     private javax.swing.JLabel jLabelProcessTimeA;
     private javax.swing.JLabel jLabelProcessTimeProb;
+    private javax.swing.JLabel jLabelSecs;
     private javax.swing.JLabel jLabelSubsetSize;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanelAbout;
     private javax.swing.JPanel jPanelAnalyse;
     private javax.swing.JPanel jPanelBottom;
     private javax.swing.JPanel jPanelLower;
+    private javax.swing.JPanel jPanelPreProcess;
     private javax.swing.JPanel jPanelProbUpper;
     private javax.swing.JPanel jPanelProbability;
     private javax.swing.JPanel jPanelProcess;
@@ -1352,6 +1420,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPanePoints;
     private javax.swing.JSpinner jSpinnerAllowableExpDivergencePct;
     private javax.swing.JSpinner jSpinnerInitialNoSpecies;
+    private javax.swing.JSpinner jSpinnerMaxTime;
     private javax.swing.JSpinner jSpinnerNoSubsets;
     private javax.swing.JSpinner jSpinnerProbsThreshold;
     private javax.swing.JSpinner jSpinnerSubsetSize;

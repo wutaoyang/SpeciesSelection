@@ -16,7 +16,7 @@ import java.util.Scanner;
  */
 public class SubSetGenerator implements Comparator<String>{
     
-    public FileList generateSubsets(File file, int subsetSize, int noSubsets) throws FileNotFoundException
+    public FileList generateSubsets(File file, int subsetSize, int noSubsets, int maxSeconds) throws FileNotFoundException
     {
         FileList fileNames = new FileList();
         // read file adding each line to a list
@@ -31,7 +31,10 @@ public class SubSetGenerator implements Comparator<String>{
         
         // generate random subsets that cover all resources
         Random rand = new Random();
-        for(int i = 0; i < noSubsets; i++)
+        
+        long startTimeMs = System.currentTimeMillis();
+        int i = 0;
+        while(i < noSubsets && checkTime(startTimeMs, maxSeconds))
         {
             Universe tempUniverse;
             List<String> subset = new ArrayList<>();
@@ -43,18 +46,28 @@ public class SubSetGenerator implements Comparator<String>{
                 // get its universe
                 tempUniverse = getUniverse(subset);
             }
-            while(!tempUniverse.equals(universe));
+            while(!tempUniverse.equals(universe) && checkTime(startTimeMs, maxSeconds));
             
-            Collections.sort(subset, this);
-            // add the header back to top of the list
-            subset.add(0, header);
-            // Write out file for subset
-            String fileName = file.getName();
-            String subsetFileName = subsetFileName(fileName, i);
-            fileNames.add(new File(subsetFileName));
-            writeSubsetToFile(subsetFileName, subset);
+            // create subset file and add to list unless the max time is exceeded
+            if(checkTime(startTimeMs, maxSeconds))
+            {
+                Collections.sort(subset, this);
+                // add the header back to top of the list
+                subset.add(0, header);
+                // Write out file for subset
+                String fileName = file.getName();
+                String subsetFileName = subsetFileName(fileName, i);
+                fileNames.add(new File(subsetFileName));
+                writeSubsetToFile(subsetFileName, subset);
+            }
+            i++;
         }
         return fileNames;
+    }
+    
+    private boolean checkTime(long startTimeMs, int maxSeconds)
+    {
+        return (System.currentTimeMillis() - startTimeMs) < (maxSeconds * 1000);
     }
     
     private String subsetFileName(String fileName, int i)
@@ -91,7 +104,7 @@ public class SubSetGenerator implements Comparator<String>{
     public static void main(String[] args) throws FileNotFoundException {
         File file = new File("Forest1.txt");
         SubSetGenerator pc = new SubSetGenerator();
-        pc.generateSubsets(file, 50, 10);
+        pc.generateSubsets(file, 50, 10, 60);
     }
 
 }

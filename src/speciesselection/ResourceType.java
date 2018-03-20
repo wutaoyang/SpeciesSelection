@@ -42,11 +42,30 @@ public class ResourceType implements Comparable<ResourceType> {
     public int numSpecies() {
         return specList.size();
     }
+    
+    public double meanSensitivit(){
+        int n=this.numSpecies();
+        double result=0.0;
+        
+        if(n==0){
+            return result;
+        }
+        
+        for(Species sp: specList){
+            result+=sp.getSensitivity();
+        }
+        
+        return (result/n);
+    }
 
     public void addSpecies(Species inSpec) {
         if (specList.contains(inSpec) == false) {
             specList.add(inSpec);
         }
+    }
+    
+    public void remSpecies(Species outSpec){
+        specList.remove(outSpec);
     }
 
     public boolean adjacentTo(Species inSpec) {
