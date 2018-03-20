@@ -8,7 +8,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import speciesselection.MinSpecSetFamily;
@@ -145,7 +144,7 @@ public class ProblemSpecies implements Runnable {
                 String[] args = {tempFileName};
                 int truncateThreshold = 3;
                 // run with truncated results to reduce processing time (allResults = false)
-                SpeciesSelection specSel = new SpeciesSelection(args, false, truncateThreshold);
+                SpeciesSelection specSel = new SpeciesSelection(tempFileName, false, truncateThreshold, "A", 0, 0, 0);
                 long startTime = System.nanoTime();
                 MinSpecSetFamily mssf = specSel.getMssf();
                 int mssfSize = mssf.size();
@@ -155,7 +154,7 @@ public class ProblemSpecies implements Runnable {
                 // produce output if requested
                 if(option == Options.ALL || (i == numSpecies - 1 && option == Options.FINAL))
                 {
-                    specSel.outputResults(mssf, tempFileName, truncateThreshold);
+                    specSel.outputResults(mssf, tempFileName, truncateThreshold, "");
                     fileList.add(new File(specSel.getResultsFileName()));
                 }
                                 

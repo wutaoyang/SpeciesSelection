@@ -10,23 +10,41 @@ import java.util.Scanner;
  */
 public class ReadFile {
     
-    public static SpecRTGraph graphConstr(String fileName, String fileTypes)
-       throws FileNotFoundException{
-        //construct the bipartite graph between species and indicators.
-        SpecRTGraph sig=new SpecRTGraph();
-        
-        File f =new File(fileName);
-        Scanner input=new Scanner(f);
-        String titleInformation=input.nextLine();
-        while(input.hasNext()){
-            String text=input.nextLine();
-          //  System.out.println(text);
-            processLine(text,sig,fileTypes);
-        }
-        
-        return sig;
-    }
+//    public static SpecRTGraph graphConstr(String fileName, String fileTypes)
+//       throws FileNotFoundException{
+//        //construct the bipartite graph between species and indicators.
+//        SpecRTGraph sig=new SpecRTGraph();
+//        
+//        File f =new File(fileName);
+//        Scanner input=new Scanner(f);
+//        String titleInformation=input.nextLine();
+//        while(input.hasNext()){
+//            String text=input.nextLine();
+//          //  System.out.println(text);
+//            processLine(text,sig,fileTypes);
+//        }
+//        
+//        return sig;
+//    }
     
+    public static SpecRTGraph graphConstr(String fileName, String fileTypes) throws FileNotFoundException {
+        try {
+            System.out.println("The dataset is taken from file " + fileName);
+            SpecRTGraph specRTGraph = new SpecRTGraph();
+            File f = new File(fileName);
+            Scanner input = new Scanner(f);
+            String titleInformation = input.nextLine();
+            while (input.hasNext()) {
+                String text = input.nextLine();
+                processLine(text, specRTGraph, fileTypes);
+            }
+            input.close();
+            return specRTGraph;
+        } catch (FileNotFoundException e) {
+            System.out.println("Error in SpeciesSelection.processFile()");
+            return null;
+        }
+    }
     
     //process the given String for a line of the data file
     private static void processLine(String text, SpecRTGraph sig,String fileType){

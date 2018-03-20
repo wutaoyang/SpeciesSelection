@@ -54,7 +54,7 @@ public class SpeciesSelectionTest {
     private static String getResults(String fileName) throws FileNotFoundException, InterruptedException, SpecSelException {
         String[] args = {fileName};
         SpeciesSelection ss = new SpeciesSelection();
-        ss.specSel(args, false, 3);
+        ss.specSel(fileName);
         // Read in results file
         String outFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";
         File f = new File(outFileName);

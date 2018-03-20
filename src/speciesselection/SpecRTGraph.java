@@ -350,7 +350,7 @@ public class SpecRTGraph {
     public ArrayList<Species> remSpecByPrecision(double threshold) {
 
         //construct the set of RT nodes to be removed
-        ArrayList<Species> outSpecList = new ArrayList<Species>();
+        ArrayList<Species> outSpecList = new ArrayList<>();
 
         for (Species sp : specNode) {
             // System.out.println("Consider RT with ID "+rt.getID());

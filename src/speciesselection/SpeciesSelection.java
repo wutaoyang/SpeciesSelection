@@ -23,11 +23,13 @@ import preprocessing.ResultSet;
 public class SpeciesSelection implements Runnable {
 
     private PropertyChangeSupport pcs;
-    private String[] args;
+    private String fileName, option;
     private boolean allResults, finished;
     private ArrayList<Double> result;
     private SpecRTGraph specRTGraph;
     private int truncateThreshold;
+    private int specThresholdM;
+    private double sdThresholdX, areaOrPrecisionY;
 
     private final String theDataset = "The dataset:";
     private final String theDatasetContains = "The dataset contains ";
@@ -46,7 +48,7 @@ public class SpeciesSelection implements Runnable {
         SpeciesSelection speciesSelection = new SpeciesSelection();
         long start = System.nanoTime();
         printIntro();
-        speciesSelection.specSel(args, true, 3);
+        speciesSelection.specSel(args[0], true);
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
     
@@ -62,12 +64,16 @@ public class SpeciesSelection implements Runnable {
         this.finished = false;
     }
 
-    public SpeciesSelection(String[] args, boolean allResults, int truncateThreshold) {
+    public SpeciesSelection(String fileName, boolean allResults, int truncateThreshold, String option, int specThresholdM, double sdThresholdX, double areaOrPrecisionY) {
         this.pcs = new PropertyChangeSupport(this);
-        this.args = args;
+        this.fileName = fileName;
         this.allResults = allResults;
         this.finished = false;
         this.truncateThreshold = truncateThreshold;
+        this.option = option;
+        this.specThresholdM = specThresholdM;
+        this.sdThresholdX = sdThresholdX;
+        this.areaOrPrecisionY = areaOrPrecisionY;
     }
 
     @Override
@@ -75,7 +81,7 @@ public class SpeciesSelection implements Runnable {
         long start = System.nanoTime();
         printIntro();
         try {
-            result = specSel(args, allResults, truncateThreshold);
+            result = specSel(fileName, allResults, truncateThreshold, option, specThresholdM, sdThresholdX, areaOrPrecisionY);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -109,80 +115,118 @@ public class SpeciesSelection implements Runnable {
 
     
 
-    private static void processFile(String fileName, SpecRTGraph specRTGraph) throws FileNotFoundException {
-        try {
-            System.out.println("The dataset is taken from file " + fileName);
-            File f = new File(fileName);
-            Scanner input = new Scanner(f);
-            String titleInformation = input.nextLine();
-            while (input.hasNext()) {
-                String text = input.nextLine();
-                processLine(text, specRTGraph);
-            }
-            input.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("Error in SpeciesSelection.processFile()");
-        }
-
-    }
+//    private static SpecRTGraph graphConstr(String fileName, String fileTypes) throws FileNotFoundException {
+//        try {
+//            System.out.println("The dataset is taken from file " + fileName);
+//            SpecRTGraph specRTGraph = new SpecRTGraph();
+//            File f = new File(fileName);
+//            Scanner input = new Scanner(f);
+//            String titleInformation = input.nextLine();
+//            while (input.hasNext()) {
+//                String text = input.nextLine();
+//                processLine(text, specRTGraph, fileTypes);
+//            }
+//            input.close();
+//            return specRTGraph;
+//        } catch (FileNotFoundException e) {
+//            System.out.println("Error in SpeciesSelection.processFile()");
+//            return null;
+//        }
+//    }
 
     // Method for use with Problem Species identification
     public MinSpecSetFamily getMssf() throws InterruptedException, FileNotFoundException {
-        String fileName = this.args[0];
-        specRTGraph = new SpecRTGraph();
-        processFile(fileName, specRTGraph);
+//        String fileName = this.args[0];
+        specRTGraph = ReadFile.graphConstr(fileName, "None");
         return specRTGraph.getMinDomSpecSets();
     }
     
     /**
      * Default specSel method outputs truncated results
      *
-     * @param args
+     * @param fileName
      * @return
      * @throws FileNotFoundException
      * @throws java.lang.InterruptedException
      * @throws speciesselection.SpecSelException
      */
-    public ArrayList<Double> specSel(String[] args) throws FileNotFoundException, InterruptedException, SpecSelException {
-        return specSel(args, false, 3);
+    public ArrayList<Double> specSel(String fileName) throws FileNotFoundException, InterruptedException, SpecSelException {
+        return specSel(fileName, false, 3, "A", 0, 0, 0);
+    }
+    
+    public ArrayList<Double> specSel(String fileName, boolean allResults) throws FileNotFoundException, InterruptedException, SpecSelException {
+        return specSel(fileName, allResults, 3, "A", 0, 0, 0);
     }
     
     /**
      *
-     * @param args
+     * @param fileName
      * @param allResults set true for full output, otherwise output will be
      * produced up until truncateThreshold consecutive meanSensitivity increases
      * @param truncateThreshold
+     * @param option
+     * @param specThresholdM
+     * @param sdThresholdX
+     * @param areaOrPrecisionY
      * @return
      * @throws FileNotFoundException
      * @throws java.lang.InterruptedException
      * @throws speciesselection.SpecSelException
      */
-    public ArrayList<Double> specSel(String[] args, boolean allResults, int truncateThreshold) 
+    public ArrayList<Double> specSel(String fileName, boolean allResults, int truncateThreshold, String option, int specThresholdM, double sdThresholdX, double areaOrPrecisionY) 
             throws FileNotFoundException, InterruptedException, SpecSelException {
-        this.args = args;
+
+        
         //construct the bipartite graph between species and indicators.
-        specRTGraph = new SpecRTGraph();
-
-        String fileName = "Forest1.txt"; //default input data
-        if (args.length > 0) {
-            fileName = args[0];
-        }
-
-        processFile(fileName, specRTGraph);
-
+//        specRTGraph = ReadFile.graphConstr(fileName, "None");
+        
+        SelectionMethod selMeth = selectionMethod(fileName, option, specThresholdM, sdThresholdX, areaOrPrecisionY);
+        specRTGraph = selMeth.getSpecRTGraph();
+                
         long startMssf = System.nanoTime();
         MinSpecSetFamily mssf = specRTGraph.getMinDomSpecSets();
+        
         System.out.println("MSSF: " + mssf.size());
         System.out.println("MSSF time: " + ((System.nanoTime() - startMssf) / 1000000.0));
 
-        return outputResults(mssf, fileName, truncateThreshold);
-
+        return outputResults(mssf, fileName, truncateThreshold, selMeth.getDetails());
     }
+    
+    private SelectionMethod selectionMethod(String fileName, String option, int specThreshold, double sdThreshold, double areaOrPrecisionY) 
+            throws FileNotFoundException, SpecSelException, InterruptedException
+    {
+
+        switch (option) {
+                case "A":
+                    return new SelectionMethodA(fileName);
+                case "B":
+                    return new SelectionMethodB(fileName, false, false, specThreshold, sdThreshold);
+                case "BN":
+                    return new SelectionMethodB(fileName, true, false, specThreshold, sdThreshold);
+                case "BF":
+                    return new SelectionMethodB(fileName, false, true, specThreshold, sdThreshold);
+                case "BFN":
+                    return new SelectionMethodB(fileName, true, true, specThreshold, sdThreshold);
+                case "C":
+                    return new SelectionMethodC(fileName, false, false, specThreshold, sdThreshold, areaOrPrecisionY);
+                case "CF":
+                    return new SelectionMethodC(fileName, false, true, specThreshold, sdThreshold, areaOrPrecisionY);
+                case "CN":
+                    return new SelectionMethodC(fileName, true, false, specThreshold, sdThreshold, areaOrPrecisionY);
+                case "CFN":
+                    return new SelectionMethodC(fileName, true, false, specThreshold, sdThreshold, areaOrPrecisionY);
+                default:
+                    return null;
+            }
+        
+        
+    }
+    
+    
     
     public String getResultsFileName()
     {
-        String fileName = args[0];
+//        String fileName = args[0];
         return fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";
     }
 
@@ -191,41 +235,30 @@ public class SpeciesSelection implements Runnable {
      * @param mssf
      * @param fileName
      * @param truncateThreshold - number of rises in min mean sensitivity when truncating results output
+     * @param details
      * @return
      * @throws InterruptedException
      * @throws FileNotFoundException
      * @throws SpecSelException 
      */
-    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName, int truncateThreshold)
+    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName, int truncateThreshold, String details)
             throws InterruptedException, FileNotFoundException, SpecSelException {
         String outFileName = getResultsFileName();
-        if (args.length > 1) {
-            outFileName = args[1];
-        }
+//        if (args.length > 1) {
+//            outFileName = args[1];
+//        }
         //Output the results to a file
         PrintStream outPut = new PrintStream(new File(outFileName));
         outPut.println(theDataset + fileName);
         outPut.println(theDatasetContains + specRTGraph.numSpecies() + " species and "
                 + specRTGraph.numResourceTypes() + " resource types");
-
+        outPut.println(details);
+        
         int startSize = 2;
         int endSize = specRTGraph.numSpecies() - 1;
 
         //the number of species sets for each size, 11 is the default size;
         int numOfSpeciesSet = 11;
-
-        if (args.length > 2) {
-            numOfSpeciesSet = Integer.parseInt(args[2]) + 1;
-
-            if (args.length > 3) {
-                startSize = Integer.parseInt(args[3]);
-                endSize = startSize;
-
-                if (args.length > 4) {
-                    endSize = Integer.parseInt(args[4]);
-                }
-            }
-        }
 
         mssf.sortBySensitivity();
         Collections.sort(specRTGraph.rtNode);
@@ -268,39 +301,7 @@ public class SpeciesSelection implements Runnable {
         return minSensitivities;
     }
 
-    //process the given String for a line of the data file
-    public static void processLine(String text, SpecRTGraph sig) {
-        Scanner data = new Scanner(text);
-        //create a new species
-        int spName = data.nextInt();
-        Species inSpec = new Species(spName);
-
-        int spReliance = data.nextInt();
-        int spResources = data.nextInt();
-        int spSensitivity = data.nextInt();
-        inSpec.setReliance(spReliance);
-
-        //the indication information
-        int index = 0;
-
-        //test variable
-        while (data.hasNextInt()) {
-            index++;
-            int indValue = data.nextInt();
-            if (indValue == 1) {
-                //first to check whether an indicator with the given id exists
-                ResourceType tmpInd = sig.getResourceTypeByID(index);
-
-                if (tmpInd != null) {
-                    sig.addEdge(inSpec, tmpInd);
-                } else {
-                    ResourceType newInd = new ResourceType(index);
-                    sig.addEdge(inSpec, newInd);
-                }
-            }
-        }
-    }
-    
+   
     public List<Integer> speciesIDs()
     {
         return specRTGraph.speciesIDs();
