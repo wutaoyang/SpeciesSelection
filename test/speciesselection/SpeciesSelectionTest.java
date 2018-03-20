@@ -52,7 +52,7 @@ public class SpeciesSelectionTest {
     }
 
     private static String getResults(String fileName) throws FileNotFoundException, InterruptedException, SpecSelException {
-        String[] args = {fileName};
+//        String[] args = {fileName};
         SpeciesSelection ss = new SpeciesSelection();
         ss.specSel(fileName);
         // Read in results file

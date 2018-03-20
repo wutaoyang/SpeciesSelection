@@ -151,6 +151,7 @@ public class SpeciesSelection implements Runnable {
      * @throws speciesselection.SpecSelException
      */
     public ArrayList<Double> specSel(String fileName) throws FileNotFoundException, InterruptedException, SpecSelException {
+        this.fileName = fileName;
         return specSel(fileName, false, 3, "A", 0, 0, 0);
     }
     
@@ -252,7 +253,7 @@ public class SpeciesSelection implements Runnable {
         outPut.println(theDataset + fileName);
         outPut.println(theDatasetContains + specRTGraph.numSpecies() + " species and "
                 + specRTGraph.numResourceTypes() + " resource types");
-        outPut.println(details);
+        outPut.print(details);
         
         int startSize = 2;
         int endSize = specRTGraph.numSpecies() - 1;

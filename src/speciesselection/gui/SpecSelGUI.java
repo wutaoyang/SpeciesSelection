@@ -900,7 +900,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 //Check for results truncation
                 boolean truncate = !jCheckBoxTruncate.isSelected();
 
-                String[] args = {fileName};
+//                String[] args = {fileName};
                 String option = jComboBoxOption.getSelectedItem().toString();
                 int specThresholdM = (int) jSpinnerM.getValue();
                 double sdThresholdX = (double) jSpinnerX.getValue();

@@ -6,6 +6,7 @@
  */
 package speciesselection;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -78,11 +79,12 @@ public class SpecSetFamily {
 
     @Override
     public String toString() {
+        DecimalFormat df = new DecimalFormat("#.##");
         Collections.sort(ssf);
         // Sort species into numeric order for consistent printing
         String outStr = "[";
         for (SpecSet ss : ssf) {
-            outStr += "\n" + ss.getMaxSensitivity()
+            outStr += "\n" + df.format(ss.getMaxSensitivity())
                     + ":" + String.format("%.02f", ss.getMeanSensitivity())
                     + ":" + ss.sortForPrint();
         }
