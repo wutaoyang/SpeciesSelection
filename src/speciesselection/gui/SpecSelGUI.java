@@ -135,13 +135,18 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jPanelBottom = new javax.swing.JPanel();
         jLabelProcessTime = new javax.swing.JLabel();
         jPanelWest = new javax.swing.JPanel();
+        jLabelOption = new javax.swing.JLabel();
         jComboBoxOption = new javax.swing.JComboBox<>();
+        jLabelSpecThresh = new javax.swing.JLabel();
         jSpinnerM = new javax.swing.JSpinner();
-        jLabel5 = new javax.swing.JLabel();
+        jLabelM = new javax.swing.JLabel();
+        jLabelSDThresh = new javax.swing.JLabel();
         jSpinnerX = new javax.swing.JSpinner();
-        jLabel6 = new javax.swing.JLabel();
+        jLabelX = new javax.swing.JLabel();
+        jLabelAreaPrecThresh = new javax.swing.JLabel();
         jSpinnerY = new javax.swing.JSpinner();
-        jLabel3 = new javax.swing.JLabel();
+        jLabelY = new javax.swing.JLabel();
+        jTextArea1 = new javax.swing.JTextArea();
         jPanelAnalyse = new javax.swing.JPanel();
         jPanelUpper = new javax.swing.JPanel();
         jButtonSelectDataFileA = new javax.swing.JButton();
@@ -290,19 +295,45 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         jPanelProcess.add(jPanelBottom, java.awt.BorderLayout.PAGE_END);
 
+        jPanelWest.setPreferredSize(new java.awt.Dimension(150, 407));
+
+        jLabelOption.setText("Process Option");
+
         jComboBoxOption.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "A", "B", "BN", "BF", "BFN", "C", "CF", "CN", "CFN" }));
+        jComboBoxOption.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBoxOptionActionPerformed(evt);
+            }
+        });
+
+        jLabelSpecThresh.setText("Species Threshold");
 
         jSpinnerM.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+        jSpinnerM.setEnabled(false);
 
-        jLabel5.setText("m");
+        jLabelM.setText("m");
+
+        jLabelSDThresh.setText("SD Threshold");
 
         jSpinnerX.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, null, 0.01d));
+        jSpinnerX.setEnabled(false);
 
-        jLabel6.setText("x");
+        jLabelX.setText("x");
+
+        jLabelAreaPrecThresh.setText("Area/Prec Threshold");
 
         jSpinnerY.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, null, 0.01d));
+        jSpinnerY.setEnabled(false);
 
-        jLabel3.setText("y");
+        jLabelY.setText("y");
+
+        jTextArea1.setEditable(false);
+        jTextArea1.setBackground(new java.awt.Color(240, 240, 240));
+        jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+        jTextArea1.setRows(5);
+        jTextArea1.setText("Key:\nA:standard\nB:trait based excl.\nC:area/prec excl.\nF:impose sensitivity\nN:normalise sens.");
+        jTextArea1.setAutoscrolls(false);
 
         javax.swing.GroupLayout jPanelWestLayout = new javax.swing.GroupLayout(jPanelWest);
         jPanelWest.setLayout(jPanelWestLayout);
@@ -310,37 +341,59 @@ public class SpecSelGUI extends javax.swing.JFrame {
             jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelWestLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jSpinnerY)
-                    .addComponent(jSpinnerX)
-                    .addComponent(jComboBoxOption, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jSpinnerM, javax.swing.GroupLayout.Alignment.LEADING))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabelAreaPrecThresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabelSDThresh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanelWestLayout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanelWestLayout.createSequentialGroup()
+                                .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jSpinnerY, javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jSpinnerX)
+                                    .addGroup(jPanelWestLayout.createSequentialGroup()
+                                        .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jComboBoxOption, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jSpinnerM, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabelY, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabelX, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabelM, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(jLabelSpecThresh)
+                            .addComponent(jLabelOption)
+                            .addComponent(jTextArea1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addGap(0, 17, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanelWestLayout.setVerticalGroup(
             jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanelWestLayout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addComponent(jLabelOption)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jComboBoxOption, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
+                .addComponent(jLabelSpecThresh)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jSpinnerM, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jLabelM))
+                .addGap(18, 18, 18)
+                .addComponent(jLabelSDThresh)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jSpinnerX, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(jLabelX))
+                .addGap(18, 18, 18)
+                .addComponent(jLabelAreaPrecThresh)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanelWestLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jSpinnerY, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addGap(0, 287, Short.MAX_VALUE))
+                    .addComponent(jLabelY))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
+                .addComponent(jTextArea1, javax.swing.GroupLayout.PREFERRED_SIZE, 101, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(24, 24, 24))
         );
 
         jPanelProcess.add(jPanelWest, java.awt.BorderLayout.LINE_START);
@@ -1279,6 +1332,40 @@ public class SpecSelGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonCancelProbActionPerformed
 
+    private void jComboBoxOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxOptionActionPerformed
+        
+        String option = jComboBoxOption.getSelectedItem().toString();
+        
+        switch(option.charAt(0)){
+            case 'A':
+                jSpinnerM.setValue(0);
+                jSpinnerM.setEnabled(false);
+                jSpinnerX.setValue(0.0);
+                jSpinnerX.setEnabled(false);
+                jSpinnerY.setValue(0.0);
+                jSpinnerY.setEnabled(false);
+                break;
+            case 'B':
+                jSpinnerM.setValue(0);
+                jSpinnerM.setEnabled(true);
+                jSpinnerX.setValue(0.0);
+                jSpinnerX.setEnabled(true);
+                jSpinnerY.setValue(0.0);
+                jSpinnerY.setEnabled(false);
+                break;
+            case 'C':
+                jSpinnerM.setValue(0);
+                jSpinnerM.setEnabled(true);
+                jSpinnerX.setValue(0.0);
+                jSpinnerX.setEnabled(true);
+                jSpinnerY.setValue(0.0);
+                jSpinnerY.setEnabled(true);
+                break;
+        }
+        
+        
+    }//GEN-LAST:event_jComboBoxOptionActionPerformed
+
     private String finishedThreads(int finished, int total)
     {
         return "Finished: " + finished + " of " + total;
@@ -1415,27 +1502,31 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jComboBoxOption;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabelAboutAnalyse;
     private javax.swing.JLabel jLabelAboutInputOutput;
     private javax.swing.JLabel jLabelAboutProbability;
     private javax.swing.JLabel jLabelAboutProcess;
     private javax.swing.JLabel jLabelAllowedDiv;
+    private javax.swing.JLabel jLabelAreaPrecThresh;
     private javax.swing.JLabel jLabelErrorProbs;
     private javax.swing.JLabel jLabelFinishedThreads;
+    private javax.swing.JLabel jLabelM;
     private javax.swing.JLabel jLabelMaxTime;
     private javax.swing.JLabel jLabelNoSpec;
     private javax.swing.JLabel jLabelNoSubsets;
+    private javax.swing.JLabel jLabelOption;
     private javax.swing.JLabel jLabelProbSpec;
     private javax.swing.JLabel jLabelProcessCompletedTimeA;
     private javax.swing.JLabel jLabelProcessTime;
     private javax.swing.JLabel jLabelProcessTimeA;
     private javax.swing.JLabel jLabelProcessTimeProb;
+    private javax.swing.JLabel jLabelSDThresh;
     private javax.swing.JLabel jLabelSecs;
+    private javax.swing.JLabel jLabelSpecThresh;
     private javax.swing.JLabel jLabelSubsetSize;
+    private javax.swing.JLabel jLabelX;
+    private javax.swing.JLabel jLabelY;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanelAbout;
@@ -1467,6 +1558,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private javax.swing.JSpinner jSpinnerX;
     private javax.swing.JSpinner jSpinnerY;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextAreaKey;
     private javax.swing.JTextArea jTextAreaPoints;
     private javax.swing.JTextArea jTextAreaSubsetFiles;

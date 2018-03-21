@@ -183,6 +183,9 @@ public class SpeciesSelection implements Runnable {
         
         SelectionMethod selMeth = selectionMethod(fileName, option, specThresholdM, sdThresholdX, areaOrPrecisionY);
         specRTGraph = selMeth.getSpecRTGraph();
+        if(null == specRTGraph){
+            throw new SpecSelException("specRTGraph is null: incorrect input data format likely");
+        }
                 
         long startMssf = System.nanoTime();
         MinSpecSetFamily mssf = specRTGraph.getMinDomSpecSets();

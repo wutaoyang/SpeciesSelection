@@ -116,9 +116,10 @@ public class SpecSet implements Comparable<SpecSet> {
         int maxNum = rangSize.getSize();
 
         if (maxNum > tmpSpecList.size()) {
-            String str = "Something is wrong about tmpSpecList";
+            String str = "Exception in SpecSet.extendToFamily: Something is wrong about tmpSpecList";
             System.out.println(str);
-            throw new SpecSelException("Exception in SpecSet.extendToFamily: " + str);
+            ReadFile.infoBox(str, "SpecSet error");
+            throw new SpecSelException(str);
         }
 
         CombSubSet rangSets = new CombSubSet(extNum, maxNum);

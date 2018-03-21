@@ -15,7 +15,7 @@ import java.util.*;
 public class Species implements Comparable<Species> {
 
     protected int speciesName;
-    protected int reliance;
+    protected double reliance;
     protected boolean sensType;   //true if the sensitivity is imposed
     protected double sensitivity;  //a new field added in v1.0
                                  //default sensitivity is -1
@@ -115,11 +115,11 @@ public class Species implements Comparable<Species> {
         return speciesName;
     }
 
-    public int getReliance() {
+    public double getReliance() {
         return reliance;
     }
 
-    public void setReliance(int inRel) {
+    public void setReliance(double inRel) {
         reliance = inRel;
     }
 

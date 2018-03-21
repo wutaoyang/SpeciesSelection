@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import speciesselection.MinSpecSetFamily;
+import speciesselection.ReadFile;
 import speciesselection.SpecSelException;
 import speciesselection.SpeciesSelection;
 
@@ -220,7 +221,13 @@ public class ProblemSpecies implements Runnable {
         {
             findProblemSpecies(file, initialNoSpecies, expMarginPct);
         } 
-        catch (FileNotFoundException | InterruptedException | SpecSelException ex) {
+        catch (FileNotFoundException | InterruptedException ex) {
+            
+            Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch(SpecSelException ex)
+        {
+            ReadFile.infoBox(ex.toString(), "ProblemSpecies error");
             Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
         }
         finished = true;

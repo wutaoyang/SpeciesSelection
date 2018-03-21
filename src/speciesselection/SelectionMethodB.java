@@ -42,63 +42,7 @@ public class SelectionMethodB implements SelectionMethod {
 
         System.out.println("Method B"); 
 
-        //the list to record the indicators that has been processed.
-//        ArrayList<Integer> indicatorCreated = new ArrayList<>();
-
-//        String fileName = "example.txt"; //default input data
-
-        //  System.out.println(fileName);   
-//        int argStart = 0; //the argument starting point except for the first 
-//        //two or three (depending on the submethod) 
-//
-//        if (args.length < 0) {// SPW: < 0 NOT POSSIBLE???
-//            System.out.println("This method need additional arguments");
-//            //to exit
-//        }
-
         int option = getOption(specThresholdM, sdThresholdX);
-
-//        if (option < 0 || option > 3) {
-//            System.out.println("The option should be 0, 1, 2 or 3");
-//            //to exit
-//        }
-
-//        int specThreshold = 0;
-//        double sdThreshold = 0;
-//
-//        //remove by number of sensitivity  
-//        //option 0 for the basic case
-//        if (option == 0) {
-//            argStart = 1;
-//        }
-//
-//        if (option == 1) {
-//            argStart = 2;
-//            specThreshold = Integer.parseInt(args[1]);
-//        }
-//
-//        if (option == 2) {
-//            argStart = 2;
-//            sdThreshold = Double.parseDouble(args[1]);
-//        }
-//
-//        if (option == 3) {
-//            argStart = 3;
-//            specThreshold = Integer.parseInt(args[1]);
-//            sdThreshold = Double.parseDouble(args[2]);
-//        }
-//
-//        if (args.length > argStart + 0) {
-//            fileName = args[argStart + 0];
-//        }
-//
-//        String outFileName = fileName + "_result.txt";  //default file for output
-//
-//        if (args.length > argStart + 1) {
-//            outFileName = args[argStart + 1];
-//        }
-//
-//        System.out.println("The dataset is taken from file " + fileName);
 
         //construct the bipartite graph between species and indicators.
         specRTGraph = ReadFile.graphConstr(fileName, "None");

@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
+import speciesselection.ReadFile;
 import speciesselection.SpeciesSelection;
 import speciesselection.gui.SpecSelGUI;
 
@@ -37,7 +38,7 @@ public class ProbabilityCalculator {
         this.probabilities = new HashMap<>();
         this.speciesSet = new TreeSet<>();
         this.fileAsList = fileAsList;
-        this.currentProbsFileName = "probabilities.txt";
+        ProbabilityCalculator.currentProbsFileName = "probabilities.txt";
     }
     
     
@@ -208,7 +209,7 @@ public class ProbabilityCalculator {
         outPut.println(speciesSet);
         outPut.close();
         
-        System.out.println(toString());// TODO Comment out this line when no longer debugging
+//        System.out.println(toString());// TODO Comment out this line when no longer debugging
     }
 
     // creates dataset containing only the species with a probability of appearing in an optimal specsel solution
@@ -267,6 +268,7 @@ public class ProbabilityCalculator {
         {
             String str = "Error attempting to open " + currentProbsFileName + ": " + e;
             System.out.println(str);
+            ReadFile.infoBox(str, "ProbabilityCalculator error");
             return str;
         }
     }
