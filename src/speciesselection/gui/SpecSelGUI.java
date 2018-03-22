@@ -958,6 +958,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 int specThresholdM = (int) jSpinnerM.getValue();
                 double sdThresholdX = (double) jSpinnerX.getValue();
                 double areaOrPrecisionY = (double) jSpinnerY.getValue();
+                
                 //run solution and draw graph
                 SpeciesSelection specSel = new SpeciesSelection(fileName, truncate, 3, option, specThresholdM, sdThresholdX, areaOrPrecisionY);
                 Thread t = new Thread(specSel);
@@ -1313,6 +1314,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         {
             problemSpec.deleteFiles();
         }
+        jTextAreaPoints.setText(jTextAreaPoints.getText() + "\n*** Files Deleted ***");
     }//GEN-LAST:event_jButtonDeleteFilesAActionPerformed
 
     private void jButtonCancelProbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelProbActionPerformed

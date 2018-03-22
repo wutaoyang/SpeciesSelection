@@ -17,14 +17,14 @@ public class SelectionMethodB implements SelectionMethod {
     
     private ArrayList<ResourceType> remTraits ;
     private SpecRTGraph specRTGraph;
+    private boolean isolatedTraitsFlag;
 
     public SelectionMethodB(String fileName, boolean normSens, boolean sensType, int specThreshold, double sdThreshold) 
             throws FileNotFoundException, SpecSelException, InterruptedException
     {
         exec(fileName, normSens, sensType, specThreshold, sdThreshold, 0);
     }
-    
-    
+        
     /**
      * @param fileName
      * @param normSens
@@ -53,26 +53,15 @@ public class SelectionMethodB implements SelectionMethod {
         if (option == 1) {
             remTraits = specRTGraph.remRTByNum(specThresholdM);
         }
-
         if (option == 2) {
             remTraits = specRTGraph.remRTBySD(sdThresholdX);
         }
-
         if (option == 3) {
             remTraits = specRTGraph.remRTByBoth(specThresholdM, sdThresholdX);
         }
 
-        
-
         //test whether there exists an isolated traits
-//        if (sig.noIsolatedResourceType() == false) {
-//            System.out.println("There exist isolated traits");
-//            PrintStream outPut = new PrintStream(new File(outFileName));
-//            outPut.println("The dataset:" + fileName);
-//            outPut.println("Warning: Removing resource types leads to method fails!");
-//            return null;
-//            // System.out.println("There exists isolated species");
-//        }
+        isolatedTraitsFlag = specRTGraph.noIsolatedResourceType();
 
         //dealing with the sensType
         specRTGraph.setSensType(sensType);
@@ -81,7 +70,6 @@ public class SelectionMethodB implements SelectionMethod {
         if (normSens == true) {
             specRTGraph.normalizeSensitivities();
         }
-
     } //end exec
     
     private String testIsolatedSpecies()
@@ -96,7 +84,7 @@ public class SelectionMethodB implements SelectionMethod {
     private String testForIsolatedTraits()
     {
         //test whether there exists an isolated traits
-        if (specRTGraph.noIsolatedResourceType() == false) {
+        if (!isolatedTraitsFlag) {
             return "There exist isolated traits\n" +
                    "Warning: Removing resource types leads to method fails!\n";
         }
@@ -127,8 +115,6 @@ public class SelectionMethodB implements SelectionMethod {
              + testForIsolatedTraits() 
              + getRemovedTraits();
     }
-    
-    
 
     private int getOption(int specThreshold, double sdThreshold) {
         
@@ -151,5 +137,4 @@ public class SelectionMethodB implements SelectionMethod {
     public SpecRTGraph getSpecRTGraph() {
         return specRTGraph;
     }
-
 }

@@ -23,45 +23,43 @@ public class SpecRTGraph {
 
     SpecRTGraph() {
         specNode = new ArrayList<>();
-        rtNode = new ArrayList<>();
+        rtNode   = new ArrayList<>();
     }
 
-    //Find the mean sensitive across the species
+    //Find the mean sensitivity across the species
     public double getMeanSensitivity() {
         int n = this.numSpecies();
         double result = 0.0;
 
         if (n == 0) {
+            System.err.println("No Species found when getting MeanSensitivity");
             return result;
         }
 
         for (Species sp : specNode) {
             result += sp.getSensitivity();
         }
-
+//        System.out.println("Mean: " + (result / n));
         return (result / n);
-
     }
 
-    //Return the standard deviation of the senstivities
+    //Return the standard deviation of the sensitivities
     public double getStandardDeviation() {
         int n = this.numSpecies();
         if (n <= 1) {
+            System.err.println("1 or fewer Species found when getting SD");
             return 0.0;
         }
 
         double mean = this.getMeanSensitivity();
-
         double var = 0.0;
-
         for (Species sp : specNode) {
             var += Math.pow(sp.getSensitivity() - mean, 2);
             // System.out.println(sp.getName()+":"+var);
         }
 
         var = var / (n - 1);  //Using the adjusted one
-        // System.out.println(var);
-
+//        System.out.println("SD: " + Math.sqrt(var));
         return (Math.sqrt(var));
     }
 
@@ -70,11 +68,8 @@ public class SpecRTGraph {
     //they are related to the origin ones only by 
     //the IDs and speciesName
     public SpecRTGraph getADeepCopy() {
-
         SpecRTGraph sig = new SpecRTGraph();
-
         for (Species sp : specNode) {
-
             Species inSpec = new Species(sp.getName());
 
             inSpec.setReliance(sp.getReliance());
@@ -84,22 +79,16 @@ public class SpecRTGraph {
             inSpec.setSensType(sp.getSensType());
 
             ArrayList<Integer> rtIDs = sp.getRTIDs();
-
             for (Integer e : rtIDs) {
-
-                ResourceType tmpInd = sig.getResourceTypeByID(e.intValue());
-
+                ResourceType tmpInd = sig.getResourceTypeByID(e);
                 if (tmpInd != null) {
                     sig.addEdge(inSpec, tmpInd);
                 } else {
-                    ResourceType newInd = new ResourceType(e.intValue());
+                    ResourceType newInd = new ResourceType(e);
                     sig.addEdge(inSpec, newInd);
                 }
-
             } //end Ids   
-
         } //end species
-
         return sig;
     }
 
@@ -118,17 +107,19 @@ public class SpecRTGraph {
 
     //Normalized sensitivities using the community average
     public void normalizeSensitivities() {
-
         double mean = this.getMeanSensitivity();
         double sd = this.getStandardDeviation();
+        System.out.println("Mean: " + mean + ", SD: " + sd);
 
         if (sd == 0) {
-            System.out.println("The normalized process for sensitivity has failed ");
+            System.err.println("The normalized process for sensitivity has failed ");
         }
 
         for (Species sp : specNode) {
             double tmp = sp.getSensitivity();
             tmp = (tmp - mean) / sd;
+
+            System.out.println("Species " + sp.getName() + ", Sens " + tmp);
             sp.setSensitivity(tmp);
             sp.setSensType(true);//set the sensType to be imposed
         }
@@ -656,7 +647,7 @@ public class SpecRTGraph {
         //System.out.println(fst);
         System.out.println(snd);
         * */
-       /*
+ /*
          //Deep copy a thrid graph
         System.out.println("Thrid");
         SpecRTGraph thd=fst.getADeepCopy();

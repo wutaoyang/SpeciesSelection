@@ -69,8 +69,8 @@ public class SpecSet implements Comparable<SpecSet> {
         return spSet.containsAll(other.spSet);
     }
 
-    public int getSumSensitivity() {
-        int result = 0;
+    public double getSumSensitivity() {
+        double result = 0;
         for (Species sp : spSet) {
             result += sp.getSensitivity();
         }
@@ -81,7 +81,7 @@ public class SpecSet implements Comparable<SpecSet> {
         if (spSet.isEmpty()) {
             return 0;
         }
-        return this.getSumSensitivity() * 1.0 / spSet.size();
+        return this.getSumSensitivity() / spSet.size();
     }
 
     public double getMaxSensitivity() {

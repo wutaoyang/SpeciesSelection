@@ -75,10 +75,10 @@ public class Species implements Comparable<Species> {
 
     //return the list of IDs for the Resource Type
     public ArrayList<Integer> getRTIDs() {
-        ArrayList<Integer> result = new ArrayList<Integer>();
+        ArrayList<Integer> result = new ArrayList<>();
 
         for (ResourceType rt : rtList) {
-            Integer tmp = new Integer(rt.getID());
+            Integer tmp = rt.getID();
             result.add(tmp);
         }
 
