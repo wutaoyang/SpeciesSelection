@@ -199,38 +199,38 @@ public class SpeciesSelection implements Runnable {
     private SelectionMethod selectionMethod(String fileName, String option, int specThreshold, double sdThreshold, double areaOrPrecisionY) 
             throws FileNotFoundException, SpecSelException, InterruptedException
     {
-
-        switch (option) {
-                case "A":
-                    return new SelectionMethodA(fileName);
-                case "B":
-                    return new SelectionMethodB(fileName, false, false, specThreshold, sdThreshold);
-                case "BN":
-                    return new SelectionMethodB(fileName, true, false, specThreshold, sdThreshold);
-                case "BF":
-                    return new SelectionMethodB(fileName, false, true, specThreshold, sdThreshold);
-                case "BFN":
-                    return new SelectionMethodB(fileName, true, true, specThreshold, sdThreshold);
-                case "C":
-                    return new SelectionMethodC(fileName, false, false, specThreshold, sdThreshold, areaOrPrecisionY);
-                case "CF":
-                    return new SelectionMethodC(fileName, false, true, specThreshold, sdThreshold, areaOrPrecisionY);
-                case "CN":
-                    return new SelectionMethodC(fileName, true, false, specThreshold, sdThreshold, areaOrPrecisionY);
-                case "CFN":
-                    return new SelectionMethodC(fileName, true, false, specThreshold, sdThreshold, areaOrPrecisionY);
-                default:
-                    return null;
-            }
-        
-        
+        switch (option) 
+        {
+            case "A":
+                return new SelectionMethodA(fileName);
+            case "B":
+                return new SelectionMethodB(fileName, false, false, specThreshold, sdThreshold);
+            case "BN":
+                return new SelectionMethodB(fileName, true, false, specThreshold, sdThreshold);
+            case "BF":
+                return new SelectionMethodB(fileName, false, true, specThreshold, sdThreshold);
+            case "BFN":
+                return new SelectionMethodB(fileName, true, true, specThreshold, sdThreshold);
+            case "C":
+                return new SelectionMethodC(fileName, false, false, specThreshold, sdThreshold, areaOrPrecisionY);
+            case "CF":
+                return new SelectionMethodC(fileName, false, true, specThreshold, sdThreshold, areaOrPrecisionY);
+            case "CN":
+                return new SelectionMethodC(fileName, true, false, specThreshold, sdThreshold, areaOrPrecisionY);
+            case "CFN":
+                return new SelectionMethodC(fileName, true, false, specThreshold, sdThreshold, areaOrPrecisionY);
+            default:
+                return null;
+        }
     }
-    
-    
     
     public String getResultsFileName()
     {
-//        String fileName = args[0];
+        return getResultsFileName(fileName);
+    }
+    
+    public static String getResultsFileName(String fileName)
+    {
         return fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";
     }
 

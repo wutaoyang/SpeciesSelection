@@ -74,17 +74,18 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="1" attributes="0">
+                      <Group type="102" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jButtonSelectDataFileP" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jTextFieldDataFilePath" min="-2" pref="444" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="jCheckBoxTruncate" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="38" max="32767" attributes="0"/>
+                          <EmptySpace pref="3" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="jButtonCancelP" max="32767" attributes="0"/>
-                              <Component id="jButtonProcess" max="32767" attributes="0"/>
+                              <Component id="jButtonProcess" pref="104" max="32767" attributes="0"/>
+                              <Component id="jButtonPViewResults" pref="104" max="32767" attributes="0"/>
+                              <Component id="jButtonCancelP" alignment="1" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -102,6 +103,8 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jButtonCancelP" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
+                          <Component id="jButtonPViewResults" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -140,6 +143,14 @@
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonCancelPActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="jButtonPViewResults">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="View Results"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonPViewResultsActionPerformed"/>
                   </Events>
                 </Component>
               </SubComponents>
@@ -1183,6 +1194,7 @@
                               <Component id="jLabelAboutProcess" alignment="1" pref="791" max="32767" attributes="0"/>
                           </Group>
                           <Component id="jLabelAboutInputOutput" alignment="0" min="-2" pref="791" max="-2" attributes="0"/>
+                          <Component id="jButton1" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -1198,7 +1210,9 @@
                       <Component id="jLabelAboutAnalyse" min="-2" pref="72" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jLabelAboutProbability" min="-2" pref="120" max="-2" attributes="0"/>
-                      <EmptySpace pref="206" max="32767" attributes="0"/>
+                      <EmptySpace pref="172" max="32767" attributes="0"/>
+                      <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1223,6 +1237,14 @@
               <Properties>
                 <Property name="text" type="java.lang.String" value="Input files must be in same directory at SpeciesSelection.jar and all output files are written to that same directory."/>
               </Properties>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButton1">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="View Full ReadMe File"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

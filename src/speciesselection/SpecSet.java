@@ -90,9 +90,11 @@ public class SpecSet implements Comparable<SpecSet> {
         }
         double result = 0;
         for (Species sp : spSet) {
-            if (result < sp.getSensitivity()) {
-                result = sp.getSensitivity();
-            }
+//            double sensitivity = sp.getSensitivity();
+//            if (result < sensitivity) {
+//                result = sensitivity;
+//            }
+            result = Math.max(result, sp.getSensitivity());
         }
         return result;
     }
@@ -116,7 +118,8 @@ public class SpecSet implements Comparable<SpecSet> {
         int maxNum = rangSize.getSize();
 
         if (maxNum > tmpSpecList.size()) {
-            String str = "Exception in SpecSet.extendToFamily: Something is wrong about tmpSpecList";
+            String str = "Exception in SpecSet.extendToFamily: Something is wrong about tmpSpecList\n"
+                       + "This may be due to too few Species in the dataset";
             System.out.println(str);
             ReadFile.infoBox(str, "SpecSet error");
             throw new SpecSelException(str);

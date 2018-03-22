@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -36,6 +37,7 @@ import preprocessing.PlotPoints;
 import preprocessing.ProbabilityCalculator;
 import preprocessing.ProblemSpecies;
 import preprocessing.SubSetGenerator;
+import speciesselection.ReadFile;
 import speciesselection.SpeciesSelection;
 
 /**
@@ -64,6 +66,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     public SpecSelGUI() {
         initComponents();
         jButtonCancelP.setVisible(false);
+        jButtonPViewResults.setVisible(false);
         jButtonCancelA.setVisible(false);
         jButtonDeleteFilesA.setVisible(false);
         workingDir = System.getProperty("user.dir");
@@ -132,6 +135,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jButtonProcess = new javax.swing.JButton();
         jCheckBoxTruncate = new javax.swing.JCheckBox();
         jButtonCancelP = new javax.swing.JButton();
+        jButtonPViewResults = new javax.swing.JButton();
         jPanelBottom = new javax.swing.JPanel();
         jLabelProcessTime = new javax.swing.JLabel();
         jPanelWest = new javax.swing.JPanel();
@@ -207,6 +211,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jLabelAboutAnalyse = new javax.swing.JLabel();
         jLabelAboutProbability = new javax.swing.JLabel();
         jLabelAboutInputOutput = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Species Selection ");
@@ -243,21 +248,29 @@ public class SpecSelGUI extends javax.swing.JFrame {
             }
         });
 
+        jButtonPViewResults.setText("View Results");
+        jButtonPViewResults.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPViewResultsActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanelTopLayout = new javax.swing.GroupLayout(jPanelTop);
         jPanelTop.setLayout(jPanelTopLayout);
         jPanelTopLayout.setHorizontalGroup(
             jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelTopLayout.createSequentialGroup()
+            .addGroup(jPanelTopLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jButtonSelectDataFileP)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jTextFieldDataFilePath, javax.swing.GroupLayout.PREFERRED_SIZE, 444, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jCheckBoxTruncate)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 3, Short.MAX_VALUE)
                 .addGroup(jPanelTopLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jButtonCancelP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButtonProcess, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jButtonProcess, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
+                    .addComponent(jButtonPViewResults, javax.swing.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
+                    .addComponent(jButtonCancelP, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanelTopLayout.setVerticalGroup(
@@ -270,7 +283,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     .addComponent(jCheckBoxTruncate))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButtonCancelP)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButtonPViewResults)
+                .addContainerGap())
         );
 
         jPanelProcess.add(jPanelTop, java.awt.BorderLayout.PAGE_START);
@@ -894,6 +909,13 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         jLabelAboutInputOutput.setText("Input files must be in same directory at SpeciesSelection.jar and all output files are written to that same directory.");
 
+        jButton1.setText("View Full ReadMe File");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanelAboutLayout = new javax.swing.GroupLayout(jPanelAbout);
         jPanelAbout.setLayout(jPanelAboutLayout);
         jPanelAboutLayout.setHorizontalGroup(
@@ -905,7 +927,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
                         .addComponent(jLabelAboutProbability, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addComponent(jLabelAboutAnalyse, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                         .addComponent(jLabelAboutProcess, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 791, Short.MAX_VALUE))
-                    .addComponent(jLabelAboutInputOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 791, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabelAboutInputOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 791, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton1))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanelAboutLayout.setVerticalGroup(
@@ -918,7 +941,9 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addComponent(jLabelAboutAnalyse, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabelAboutProbability, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(206, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 172, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addContainerGap())
         );
 
         jTabbedPane1.addTab("About", jPanelAbout);
@@ -940,7 +965,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private void jButtonProcessActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonProcessActionPerformed
         try {
             jButtonProcess.setEnabled(false);
-            String fileName = jTextFieldDataFilePath.getText();
+            jButtonPViewResults.setVisible(false);
+            fileName = jTextFieldDataFilePath.getText();
             if (!fileName.equals("")) {
                 // Clear any existing plot
                 BorderLayout layout = (BorderLayout) jPanelProcess.getLayout();
@@ -964,6 +990,17 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 Thread t = new Thread(specSel);
                 t.start();
                 timeProcess(specSel, t);
+                
+                // Create listener to update problem species on GUI when new species added to list
+                specSel.addPropertyChangeListener(new PropertyChangeListener() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        if(!cancelled){
+                            jButtonPViewResults.setVisible(true);
+                        }
+                    }
+                });
+                
 
             } else {
                 System.out.println("No file selected");
@@ -1028,6 +1065,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
     }
 
     private void jButtonSelectDataFilePActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelectDataFilePActionPerformed
+        jButtonPViewResults.setVisible(false);
         selectDataFile(jTextFieldDataFilePath, null);
     }//GEN-LAST:event_jButtonSelectDataFilePActionPerformed
 
@@ -1234,8 +1272,12 @@ public class SpecSelGUI extends javax.swing.JFrame {
 //                                    System.out.println("evt: " + evt.getPropertyName());
                                     
                                     if(evt.getPropertyName().equals("errorOccurred")){
-                                        jLabelErrorProbs.setText("An error occurred - try larger subsets");
+                                        String error = "An error occurred - try larger subsets";
+//                                        ReadFile.infoBox(error, "RunSubsetError");
+                                        jLabelErrorProbs.setText(error);
                                         errorOccurred = true;
+                                        // stop all jobs on executor
+                                        cancelFutures();
                                     }
                                     
                                     if(evt.getPropertyName().equals("finished")){
@@ -1320,20 +1362,24 @@ public class SpecSelGUI extends javax.swing.JFrame {
     private void jButtonCancelProbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelProbActionPerformed
         jButtonRunSubsets.setEnabled(true);
         subSetsCancelled = true;
-        
+        cancelFutures();
+    }//GEN-LAST:event_jButtonCancelProbActionPerformed
+
+    private void cancelFutures()
+    {
         System.out.println("Futures: " + futures.size());
         for(Future future : futures)
         {
             future.cancel(true);
         }
         futures.clear();
-
         while(latch.getCount()>0)
         {
             latch.countDown();
         }
-    }//GEN-LAST:event_jButtonCancelProbActionPerformed
-
+    }
+    
+    
     private void jComboBoxOptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxOptionActionPerformed
         
         String option = jComboBoxOption.getSelectedItem().toString();
@@ -1367,6 +1413,28 @@ public class SpecSelGUI extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_jComboBoxOptionActionPerformed
+
+    private void jButtonPViewResultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPViewResultsActionPerformed
+        try
+        {
+            FileUtils.editFile(SpeciesSelection.getResultsFileName(fileName));
+        }
+        catch(Exception e)
+        {
+            String str = "Error attempting to open " + fileName + ": " + e;
+            System.err.println(str);
+            ReadFile.infoBox(str, "View Results Error");
+        }
+    }//GEN-LAST:event_jButtonPViewResultsActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try 
+        {
+            FileUtils.editFile("Readme_2.1.txt");
+        } catch (IOException ex) {
+            Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private String finishedThreads(int finished, int total)
     {
@@ -1485,12 +1553,14 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonCancelA;
     private javax.swing.JButton jButtonCancelP;
     private javax.swing.JButton jButtonCancelProb;
     private javax.swing.JButton jButtonDeleteFiles;
     private javax.swing.JButton jButtonDeleteFilesA;
     private javax.swing.JButton jButtonGenerate;
+    private javax.swing.JButton jButtonPViewResults;
     private javax.swing.JButton jButtonProblemSpecies;
     private javax.swing.JButton jButtonProcess;
     private javax.swing.JButton jButtonRunSubsets;
