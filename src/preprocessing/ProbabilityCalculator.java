@@ -205,8 +205,8 @@ public class ProbabilityCalculator {
             outPut.println(speciesStr);
             outPut.println(probStr);
         }
-        outPut.println("There are " + speciesSet.size() + " species with probabilities greater than " + specSelGUI.getProbsThreshold() + "\n");
-        outPut.println(speciesSet);
+        outPut.println(getProbableSpeciesString());
+//        outPut.println(speciesSet);
         outPut.close();
         
 //        System.out.println(toString());// TODO Comment out this line when no longer debugging
@@ -244,25 +244,7 @@ public class ProbabilityCalculator {
     public static String viewResults() {
         try
         {
-            File f = new File(currentProbsFileName);
-            if(f.exists() && !f.isDirectory()) { 
-                if (Desktop.isDesktopSupported()) {
-                    Desktop.getDesktop().edit(f);
-                    return "";
-                } 
-                else 
-                {
-                    String str = "This PC does not support file edit";
-                    System.out.println(str);
-                    return str;
-                }
-            }
-            else
-            {
-                String str = "File does not exist";
-                System.out.println(str);
-                return str;
-            }
+            return FileUtils.editFile(currentProbsFileName);
         }
         catch(IOException e)
         {
@@ -271,6 +253,13 @@ public class ProbabilityCalculator {
             ReadFile.infoBox(str, "ProbabilityCalculator error");
             return str;
         }
+    }
+    
+    private String getProbableSpeciesString()
+    {
+        return "\nThere are " + speciesSet.size() + " species with "
+                + "probabilities greater than " + specSelGUI.getProbsThreshold() 
+                + " prior to truncation:\n" + speciesSet;
     }
     
     @Override
@@ -296,7 +285,7 @@ public class ProbabilityCalculator {
             str += speciesStr + "\n";
             str += probStr + "\n";
         }
-        str += "There are " + speciesSet.size() + " species with probabilities greater than " + specSelGUI.getProbsThreshold() + "\n" + speciesSet;
+        str += getProbableSpeciesString();
         return str;
     }
     
