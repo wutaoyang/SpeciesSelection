@@ -66,9 +66,10 @@ public class GraphPanel extends JPanel {
         this.yLabel = "";
     }
 
+    // get position of first non zero score
     private int getOffset(List<Double> scores) {
         for (int i = 0; i < scores.size(); i++) {
-            if (scores.get(i) > 0) {
+            if (scores.get(i) != 0) {
                 return i;
             }
         }
@@ -82,13 +83,15 @@ public class GraphPanel extends JPanel {
             Graphics2D g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+            double maxScore = getMaxScore();
+            double minScore = getMinScore();
             double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (scores.size() - 1 - offset);
-            double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxScore() - getMinScore());
+            double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (maxScore - minScore);
 
             List<Point> graphPoints = new ArrayList<>();
             for (int i = offset; i < scores.size(); i++) {
                 int x1 = (int) ((i - offset) * xScale + padding + labelPadding);
-                int y1 = (int) ((getMaxScore() - scores.get(i)) * yScale + padding);
+                int y1 = (int) ((maxScore - scores.get(i)) * yScale + padding);
                 graphPoints.add(new Point(x1, y1));
             }
 
@@ -115,7 +118,7 @@ public class GraphPanel extends JPanel {
                     g2.setColor(Color.BLACK);
 
                     // label y-axis data points
-                    String yLabel = ((int) ((getMinScore() + (getMaxScore() - getMinScore()) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
+                    String yLabel = ((int) ((minScore + (maxScore - minScore) * ((i * 1.0) / numberYDivisions)) * 100)) / 100.0 + "";
                     FontMetrics metrics = g2.getFontMetrics();
                     int labelWidth = metrics.stringWidth(yLabel);
                     g2.drawString(yLabel, x0 - labelWidth - 5, y0 + (metrics.getHeight() / 2) - 3);
@@ -182,9 +185,14 @@ public class GraphPanel extends JPanel {
     }
 
     private double getMinScore() {
+        boolean initialZeros = true;
         double minScore = Double.MAX_VALUE;
         for (Double score : scores) {
-            if (score != 0)//ignore points at zero
+            if(initialZeros && score !=0)
+            {
+                initialZeros = false;
+            }
+            if (!initialZeros)//ignore initial points at zero
             {
                 minScore = Math.min(minScore, score);
             }
@@ -194,9 +202,17 @@ public class GraphPanel extends JPanel {
     }
 
     private double getMaxScore() {
+        boolean initialZeros = true;
         double maxScore = -Double.MAX_VALUE;
         for (Double score : scores) {
-            maxScore = Math.max(maxScore, score);
+            if(initialZeros && score !=0)
+            {
+                initialZeros = false;
+            }
+            if (!initialZeros)//ignore initial points at zero
+            {
+                maxScore = Math.max(maxScore, score);
+            }
         }
         return maxScore;
     }
@@ -231,6 +247,7 @@ public class GraphPanel extends JPanel {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 createAndShowGui();
             }

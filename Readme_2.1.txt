@@ -73,12 +73,12 @@ All processing on this tab uses option A.
 
 **********************************************************************************************
 
-The 'Probability' tab allows the processing of a specified number of randomly generated subsets from an input dataset to be processed. All subsets must match the resource coverage (universe) of the full dataset, so specifying a subset size that is too low may mean that subsets cannot be found or take too long to find. If 'Max Time' is exceeded during subset generation, the program will abort and output the subsets found so far. The generated subsets may by run.
+The 'Probability' tab allows the processing of a specified number of randomly generated subsets from an input dataset to be processed. All subsets must match the resource coverage (universe) of the full dataset, so specifying a subset size that is too low may mean that subsets cannot be found or take too long to find. If 'Max Time' is exceeded during subset generation, the program will abort and output the subsets found so far. The generated subsets may be run.
 Truncation may be used, as in the Process tab, but the truncation threshold (number of min mean sensitivity increases) may be specified. A probability threshold may also be specified.
 Running the subsets allows generation of output that identifies the probability that a species will appear in an optimal result set, of each set size, and therefore allows identification of species that never appear in an optimal solution. Exclusion of those improbable species may enable processing where it was previously impractical due to the length of processing time of the full dataset.
 By default, the probabilities calculated are written out to 'probabilities.txt' but unchecked the overwrite option allows a filename to be specified. At the bottom of this output file will be a list of species with probability of inclusion in an optimal result set greater than the probability threshold specified.
 A second output file is produced named 'inputFileName_ProbsSet.txt' where 'inputFileName' is the name of the file containing the processed data. This file contains the subset of species identified above ready for subsequent processing.
-All processing on the this uses option A.
+All processing on this tab uses option A.
 
 **********************************************************************************************
 

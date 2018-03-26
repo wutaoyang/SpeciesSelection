@@ -1187,65 +1187,53 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="jLabelAboutProbability" pref="0" max="32767" attributes="0"/>
-                              <Component id="jLabelAboutAnalyse" alignment="1" pref="0" max="32767" attributes="0"/>
-                              <Component id="jLabelAboutProcess" alignment="1" pref="791" max="32767" attributes="0"/>
-                          </Group>
-                          <Component id="jLabelAboutInputOutput" alignment="0" min="-2" pref="791" max="-2" attributes="0"/>
-                          <Component id="jButton1" alignment="0" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="jScrollPane2" pref="789" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabelAboutInputOutput" min="-2" pref="25" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jLabelAboutProcess" min="-2" pref="41" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jLabelAboutAnalyse" min="-2" pref="72" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="jLabelAboutProbability" min="-2" pref="120" max="-2" attributes="0"/>
-                      <EmptySpace pref="172" max="32767" attributes="0"/>
-                      <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jScrollPane2" pref="475" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="jLabelAboutProcess">
+            <Container class="javax.swing.JScrollPane" name="jScrollPane2">
               <Properties>
-                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Process&lt;/b&gt; - Use this tab for standard Species Selection. There is an option to truncate results. If selecetd, this will generate output until 3 consecutive increases in minimum mean sensitivity are detected. No truncation produces full results output.&lt;/html&gt;"/>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="6d" green="6d" red="6d" type="rgb"/>
+                </Property>
               </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabelAboutAnalyse">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Analyse&lt;/b&gt; - This tab allows &apos;Problem Species&apos; (PS), that cause greater than exponential growth to the processing time of a Species Selection dataset, to be identified. This is achieved by comparing MinSpecSetFamily size to that predicted by an exponental curve fitted to the previous data points. Initial No of Species should be set to a value processing takes a short amount of time. Allowable % Exp dovergence should be low on an initial run but could be increased on subsequent runs if too many PS are detected.&lt;/html&gt;"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabelAboutProbability">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Probability&lt;/b&gt; - Calculates the probability that each species will appear in an optimal result set when a Species Selection dataset is randomly sampled for subsets of the specified size and number. Truncation is allowed and the number of min mean sensitivity increases required prior to truncation can be specified. The default is 3. A probability threshold is also provided. Species with a maximum probability of inclusion below this threshold will be excluded from the subset of species written out to &apos;filename&apos;_ProbsSet.txt. The default is 0.1. The option is available to overwrite that previous probabilities txt file. If unselected, the user can specified a filename for the output. Delete Files will remove subset and subset results files but will leave the probabilities file alone. View Results will open that last saved probabilities file in notepad.&lt;/html&gt;"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="jLabelAboutInputOutput">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Input files must be in same directory at SpeciesSelection.jar and all output files are written to that same directory."/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JButton" name="jButton1">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="View Full ReadMe File"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
-              </Events>
-            </Component>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JEditorPane" name="jEditorPaneAbout">
+                  <Properties>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="f0" green="f0" red="f0" type="rgb"/>
+                    </Property>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="null"/>
+                    </Property>
+                    <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
+                    <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;b&gt;Species Selection Version 2.0&lt;/b&gt; - a product of the University of East Anglia, Norwich, England&lt;br&gt;Software produced by:&lt;br&gt;Taoyang Wu - Mar 2014 &amp; Feb 2016&lt;br&gt;Stephen Whiddett -  Jan 2018&lt;br&gt;&lt;br&gt;Note: Input files must be in same directory at SpeciesSelection.jar and all output files are written to that same directory.&lt;br&gt;&lt;br&gt;&lt;b&gt;Process&lt;/b&gt; - Use this tab for Species Selection. Various Process Options are available. Please see the ReadMe file for details. Option A performs standard Species Selection. There is an option to truncate results. If selected, this will generate output until 3 consecutive increases in minimum mean sensitivity are detected. No truncation produces full results output.&lt;br&gt;&lt;br&gt;&lt;b&gt;Analyse&lt;/b&gt; - This tab allows &apos;Problem Species&apos; (PS), that cause greater than exponential growth to the processing time of a Species Selection dataset, to be identified. This is achieved by comparing MinSpecSetFamily size to that predicted by an exponental curve fitted to the previous data points. Initial No of Species should be set to a value processing takes a short amount of time. Allowable % Exp divergence should be low on an initial run but could be increased on subsequent runs if too many PS are detected.&lt;br&gt;&lt;br&gt;&lt;b&gt;Probability&lt;/b&gt; - Calculates the probability that each species will appear in an optimal result set when a Species Selection dataset is randomly sampled for subsets of the specified size and number. Truncation is allowed and the number of min mean sensitivity increases required prior to truncation can be specified. The default is 3. A probability threshold is also provided. Species with a maximum probability of inclusion below this threshold will be excluded from the subset of species written out to &apos;filename&apos;_ProbsSet.txt. The default is 0.1. The option is available to overwrite that previous probabilities txt file. If unselected, the user can specified a filename for the output. Delete Files will remove subset and subset results files but will leave the probabilities file alone. View Results will open that last saved probabilities file in notepad.&lt;br&gt;&lt;br&gt;&lt;/html&gt;"/>
+                    <Property name="caretPosition" type="int" value="0"/>
+                    <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                      <Insets value="[0, 0, 0, 0]"/>
+                    </Property>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
           </SubComponents>
         </Container>
       </SubComponents>

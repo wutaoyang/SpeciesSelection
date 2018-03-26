@@ -28,6 +28,21 @@ public class ReadFile {
 //        return sig;
 //    }
     
+    // return 5th column header - should be Areas or Precision
+    public static String getFileType(String fileName) throws FileNotFoundException
+    {
+        File f = new File(fileName);
+        Scanner scanner = new Scanner(f);
+        String headerLine = scanner.nextLine();
+        scanner = new Scanner(headerLine);
+        String str = "";
+        for(int i = 0; i < 5; i++)
+        {
+            str = scanner.next();
+        }
+        return str;
+    }
+    
     public static SpecRTGraph graphConstr(String fileName, String fileTypes) throws FileNotFoundException {
         try {
             System.out.println("The dataset is taken from file " + fileName);
@@ -97,7 +112,7 @@ public class ReadFile {
                     return -1;
                 }
             }
-            else if(count == 5 && (fileTypes.equals(Constants.AREAS) || fileTypes.equals(Constants.PRECISION)))
+            else if(count == 5 && (!fileTypes.equals(Constants.NONE)))
             {
                 if(!(str.equals(Constants.AREAS) || str.equals(Constants.PRECISION)))
                 {

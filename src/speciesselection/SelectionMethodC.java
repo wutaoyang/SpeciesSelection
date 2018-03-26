@@ -38,26 +38,33 @@ public class SelectionMethodC implements SelectionMethod {
      * @param sensType
      * @param specThresholdM
      * @param sdThresholdX
-     * @param areaThresholdY
+     * @param areaPrecThresholdY
      * @throws java.io.FileNotFoundException
      * @throws java.lang.InterruptedException
      * @throws speciesselection.SpecSelException
      */
     @Override
-    public void exec(String fileName, boolean normSens, boolean sensType, int specThresholdM, double sdThresholdX, double areaThresholdY)
+    public void exec(String fileName, boolean normSens, boolean sensType, int specThresholdM, double sdThresholdX, double areaPrecThresholdY)
             throws FileNotFoundException, InterruptedException, SpecSelException {
 
         System.out.println("Method C");
-        System.out.println("The area Threshold is " + areaThresholdY);
+        System.out.println("The area Threshold is " + areaPrecThresholdY);
 
         int option = getOption(specThresholdM, sdThresholdX);
 
         //construct the bipartite graph between species and indicators.
-        specRTGraph = ReadFile.graphConstr(fileName, Constants.AREAS);// TODO THERE SHOULD BE OPTION FOR PRECISIONS BUT THE METHOD IS THE SAME SO IT HAS NOT BEEN FULLY IMPLEMENTED
+        String yType = ReadFile.getFileType(fileName);
+        specRTGraph = ReadFile.graphConstr(fileName, yType);
 
         if (null != specRTGraph) {
-            //remove species using the threshold      
-            speciesRemoved = specRTGraph.remSpecByAreas(areaThresholdY);
+            //remove species using the threshold
+            if(yType.equals(Constants.AREAS)){
+                speciesRemoved = specRTGraph.remSpecByAreas(areaPrecThresholdY);
+            }
+            else if (yType.equals(Constants.PRECISION))
+            {
+                speciesRemoved = specRTGraph.remSpecByPrecision(areaPrecThresholdY);
+            }
 
             //test whether there exists an isolated RT
             isolatedRTFlag = specRTGraph.noIsolatedResourceType();
@@ -108,7 +115,7 @@ public class SelectionMethodC implements SelectionMethod {
     private String getRemovedSpecies() {
         String str = "";
         //output the removed species
-        str += "The following species are removed";
+        str += "The following species are removed:\n";
         for (Species sp : speciesRemoved) {
             str += sp + ",";
         }

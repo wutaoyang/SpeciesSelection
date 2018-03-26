@@ -43,7 +43,7 @@ public class SelectionMethodA implements SelectionMethod {
         System.out.println("Method A");
 
         //read the graph from the file   
-        specRTGraph = ReadFile.graphConstr(fileName, "None");
+        specRTGraph = ReadFile.graphConstr(fileName, Constants.NONE);
 
     } //end exec
 

@@ -278,7 +278,7 @@ public class SpecRTGraph {
     public ArrayList<ResourceType> remRTByBoth(int numSpecies, double numSD) {
 
         //construct the set of RT nodes to be removed
-        ArrayList<ResourceType> outRTList = new ArrayList<ResourceType>();
+        ArrayList<ResourceType> outRTList = new ArrayList<>();
 
         double mean = this.getMeanSensitivity();
         double sd = this.getStandardDeviation();
@@ -345,7 +345,7 @@ public class SpecRTGraph {
 
         for (Species sp : specNode) {
             // System.out.println("Consider RT with ID "+rt.getID());
-            if (sp.getPrecision() < threshold) {
+            if (sp.getPrecision() > threshold) {
                 //  System.out.println("removing RT with ID "+rt.getID());
                 outSpecList.add(sp);
             }

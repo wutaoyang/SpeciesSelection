@@ -24,7 +24,7 @@ public class SpeciesSelection implements Runnable {
 
     private PropertyChangeSupport pcs;
     private String fileName, option;
-    private boolean allResults, finished;
+    private boolean allResults, finished, success;
     private ArrayList<Double> result;
     private SpecRTGraph specRTGraph;
     private int truncateThreshold;
@@ -62,6 +62,7 @@ public class SpeciesSelection implements Runnable {
 
     public SpeciesSelection() {
         this.finished = false;
+        this.success = false;
     }
 
     public SpeciesSelection(String fileName, boolean allResults, int truncateThreshold, String option, int specThresholdM, double sdThresholdX, double areaOrPrecisionY) {
@@ -69,6 +70,7 @@ public class SpeciesSelection implements Runnable {
         this.fileName = fileName;
         this.allResults = allResults;
         this.finished = false;
+        this.success = false;
         this.truncateThreshold = truncateThreshold;
         this.option = option;
         this.specThresholdM = specThresholdM;
@@ -82,6 +84,7 @@ public class SpeciesSelection implements Runnable {
         printIntro();
         try {
             result = specSel(fileName, allResults, truncateThreshold, option, specThresholdM, sdThresholdX, areaOrPrecisionY);
+            success = true;
         } catch (FileNotFoundException ex) {
             Logger.getLogger(SpeciesSelection.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
@@ -99,6 +102,10 @@ public class SpeciesSelection implements Runnable {
 
     public boolean isFinished() {
         return finished;
+    }
+    
+    public boolean isSuccess() {
+        return success;
     }
 
     public ArrayList<Double> getResult() {
@@ -137,7 +144,7 @@ public class SpeciesSelection implements Runnable {
     // Method for use with Problem Species identification
     public MinSpecSetFamily getMssf() throws InterruptedException, FileNotFoundException {
 //        String fileName = this.args[0];
-        specRTGraph = ReadFile.graphConstr(fileName, "None");
+        specRTGraph = ReadFile.graphConstr(fileName, Constants.NONE);
         return specRTGraph.getMinDomSpecSets();
     }
     
@@ -179,8 +186,7 @@ public class SpeciesSelection implements Runnable {
 
         
         //construct the bipartite graph between species and indicators.
-//        specRTGraph = ReadFile.graphConstr(fileName, "None");
-        
+       
         SelectionMethod selMeth = selectionMethod(fileName, option, specThresholdM, sdThresholdX, areaOrPrecisionY);
         specRTGraph = selMeth.getSpecRTGraph();
         if(null == specRTGraph){

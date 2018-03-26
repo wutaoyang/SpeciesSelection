@@ -244,7 +244,7 @@ public class ProbabilityCalculator {
     public static String viewResults() {
         try
         {
-            return FileUtils.editFile(currentProbsFileName);
+            return FileUtils.openFile(currentProbsFileName);
         }
         catch(IOException e)
         {
