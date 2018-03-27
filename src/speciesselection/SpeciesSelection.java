@@ -120,31 +120,15 @@ public class SpeciesSelection implements Runnable {
         pcs.removePropertyChangeListener(l);
     }
 
-    
-
-//    private static SpecRTGraph graphConstr(String fileName, String fileTypes) throws FileNotFoundException {
-//        try {
-//            System.out.println("The dataset is taken from file " + fileName);
-//            SpecRTGraph specRTGraph = new SpecRTGraph();
-//            File f = new File(fileName);
-//            Scanner input = new Scanner(f);
-//            String titleInformation = input.nextLine();
-//            while (input.hasNext()) {
-//                String text = input.nextLine();
-//                processLine(text, specRTGraph, fileTypes);
-//            }
-//            input.close();
-//            return specRTGraph;
-//        } catch (FileNotFoundException e) {
-//            System.out.println("Error in SpeciesSelection.processFile()");
-//            return null;
-//        }
-//    }
-
     // Method for use with Problem Species identification
-    public MinSpecSetFamily getMssf() throws InterruptedException, FileNotFoundException {
-//        String fileName = this.args[0];
+    public MinSpecSetFamily getMssf() 
+            throws InterruptedException, FileNotFoundException, SpecSelException {
         specRTGraph = ReadFile.graphConstr(fileName, Constants.NONE);
+        if(null == specRTGraph)
+        {
+            throw new SpecSelException("Exception in SpeciesSelection.getMSSF() "
+                    + "- specRTGraph is null");
+        }
         return specRTGraph.getMinDomSpecSets();
     }
     
@@ -254,9 +238,7 @@ public class SpeciesSelection implements Runnable {
     public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName, int truncateThreshold, String details)
             throws InterruptedException, FileNotFoundException, SpecSelException {
         String outFileName = getResultsFileName();
-//        if (args.length > 1) {
-//            outFileName = args[1];
-//        }
+
         //Output the results to a file
         PrintStream outPut = new PrintStream(new File(outFileName));
         outPut.println(theDataset + fileName);
@@ -361,5 +343,9 @@ public class SpeciesSelection implements Runnable {
             return null;
         }
     }
+
+//    private Exception SpecSelException(String spec) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
 
 }

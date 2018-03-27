@@ -113,6 +113,17 @@ public class SpecSet implements Comparable<SpecSet> {
             return result;
         }
 
+        //**********************************************************************
+        // Attempt to avoid maxNum > tmpSpecList.size() by Stephen W - NOT SURE IF THIS BREAKS ANYTHING
+        // Suspect this is OK because targetFamilyNum is hard coded with a default value of 11 in SpeciesSelection class
+        if(targetFamilyNum > tmpSpecList.size())
+        {
+            targetFamilyNum = tmpSpecList.size();
+            System.err.println("targetFamilyNum was changed - SPW not sure if "
+                    + "this breaks the algorithm but if avoids exceptions:0(");// 27/03/2018
+        }
+        //**********************************************************************
+
         //get the combinatorical size and subset indicator
         CombSize rangSize = new CombSize(extNum, targetFamilyNum);
         int maxNum = rangSize.getSize();

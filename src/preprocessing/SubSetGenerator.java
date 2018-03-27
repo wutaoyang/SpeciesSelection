@@ -16,6 +16,34 @@ import java.util.Scanner;
  */
 public class SubSetGenerator implements Comparator<String>{
     
+    // create subset containing only the species NOT in the provided arraylist
+    public String createSubset(File file, ArrayList<Integer> speciesNos) throws FileNotFoundException
+    {
+        // read file adding each line to a list
+        List<String> fileAsList = FileUtils.readFileToList(file);
+        List<String> subset = new ArrayList<>();
+        
+        subset.add(fileAsList.get(0));
+        for(int i = 1; i < fileAsList.size(); i++)
+        {
+            String line = fileAsList.get(i);
+            if(!speciesNos.contains(getFirstInt(line)))
+            {
+                subset.add(line);
+            }
+        }
+        
+        String subsetFileName = FileUtils.removeExt(file.getName()) + "_Subset.txt";
+        writeSubsetToFile(subsetFileName, subset);
+        return subsetFileName;
+    }
+    
+    private int getFirstInt(String line)
+    {
+        Scanner scanner = new Scanner(line);
+        return scanner.nextInt();
+    }
+    
     public FileList generateSubsets(File file, int subsetSize, int noSubsets, int maxSeconds) throws FileNotFoundException
     {
         FileList fileNames = new FileList();

@@ -14,6 +14,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -175,6 +176,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jTextAreaKey = new javax.swing.JTextArea();
         jLabelProcessCompletedTimeA = new javax.swing.JLabel();
         jLabelProcessTimeA = new javax.swing.JLabel();
+        jButtonAGenerateSubsetMinusPS = new javax.swing.JButton();
+        jButtonAUpdateProblemSpecies = new javax.swing.JButton();
         jPanelProbability = new javax.swing.JPanel();
         jPanelProbUpper = new javax.swing.JPanel();
         jButtonSelectDataFileProb = new javax.swing.JButton();
@@ -422,11 +425,11 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
         jLabelNoSpec.setText("Initial No of Species:");
 
-        jSpinnerInitialNoSpecies.setModel(new javax.swing.SpinnerNumberModel(50, 14, null, 1));
+        jSpinnerInitialNoSpecies.setModel(new javax.swing.SpinnerNumberModel(3, 3, null, 1));
 
         jLabelAllowedDiv.setText("Allowable % Exp divergence:");
 
-        jSpinnerAllowableExpDivergencePct.setModel(new javax.swing.SpinnerNumberModel(1, 1, 100, 1));
+        jSpinnerAllowableExpDivergencePct.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
 
         jPanelRadioButtons.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
 
@@ -489,6 +492,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jLabelProbSpec.setMinimumSize(new java.awt.Dimension(107, 14));
         jLabelProbSpec.setPreferredSize(new java.awt.Dimension(107, 14));
 
+        jTextFieldProblemSpecies.setEditable(false);
         jTextFieldProblemSpecies.setText("results");
 
         jButtonDeleteFilesA.setText("Delete Files");
@@ -566,6 +570,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
+        jTextAreaPoints.setEditable(false);
         jTextAreaPoints.setColumns(20);
         jTextAreaPoints.setRows(5);
         jScrollPanePoints.setViewportView(jTextAreaPoints);
@@ -583,11 +588,32 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jLabelProcessTimeA.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabelProcessTimeA.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
 
+        jButtonAGenerateSubsetMinusPS.setText("Generate Subset -PS");
+        jButtonAGenerateSubsetMinusPS.setEnabled(false);
+        jButtonAGenerateSubsetMinusPS.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAGenerateSubsetMinusPSActionPerformed(evt);
+            }
+        });
+
+        jButtonAUpdateProblemSpecies.setText("Update Problem Species");
+        jButtonAUpdateProblemSpecies.setEnabled(false);
+        jButtonAUpdateProblemSpecies.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAUpdateProblemSpeciesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanelLowerLayout = new javax.swing.GroupLayout(jPanelLower);
         jPanelLower.setLayout(jPanelLowerLayout);
         jPanelLowerLayout.setHorizontalGroup(
             jPanelLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanelLowerLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanelLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButtonAUpdateProblemSpecies, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButtonAGenerateSubsetMinusPS, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
             .addGroup(jPanelLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanelLowerLayout.createSequentialGroup()
                     .addContainerGap()
@@ -604,19 +630,24 @@ public class SpecSelGUI extends javax.swing.JFrame {
         );
         jPanelLowerLayout.setVerticalGroup(
             jPanelLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 321, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelLowerLayout.createSequentialGroup()
+                .addContainerGap(156, Short.MAX_VALUE)
+                .addComponent(jButtonAUpdateProblemSpecies)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButtonAGenerateSubsetMinusPS)
+                .addGap(117, 117, 117))
             .addGroup(jPanelLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanelLowerLayout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(jPanelLowerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jScrollPanePoints, javax.swing.GroupLayout.DEFAULT_SIZE, 310, Short.MAX_VALUE)
+                        .addComponent(jScrollPanePoints)
                         .addGroup(jPanelLowerLayout.createSequentialGroup()
                             .addComponent(jScrollPaneKey, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 114, Short.MAX_VALUE)
                             .addComponent(jLabelProcessCompletedTimeA, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(jLabelProcessTimeA, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap()))))
+                            .addComponent(jLabelProcessTimeA, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap()))
         );
 
         javax.swing.GroupLayout jPanelAnalyseLayout = new javax.swing.GroupLayout(jPanelAnalyse);
@@ -635,7 +666,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 .addComponent(jPanelUpper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanelLower, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(134, 134, 134))
+                .addGap(130, 130, 130))
         );
 
         jTabbedPane1.addTab("Analyse", jPanelAnalyse);
@@ -905,7 +936,6 @@ public class SpecSelGUI extends javax.swing.JFrame {
         jEditorPaneAbout.setContentType("text/html"); // NOI18N
         jEditorPaneAbout.setText("<html><b>Species Selection Version 2.0</b> - a product of the University of East Anglia, Norwich, England<br>Software produced by:<br>Taoyang Wu - Mar 2014 & Feb 2016<br>Stephen Whiddett -  Jan 2018<br><br>Note: Input files must be in same directory at SpeciesSelection.jar and all output files are written to that same directory.<br><br><b>Process</b> - Use this tab for Species Selection. Various Process Options are available. Please see the ReadMe file for details. Option A performs standard Species Selection. There is an option to truncate results. If selected, this will generate output until 3 consecutive increases in minimum mean sensitivity are detected. No truncation produces full results output.<br><br><b>Analyse</b> - This tab allows 'Problem Species' (PS), that cause greater than exponential growth to the processing time of a Species Selection dataset, to be identified. This is achieved by comparing MinSpecSetFamily size to that predicted by an exponental curve fitted to the previous data points. Initial No of Species should be set to a value processing takes a short amount of time. Allowable % Exp divergence should be low on an initial run but could be increased on subsequent runs if too many PS are detected.<br><br><b>Probability</b> - Calculates the probability that each species will appear in an optimal result set when a Species Selection dataset is randomly sampled for subsets of the specified size and number. Truncation is allowed and the number of min mean sensitivity increases required prior to truncation can be specified. The default is 3. A probability threshold is also provided. Species with a maximum probability of inclusion below this threshold will be excluded from the subset of species written out to 'filename'_ProbsSet.txt. The default is 0.1. The option is available to overwrite that previous probabilities txt file. If unselected, the user can specified a filename for the output. Delete Files will remove subset and subset results files but will leave the probabilities file alone. View Results will open that last saved probabilities file in notepad.<br><br></html>");
         jEditorPaneAbout.setCaretPosition(0);
-        jEditorPaneAbout.setMargin(new java.awt.Insets(0, 0, 0, 0));
         jScrollPane2.setViewportView(jEditorPaneAbout);
 
         javax.swing.GroupLayout jPanelAboutLayout = new javax.swing.GroupLayout(jPanelAbout);
@@ -1104,7 +1134,7 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
     private void jButtonProblemSpeciesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonProblemSpeciesActionPerformed
 
-        String fileName = jTextFieldDataFilePathA.getText();
+        fileName = jTextFieldDataFilePathA.getText();
         File file = new File(fileName);
         if (!FileUtils.fileExists(file)) {
             ReadFile.infoBox("File " + fileName + " does not exist", "Analyse Error");
@@ -1165,7 +1195,15 @@ public class SpecSelGUI extends javax.swing.JFrame {
             problemSpec.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
-                    jTextFieldProblemSpecies.setText(problemSpec.toString() + "...");
+                    System.out.println("evt: " + evt.getPropertyName());
+                    if (evt.getPropertyName().equals("size")) {
+                        jTextFieldProblemSpecies.setText(problemSpec.toString() + "...");
+                    }
+                    if (evt.getPropertyName().equals("finished")) {
+                        jButtonAGenerateSubsetMinusPS.setEnabled(problemSpec.isFinished());
+                        jButtonAUpdateProblemSpecies.setEnabled(problemSpec.isFinished());
+                    }
+                    
                 }
             });
 
@@ -1174,7 +1212,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     jTextAreaPoints.setText(problemSpec.getPoints().toString());
-                    jLabelProcessCompletedTimeA.setText("Last Process Complete: " + toTimeString((System.nanoTime() - startTime) / 1000000000.0));
+                    jLabelProcessCompletedTimeA.setText("Last Process Complete: " 
+                            + toTimeString((System.nanoTime() - startTime) / 1000000000.0));
                 }
             });
         } catch (ParseException | FileNotFoundException ex) {
@@ -1402,6 +1441,42 @@ public class SpecSelGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButtonPViewResultsActionPerformed
 
+    private void jButtonAUpdateProblemSpeciesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAUpdateProblemSpeciesActionPerformed
+        
+        ArrayList<Integer> speciesNos = problemSpec.getPoints().getSpeciesByMargin(
+                    (int)jSpinnerAllowableExpDivergencePct.getValue());
+        jTextFieldProblemSpecies.setText(problemSpec.intsToString(speciesNos));
+        jButtonAGenerateSubsetMinusPS.setEnabled(true);
+        
+    }//GEN-LAST:event_jButtonAUpdateProblemSpeciesActionPerformed
+
+    private void jButtonAGenerateSubsetMinusPSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAGenerateSubsetMinusPSActionPerformed
+        try 
+        {
+            jButtonAGenerateSubsetMinusPS.setEnabled(false);
+            
+            // get the problem species list from text field
+            String text = jTextFieldProblemSpecies.getText().replaceAll(",", "");
+            Scanner scanner = new Scanner(text);
+            ArrayList<Integer> speciesNos = new ArrayList<>();
+            while(scanner.hasNextInt())
+            {
+                speciesNos.add(scanner.nextInt());
+            }
+//            ArrayList<Integer> speciesNos = problemSpec.getPoints().getSpeciesByMargin(
+//                    (int)jSpinnerAllowableExpDivergencePct.getValue());
+            SubSetGenerator ssGen = new SubSetGenerator();
+            String subsetFileName = ssGen.createSubset(new File(fileName), speciesNos);
+            jTextAreaPoints.setText(jTextAreaPoints.getText() + "\nSubset File saved to " + subsetFileName);
+            
+        } 
+        catch (FileNotFoundException ex) 
+        {
+            Logger.getLogger(SpecSelGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }//GEN-LAST:event_jButtonAGenerateSubsetMinusPSActionPerformed
+
     private String finishedThreads(int finished, int total) {
         return "Finished: " + finished + " of " + total;
     }
@@ -1517,6 +1592,8 @@ public class SpecSelGUI extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton jButtonAGenerateSubsetMinusPS;
+    private javax.swing.JButton jButtonAUpdateProblemSpecies;
     private javax.swing.JButton jButtonCancelA;
     private javax.swing.JButton jButtonCancelP;
     private javax.swing.JButton jButtonCancelProb;

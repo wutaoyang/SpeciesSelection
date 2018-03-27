@@ -217,7 +217,9 @@ public class ReadFile {
         // check number of columns in data row matches that in header row
         if(countColumns != columnCount)
         {
-            String error = "Error after column " + countColumns + ". Value is not an integer or column count in\n" + text.replaceAll("\t", " ") + "\ndoes not match count of " + columnCount + " in header.";
+            String error = "Error after column " + countColumns + ". Value is "
+                    + "not an integer or column count in\n" + text.replaceAll("\t", " ") 
+                    + "\ndoes not match count of " + columnCount + " in header.";
             System.err.println(error);
             infoBox(error);
             return false;

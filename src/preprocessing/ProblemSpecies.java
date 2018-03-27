@@ -32,7 +32,8 @@ public class ProblemSpecies implements Runnable {
     private final Options option;
     private boolean insufficient, finished;
     
-    public ProblemSpecies(File file, int initialNoSpecies, int expMarginPct, Options option) throws FileNotFoundException {
+    public ProblemSpecies(File file, int initialNoSpecies, int expMarginPct, Options option) 
+                                                throws FileNotFoundException {
         this.initialNoSpecies = initialNoSpecies;
         this.file         = file;
         this.expMarginPct = expMarginPct;
@@ -43,6 +44,30 @@ public class ProblemSpecies implements Runnable {
         this.probSpecies  = new ArrayList<>();
         this.fileList     = new FileList();
         this.pcs          = new PropertyChangeSupport(this);
+    }
+    
+    // Makes ProblemSpecies runnable on its own thread
+    @Override
+    public void run() {
+        try 
+        {
+            findProblemSpecies(file, initialNoSpecies, expMarginPct);
+        } 
+        catch (FileNotFoundException | InterruptedException ex) {
+            Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch(SpecSelException ex)
+        {
+            ReadFile.infoBox(ex.toString(), "ProblemSpecies error");
+            Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        setFinished();        
+    }
+    
+    private void setFinished()
+    {
+        finished = true;
+        pcs.firePropertyChange("finished", null, finished);
     }
     
     // physically deletes all files in the fileList from the system. These are 
@@ -160,7 +185,7 @@ public class ProblemSpecies implements Runnable {
                 }
                                 
                 // add new point to plot points list
-                points.addPoint(i - probSpecies.size(), mssfSize, tempFileName, totalTimeMs);
+                points.addPoint(i - probSpecies.size(), mssfSize, tempFileName, currentSpecies, totalTimeMs);
                                
                 // once enough initial points are generated to fit an exponential 
                 // curve, begin checking if the last point added is within limits
@@ -184,8 +209,6 @@ public class ProblemSpecies implements Runnable {
         return points.getLastMargin() < (1 + (expMarginPct / 100.0));
     }
 
-    
-
     // Converts a list of strings to a single string separated with line breaks
     public String listAsString(List<String> list) {
         String str = "";
@@ -203,34 +226,19 @@ public class ProblemSpecies implements Runnable {
         if (probSpecies.isEmpty()) {
             return "No Problem Species";
         }
+        return intsToString(probSpecies);
+    }
+    
+    public String intsToString(ArrayList<Integer> ints)
+    {
         String str = "";
-        // Loop over species
-        for (int i = 0; i < probSpecies.size(); i++) {
-            str += probSpecies.get(i);
-            if (i < probSpecies.size() - 1) {
+        // Loop over int
+        for (int i = 0; i < ints.size(); i++) {
+            str += ints.get(i);
+            if (i < ints.size() - 1) {
                 str += ", ";
             }
         }
         return str;
     }
-
-    // Makes ProblemSpecies runnable on its own thread
-    @Override
-    public void run() {
-        try 
-        {
-            findProblemSpecies(file, initialNoSpecies, expMarginPct);
-        } 
-        catch (FileNotFoundException | InterruptedException ex) {
-            
-            Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        catch(SpecSelException ex)
-        {
-            ReadFile.infoBox(ex.toString(), "ProblemSpecies error");
-            Logger.getLogger(ProblemSpecies.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        finished = true;
-    }
-
 }

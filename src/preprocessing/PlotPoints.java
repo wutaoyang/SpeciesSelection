@@ -16,28 +16,46 @@ import trendlines.TrendLine;
  */
 public class PlotPoints {
     
-    private final List<Double> xList;
-    private final List<Double> yList;
-    private final List<Double> margins;
-    private final List<String> fileNames;
-    private final List<Long>   times;
+    private final List<Double>  xList;
+    private final List<Double>  yList;
+    private final List<Double>  margins;
+    private final List<String>  fileNames;
+    private final List<Integer> speciesNos;
+    private final List<Long>    times;
     private final PropertyChangeSupport pcs;
     public static final int MIN_POINTS_TO_FIT_CURVE = 3;
 
     public PlotPoints() {
-        xList     = new ArrayList<>();
-        yList     = new ArrayList<>();
-        margins   = new ArrayList<>();
-        fileNames = new ArrayList<>();
-        times     = new ArrayList<>();
-        pcs       = new PropertyChangeSupport(this);
+        xList      = new ArrayList<>();
+        yList      = new ArrayList<>();
+        margins    = new ArrayList<>();
+        fileNames  = new ArrayList<>();
+        speciesNos = new ArrayList<>();
+        times      = new ArrayList<>();
+        pcs        = new PropertyChangeSupport(this);
+    }
+    
+    public ArrayList<Integer> getSpeciesByMargin(int expDivergence)
+    {
+        double margin = (100 + expDivergence)/100.0;
+        ArrayList<Integer> species = new ArrayList<>();
+        for (int i = 0; i < margins.size(); i++)
+        {
+            double currMargin = margins.get(i);
+            if(currMargin > margin)
+            {
+                species.add(speciesNos.get(i));
+            }
+        }
+        return species;
     }
 
     // adds a new plot point and fires a property changed event
-    public void addPoint(double x, double y, String fileName, long time) {
+    public void addPoint(double x, double y, String fileName, int speciesNo, long time) {
         xList.add(x);
         yList.add(y);
         fileNames.add(fileName);
+        speciesNos.add(speciesNo);
         times.add(time);
         setMargin();
         pcs.firePropertyChange("size", null, this.size());
@@ -112,13 +130,13 @@ public class PlotPoints {
     }
     
     // Creates padding based on length of data file name
-    private String padding()
+    private String padding(int spacing)
     {
-        int spacing = 4;
         if(!fileNames.isEmpty())
         {
             spacing += fileNames.get(0).length();
         }
+        spacing = Math.max(spacing, 1);//avoid spacing less than 1
         String padding = "";
         for(int i = 0; i < spacing; i++)
         {
@@ -136,14 +154,16 @@ public class PlotPoints {
                 + "          Y"
                 + "      Margin"
                 + "       DataFile"
-                + padding()
-                + "Time";
+                + padding(-5)
+                + "sNo"
+                + "       Time";
         for (int i = 0; i < xList.size(); i++) {
             str += "\n" 
                     + String.format("%3s", df0.format(xList.get(i))) + "," 
                     + String.format("%8s", df0.format(yList.get(i))) + "," 
                     + String.format("%7s", df2.format(margins.get(i))) + ",    " 
                     + fileNames.get(i)+ ",   " 
+                    + speciesNos.get(i)+ ",   " 
                     + toTimeString(times.get(i)/1000.0);
         }
         return str;
