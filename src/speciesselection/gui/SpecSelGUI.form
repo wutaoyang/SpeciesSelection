@@ -119,9 +119,6 @@
                   </Events>
                 </Component>
                 <Component class="javax.swing.JTextField" name="jTextFieldDataFilePath">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Forest_D_ALL.txt"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JButton" name="jButtonProcess">
                   <Properties>
@@ -514,9 +511,6 @@
                   </Events>
                 </Component>
                 <Component class="javax.swing.JTextField" name="jTextFieldDataFilePathA">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Forest1.txt"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabelNoSpec">
                   <Properties>
@@ -887,8 +881,8 @@
                               <Component id="jSpinnerSubsetSize" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jScrollPane1" min="-2" pref="376" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -903,9 +897,6 @@
                   </Events>
                 </Component>
                 <Component class="javax.swing.JTextField" name="jTextFieldFilePathProb">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Forest1.txt"/>
-                  </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabelNoSubsets">
                   <Properties>
@@ -918,6 +909,9 @@
                       <SpinnerModel initial="10" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinnerNoSubsetsStateChanged"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabelSubsetSize">
                   <Properties>
@@ -930,6 +924,9 @@
                       <SpinnerModel initial="30" minimum="12" numberType="java.lang.Integer" stepSize="1" type="number"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="jSpinnerSubsetSizeStateChanged"/>
+                  </Events>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="jScrollPane1">
                   <AuxValues>

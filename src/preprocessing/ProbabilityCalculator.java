@@ -1,6 +1,5 @@
 package preprocessing;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,9 +31,14 @@ public class ProbabilityCalculator {
     private final List<String> fileAsList;// The complete dataset converted to list
     private static String currentProbsFileName;
     
-    public ProbabilityCalculator(SpecSelGUI specSelGUI, List<String> fileAsList)
+    private final int noSubsets;
+    private final int subsetSize;
+    
+    public ProbabilityCalculator(SpecSelGUI specSelGUI, List<String> fileAsList, int noSubsets, int subsetSize)
     {
         this.specSelGUI = specSelGUI;
+        this.noSubsets = noSubsets;
+        this.subsetSize = subsetSize;
         this.probabilities = new HashMap<>();
         this.speciesSet = new TreeSet<>();
         this.fileAsList = fileAsList;
@@ -169,8 +173,8 @@ public class ProbabilityCalculator {
         
         // Output the results to a file
         PrintStream outPut = new PrintStream(file);
-        outPut.println("Source dataset: " + specSelGUI.getFileName());
-        outPut.println("Probabilities calculated from " + specSelGUI.getNoSubsets() + " subsets of size " + specSelGUI.getSubsetSize() + "\n");
+        outPut.println("Source dataset: " + specSelGUI.getProbabilitiesFileName());
+        outPut.println("Probabilities calculated from " + noSubsets + " subsets of size " + subsetSize + "\n");
         //DecimalFormat df = new DecimalFormat("0.##"); 
         Set<Integer> optOccKeys = optimalOccurence.keySet();
         int setSizeWithTruncation = Collections.max(optOccKeys) - specSelGUI.getTruncateThreshold() + 1;// set size where min mean sensitivity must be increasing
@@ -206,7 +210,6 @@ public class ProbabilityCalculator {
             outPut.println(probStr);
         }
         outPut.println(getProbableSpeciesString());
-//        outPut.println(speciesSet);
         outPut.close();
         
 //        System.out.println(toString());// TODO Comment out this line when no longer debugging
@@ -288,5 +291,4 @@ public class ProbabilityCalculator {
         str += getProbableSpeciesString();
         return str;
     }
-    
 }

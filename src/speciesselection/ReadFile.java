@@ -71,7 +71,26 @@ public class ReadFile {
         }
     }
     
-    // count number of columns in the input data file and check the header names are valid
+    /**
+     * Checks whether the header line of file is a valid option A or B species selection input file
+     * @param file
+     * @return
+     * @throws FileNotFoundException 
+     */
+    public static boolean fileIsValid(File file) throws FileNotFoundException
+    {
+        Scanner scanner = new Scanner(file);
+        String line = scanner.nextLine();
+        int valid = validateHeader(line, Constants.NONE);
+        return valid > 0;
+    }
+    
+    /**
+     * count number of columns in the input data file and check the header names are valid
+     * @param headerLine
+     * @param fileTypes
+     * @return 
+     */
     private static int validateHeader(String headerLine, String fileTypes)
     {
         int count = 0;
