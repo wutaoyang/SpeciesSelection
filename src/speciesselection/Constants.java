@@ -16,8 +16,10 @@ public class Constants {
     public static final String ABOUT
             = "<style> body {background-color: #D6D9DF;}</style>"
             + "<b>Species Selection Version 2.0</b> - a product of the University "
-            + "of East Anglia, Norwich, England<br>Software produced by:<br>"
-            + "Taoyang Wu - Mar 2014 & Feb 2016<br>Stephen Whiddett -  Jan 2018<br>"
+            + "of East Anglia, Norwich, England<br>"
+            + "Software produced by:<br>"
+            + "Taoyang Wu - Mar 2014 & Feb 2016<br>"
+            + "Stephen Whiddett -  Jan 2018 - Last updated 29MAR18<br>"
             + "<br>"
             + "Note: Input files must be in same directory at SpeciesSelection.jar "
             + "and all output files are written to that same directory.<br>"

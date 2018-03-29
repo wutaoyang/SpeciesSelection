@@ -1523,7 +1523,6 @@ public class SpecSelGUI extends javax.swing.JFrame {
                     (int)jSpinnerAllowableExpDivergencePct.getValue());
         jTextFieldProblemSpecies.setText(problemSpec.intsToString(speciesNos));
         jButtonAGenerateSubsetMinusPS.setEnabled(true);
-        
     }//GEN-LAST:event_jButtonAUpdateProblemSpeciesActionPerformed
 
     /**

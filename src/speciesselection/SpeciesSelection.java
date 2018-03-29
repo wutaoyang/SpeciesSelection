@@ -52,6 +52,9 @@ public class SpeciesSelection implements Runnable {
         System.out.println("Process took " + ((System.nanoTime() - start) / 1000000.0) + "ms");
     }
     
+    /**
+     * prints intro information to the console stating project name and author and version info
+     */
     private static void printIntro()
     {
         System.out.println("The Indicator Species Selection Project.");
@@ -60,11 +63,24 @@ public class SpeciesSelection implements Runnable {
         System.out.println("By Taoyang Wu & S.Whiddett, Version 2.0, March 2018");
     }
 
+    /**
+     * Default constructor
+     */
     public SpeciesSelection() {
         this.finished = false;
         this.success = false;
     }
 
+    /**
+     * Alternative Constructor
+     * @param fileName - name of file containing the dataset
+     * @param allResults - boolean indicating whether all or truncated results requested
+     * @param truncateThreshold - number of consecutive min mean sensitivity increases before output is truncated
+     * @param option - specifies process type option selected by user
+     * @param specThresholdM - value of m specified by user
+     * @param sdThresholdX - value of x specified by user
+     * @param areaOrPrecisionY - value of y specified by user
+     */
     public SpeciesSelection(String fileName, boolean allResults, int truncateThreshold, String option, int specThresholdM, double sdThresholdX, double areaOrPrecisionY) {
         this.pcs = new PropertyChangeSupport(this);
         this.fileName = fileName;
@@ -120,7 +136,13 @@ public class SpeciesSelection implements Runnable {
         pcs.removePropertyChangeListener(l);
     }
 
-    // Method for use with Problem Species identification
+    /**
+     * Method for use with Problem Species identification
+     * @return
+     * @throws InterruptedException
+     * @throws FileNotFoundException
+     * @throws SpecSelException 
+     */
     public MinSpecSetFamily getMssf() 
             throws InterruptedException, FileNotFoundException, SpecSelException {
         specRTGraph = ReadFile.graphConstr(fileName, Constants.NONE);
@@ -146,12 +168,21 @@ public class SpeciesSelection implements Runnable {
         return specSel(fileName, false, 3, "A", 0, 0, 0);
     }
     
+    /**
+     * Basic specSel method allowing choice of allResults/truncation
+     * @param fileName
+     * @param allResults
+     * @return
+     * @throws FileNotFoundException
+     * @throws InterruptedException
+     * @throws SpecSelException 
+     */
     public ArrayList<Double> specSel(String fileName, boolean allResults) throws FileNotFoundException, InterruptedException, SpecSelException {
         return specSel(fileName, allResults, 3, "A", 0, 0, 0);
     }
     
     /**
-     *
+     * Advanced specSel method will full choice of options
      * @param fileName
      * @param allResults set true for full output, otherwise output will be
      * produced up until truncateThreshold consecutive meanSensitivity increases
@@ -167,26 +198,33 @@ public class SpeciesSelection implements Runnable {
      */
     public ArrayList<Double> specSel(String fileName, boolean allResults, int truncateThreshold, String option, int specThresholdM, double sdThresholdX, double areaOrPrecisionY) 
             throws FileNotFoundException, InterruptedException, SpecSelException {
-
-        
         //construct the bipartite graph between species and indicators.
-       
         SelectionMethod selMeth = selectionMethod(fileName, option, specThresholdM, sdThresholdX, areaOrPrecisionY);
         specRTGraph = selMeth.getSpecRTGraph();
         if(null == specRTGraph){
             throw new SpecSelException("specRTGraph is null: incorrect input data format likely");
         }
-                
         long startMssf = System.nanoTime();
         MinSpecSetFamily mssf = specRTGraph.getMinDomSpecSets();
-        
         System.out.println("MSSF: " + mssf.size());
         System.out.println("MSSF time: " + ((System.nanoTime() - startMssf) / 1000000.0));
-
         return outputResults(mssf, fileName, truncateThreshold, selMeth.getDetails());
     }
     
-    private SelectionMethod selectionMethod(String fileName, String option, int specThreshold, double sdThreshold, double areaOrPrecisionY) 
+    /**
+     * returns appropriate selection method according to option and thresholds specified
+     * @param fileName
+     * @param option
+     * @param specThreshold
+     * @param sdThreshold
+     * @param areaOrPrecisionY
+     * @return
+     * @throws FileNotFoundException
+     * @throws SpecSelException
+     * @throws InterruptedException 
+     */
+    private SelectionMethod selectionMethod(String fileName, String option, 
+            int specThreshold, double sdThreshold, double areaOrPrecisionY) 
             throws FileNotFoundException, SpecSelException, InterruptedException
     {
         switch (option) 
@@ -214,18 +252,28 @@ public class SpeciesSelection implements Runnable {
         }
     }
     
+    /**
+     * returns default results file name
+     * @return 
+     */
     public String getResultsFileName()
     {
         return getResultsFileName(fileName);
     }
     
+    /**
+     * returns fileName appended with _result.txt
+     * @param fileName
+     * @return 
+     */
     public static String getResultsFileName(String fileName)
     {
         return fileName.substring(0, fileName.lastIndexOf(".")) + "_result.txt";
     }
 
     /**
-     * 
+     * Outputs the Species Selection results to file with all results or 
+     * truncation depending upon allResults value set
      * @param mssf
      * @param fileName
      * @param truncateThreshold - number of rises in min mean sensitivity when truncating results output
@@ -235,10 +283,10 @@ public class SpeciesSelection implements Runnable {
      * @throws FileNotFoundException
      * @throws SpecSelException 
      */
-    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, String fileName, int truncateThreshold, String details)
+    public ArrayList<Double> outputResults(MinSpecSetFamily mssf, 
+            String fileName, int truncateThreshold, String details)
             throws InterruptedException, FileNotFoundException, SpecSelException {
         String outFileName = getResultsFileName();
-
         //Output the results to a file
         PrintStream outPut = new PrintStream(new File(outFileName));
         outPut.println(theDataset + fileName);
@@ -293,12 +341,19 @@ public class SpeciesSelection implements Runnable {
         return minSensitivities;
     }
 
-   
+    /**
+     * gets the list of species IDs
+     * @return 
+     */
     public List<Integer> speciesIDs()
     {
         return specRTGraph.speciesIDs();
     }
 
+    /**
+     * reads the associated results file and returns it as a list of ResultSets
+     * @return 
+     */
     public List<ResultSet> readResultsFile() {
         try 
         {
@@ -321,13 +376,13 @@ public class SpeciesSelection implements Runnable {
                 String line = scanner.nextLine();
                 if (line.contains("For ")) {
                     if (null != resultSet) {
-//                        System.out.println("RS str: " + resultSet.toString());
+                        // System.out.println("RS str: " + resultSet.toString());
                     }
                     Scanner scan = new Scanner(line.substring(4));
                     int setSize = scan.nextInt();
                     resultSet = new ResultSet(setSize);
                     results.add(resultSet);
-//                    System.out.println("Set size: " + resultSet.getSetSize());
+                    // System.out.println("Set size: " + resultSet.getSetSize());
                 }
                 if (Character.isDigit(line.charAt(0))) {
                     resultSet.add(line);
@@ -343,9 +398,4 @@ public class SpeciesSelection implements Runnable {
             return null;
         }
     }
-
-//    private Exception SpecSelException(String spec) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-
 }
