@@ -11,12 +11,18 @@ import java.util.Random;
 import java.util.Scanner;
 
 /**
- *
+ * Class used to generate subsets of a species selection dataset
  * @author mre16utu
  */
 public class SubSetGenerator implements Comparator<String>{
     
-    // create subset containing only the species NOT in the provided arraylist
+    /**
+     * create subset containing only the species NOT in the provided arraylist
+     * @param file
+     * @param speciesNos
+     * @return
+     * @throws FileNotFoundException 
+     */
     public String createSubset(File file, ArrayList<Integer> speciesNos) throws FileNotFoundException
     {
         // read file adding each line to a list
@@ -38,12 +44,27 @@ public class SubSetGenerator implements Comparator<String>{
         return subsetFileName;
     }
     
+    /**
+     * Gets the first int from a string
+     * @param line
+     * @return 
+     */
     private int getFirstInt(String line)
     {
         Scanner scanner = new Scanner(line);
         return scanner.nextInt();
     }
     
+    /**
+     * Generates requested subsets and returns a list of the fileNames where the 
+     * subsets have been saved to
+     * @param file
+     * @param subsetSize
+     * @param noSubsets
+     * @param maxSeconds
+     * @return
+     * @throws FileNotFoundException 
+     */
     public FileList generateSubsets(File file, int subsetSize, int noSubsets, int maxSeconds) throws FileNotFoundException
     {
         FileList fileNames = new FileList();
@@ -93,16 +114,35 @@ public class SubSetGenerator implements Comparator<String>{
         return fileNames;
     }
     
+    /**
+     * returns whether the maxSeconds has been exceeded since the start time
+     * @param startTimeMs
+     * @param maxSeconds
+     * @return 
+     */
     private boolean checkTime(long startTimeMs, int maxSeconds)
     {
         return (System.currentTimeMillis() - startTimeMs) < (maxSeconds * 1000);
     }
     
+    /**
+     * returns a name for a subset file by appending _subset and integer i to 
+     * the passed in fileName
+     * @param fileName
+     * @param i
+     * @return 
+     */
     private String subsetFileName(String fileName, int i)
     {
         return fileName.substring(0, fileName.lastIndexOf(".")) + "_subset" + i + ".txt";
     }
     
+    /**
+     * Writes the subset out to a file with the specified fileName
+     * @param fileName
+     * @param subset
+     * @throws FileNotFoundException 
+     */
     private void writeSubsetToFile(String fileName, List<String> subset) throws FileNotFoundException
     {
         //Output the results to a file
@@ -114,12 +154,23 @@ public class SubSetGenerator implements Comparator<String>{
         outPut.flush();
         outPut.close();
     }
-        
+    
+    /**
+     * Gets the universe of a dataset - the universe is the set covered by the dataset
+     * @param fileAsList
+     * @return 
+     */
     private Universe getUniverse(List<String> fileAsList)
     {
         return new Universe(fileAsList);
     }
     
+    /**
+     * Comparator that compares strings by the first integer in the strings
+     * @param str1
+     * @param str2
+     * @return 
+     */
     @Override
     public int compare(String str1, String str2) {
         Scanner scanner1 = new Scanner(str1);
@@ -129,10 +180,14 @@ public class SubSetGenerator implements Comparator<String>{
         return no1.compareTo(no2);
     }
     
+    /**
+     * Test method
+     * @param args
+     * @throws FileNotFoundException 
+     */
     public static void main(String[] args) throws FileNotFoundException {
         File file = new File("Forest1.txt");
         SubSetGenerator pc = new SubSetGenerator();
         pc.generateSubsets(file, 50, 10, 60);
     }
-
 }

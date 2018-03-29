@@ -32,6 +32,14 @@ public class ProblemSpecies implements Runnable {
     private final Options option;
     private boolean insufficient, finished;
     
+    /**
+     * Constructor
+     * @param file
+     * @param initialNoSpecies
+     * @param expMarginPct
+     * @param option
+     * @throws FileNotFoundException 
+     */
     public ProblemSpecies(File file, int initialNoSpecies, int expMarginPct, Options option) 
                                                 throws FileNotFoundException {
         this.initialNoSpecies = initialNoSpecies;
@@ -46,7 +54,9 @@ public class ProblemSpecies implements Runnable {
         this.pcs          = new PropertyChangeSupport(this);
     }
     
-    // Makes ProblemSpecies runnable on its own thread
+    /**
+     * Makes ProblemSpecies runnable on its own thread
+     */
     @Override
     public void run() {
         try 
@@ -64,49 +74,75 @@ public class ProblemSpecies implements Runnable {
         setFinished();        
     }
     
+    /**
+     * Sets the status of the problem species identification process to finished 
+     * and fires a property change event
+     */
     private void setFinished()
     {
         finished = true;
         pcs.firePropertyChange("finished", null, finished);
     }
     
-    // physically deletes all files in the fileList from the system. These are 
-    // only files created by the program - i.e. subset and results files
+    /**
+     * physically deletes all files in the fileList from the system. These are 
+     * only files created by the program - i.e. subset and results files
+     */
     public void deleteFiles()
     {
         fileList.delete();
     }
     
-    // Allows checking whether or not identification of problem species is complete
+    /**
+     * Allows checking whether or not identification of problem species is complete
+     * @return 
+     */
     public boolean isFinished() {
         return finished;
     }
     
-    // returns read only version of the problem species list
+    /**
+     * returns read only version of the problem species list
+     * @return 
+     */
     public List<Integer> getProblemSpecies()
     {
         return Collections.unmodifiableList(probSpecies);
     }
     
+    /**
+     * returns PlotPoints
+     * @return 
+     */
     public PlotPoints getPoints()
     {
         return points;
     }
     
-    // adds int to list and fires property change event
+    /**
+     * adds integer to problem species list and fires property change event
+     * @param i 
+     */
     private void addProbSpecies(int i)
     {
         probSpecies.add(i);
         pcs.firePropertyChange("size", null, probSpecies.size());
     }
     
-    // allows adding a property change listener to monitor for changes to the problem species list
-    public void addPropertyChangeListener(PropertyChangeListener l) {
-        pcs.addPropertyChangeListener(l);
+    /**
+     * allows adding a property change listener to monitor for changes to the problem species list
+     * @param listener 
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(listener);
     }
     
-    public void removePropertyChangeListener(PropertyChangeListener l) {
-        pcs.removePropertyChangeListener(l);
+    /**
+     * Allows removal of listener
+     * @param listener 
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        pcs.removePropertyChangeListener(listener);
     }
 
     /**
@@ -204,12 +240,20 @@ public class ProblemSpecies implements Runnable {
         }
     }
     
-    // checks if last point in the arrays is within the acceptable margin of an exponential fitted curve
+    /**
+     * checks if last point in the arrays is within the acceptable margin of an exponential fitted curve
+     * @param expMarginPct
+     * @return 
+     */
     private boolean withinExpMargin(int expMarginPct) {
         return points.getLastMargin() < (1 + (expMarginPct / 100.0));
     }
 
-    // Converts a list of strings to a single string separated with line breaks
+    /**
+     * Converts a list of strings to a single string separated with line breaks
+     * @param list
+     * @return 
+     */
     public String listAsString(List<String> list) {
         String str = "";
         for (String string : list) {
@@ -218,17 +262,11 @@ public class ProblemSpecies implements Runnable {
         return str;
     }
 
-    @Override
-    public String toString() {
-        if (insufficient) {
-            return "Insufficient Species";
-        }
-        if (probSpecies.isEmpty()) {
-            return "No Problem Species";
-        }
-        return intsToString(probSpecies);
-    }
-    
+    /**
+     * converts a list of integers to comma separated format
+     * @param ints
+     * @return 
+     */
     public String intsToString(ArrayList<Integer> ints)
     {
         String str = "";
@@ -240,5 +278,16 @@ public class ProblemSpecies implements Runnable {
             }
         }
         return str;
+    }
+    
+    @Override
+    public String toString() {
+        if (insufficient) {
+            return "Insufficient Species";
+        }
+        if (probSpecies.isEmpty()) {
+            return "No Problem Species";
+        }
+        return intsToString(probSpecies);
     }
 }

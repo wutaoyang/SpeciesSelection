@@ -16,6 +16,10 @@ public class ResultSet {
     private double meanSensitivity;
     private final Set<Integer> setInts;// set of all ints that appear in an optimal solution
 
+    /**
+     * Constructor
+     * @param setSize 
+     */
     public ResultSet(int setSize) {
         this.setSize = setSize;
         this.maxSensitivity = -1;
@@ -23,22 +27,41 @@ public class ResultSet {
         this.setInts = new TreeSet<>();
     }
     
+    /**
+     * returns the number of species in the result sets being analysed in 
+     * this ResultSet
+     * @return 
+     */
     public int getSetSize()
     {
         return setSize;
     }
     
+    /**
+     * returns setInts - the species numbers in optimal results sets
+     * @return 
+     */
     public Set<Integer> getSetInts()
     {
         return setInts;
     }
     
+    /**
+     * returns whether setInts is empty
+     * @return 
+     */
     public boolean isEmpty()
     {
         return setInts.isEmpty();
     }
     
-    public void add(String line)// format 54:41.33:[24, 72, 77]]
+    /**
+     * Takes in a Species selection result set string of the format 54:41.33:[24, 72, 77]]
+     * Extracts the species numbers from the string and adds them to setInts so 
+     * long as the solution is optimal
+     * @param line 
+     */
+    public void add(String line)
     {
         try {
             String[] parts = line.split(":");
@@ -59,18 +82,20 @@ public class ResultSet {
                     throw new Exception("Error: Set size mismatch");
                 }
 
-//                int[] ints = new int[setSize];
                 for (int i = 0; i < setSize; i++) {
-//                    ints[i] = Integer.parseInt(strInts[i]);
                     setInts.add(Integer.parseInt(strInts[i]));
                 }
             }
-
         } catch (Exception e) {
             System.err.println(e);
         }
     }
 
+    /**
+     * returns whether an integer is in an optimal solution
+     * @param i
+     * @return 
+     */
     public boolean isInOptimalSolution(int i) {
         return setInts.contains(i);
     }
@@ -84,5 +109,4 @@ public class ResultSet {
         }
         return setInts.toString();
     }
-
 }

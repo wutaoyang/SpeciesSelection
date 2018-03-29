@@ -34,7 +34,12 @@ public final class Universe {
             firstRow = false;
         }
     }
-        
+    
+    /**
+     * Processes a line during calculation of a universe
+     * @param text
+     * @param firstRow 
+     */
     public void processLine(String text, boolean firstRow) {
 
         Scanner data = new Scanner(text);
@@ -70,7 +75,11 @@ public final class Universe {
         return str;
     }
     
-    
+    /**
+     * returns whether 2 universes are equal
+     * @param obj
+     * @return 
+     */
     @Override
     public boolean equals(Object obj)
     {
@@ -87,7 +96,6 @@ public final class Universe {
                 return false;
             }
         }
-                
         return true;
     }
 
@@ -97,9 +105,11 @@ public final class Universe {
         hash = 53 * hash + Objects.hashCode(this.universe);
         return hash;
     }
-    
-    
-    
+
+    /**
+     * Test method
+     * @param args 
+     */
     public static void main(String[] args) {
         
         List<String> list = new ArrayList<>();

@@ -2,7 +2,6 @@ package preprocessing;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import trendlines.ExpTrendLine;
@@ -15,55 +14,60 @@ import trendlines.TrendLine;
  * @author mre16utu
  */
 public class PlotPoints {
-    
-    private final List<Double>  xList;
-    private final List<Double>  yList;
-    private final List<Double>  margins;
-    private final List<String>  fileNames;
-    private final List<Integer> speciesNos;
-    private final List<Long>    times;
+
+    private final List<PointRecord> pointRecords;
     private final PropertyChangeSupport pcs;
     public static final int MIN_POINTS_TO_FIT_CURVE = 3;
 
+    /**
+     * Constructor
+     */
     public PlotPoints() {
-        xList      = new ArrayList<>();
-        yList      = new ArrayList<>();
-        margins    = new ArrayList<>();
-        fileNames  = new ArrayList<>();
-        speciesNos = new ArrayList<>();
-        times      = new ArrayList<>();
-        pcs        = new PropertyChangeSupport(this);
+        pointRecords = new ArrayList<>();
+        pcs          = new PropertyChangeSupport(this);
     }
     
+    /**
+     * returns list of species numbers from point records margin greater than 
+     * margin calculated with specified expDivergence
+     * @param expDivergence
+     * @return 
+     */
     public ArrayList<Integer> getSpeciesByMargin(int expDivergence)
     {
         double margin = (100 + expDivergence)/100.0;
         ArrayList<Integer> species = new ArrayList<>();
-        for (int i = 0; i < margins.size(); i++)
+        for (int i = 0; i < pointRecords.size(); i++)
         {
-            double currMargin = margins.get(i);
+            PointRecord record = pointRecords.get(i);
+            double currMargin = record.getMargin();
             if(currMargin > margin)
             {
-                species.add(speciesNos.get(i));
+                species.add(record.getSpeciesNo());
             }
         }
         return species;
     }
 
-    // adds a new plot point and fires a property changed event
+    /**
+     * adds a new plot point and fires a property changed event
+     * @param x - number of species in the dataset
+     * @param y - minSpecSetFamily size
+     * @param fileName
+     * @param speciesNo
+     * @param time 
+     */
     public void addPoint(double x, double y, String fileName, int speciesNo, long time) {
-        xList.add(x);
-        yList.add(y);
-        fileNames.add(fileName);
-        speciesNos.add(speciesNo);
-        times.add(time);
-        setMargin();
+        PointRecord pointRecord = new PointRecord(x, y, calcMargin(), fileName, speciesNo, time);
         pcs.firePropertyChange("size", null, this.size());
     }
 
-    // Calculates the margin of error (multiplication factor) for the last added
-    // point in comparison to a fitted exponential trendline
-    private void setMargin() {
+    /**
+     * Calculates the margin of error (multiplication factor) for the last added
+     * point in comparison to a fitted exponential trendline
+     * @return 
+     */
+    private double calcMargin() {
         if (this.size() > MIN_POINTS_TO_FIT_CURVE) {
             double[] xArr = this.getXArr();
             double[] yArr = this.getYArr();
@@ -74,39 +78,76 @@ public class PlotPoints {
             // error factor = measurement / prediction
             double errMargin = yLast / t.predict(xLast);
             System.err.println("Margin: " + errMargin);
-            margins.add(errMargin);
+            return errMargin;
         } else {
-            margins.add(0.0);
+            return 0.0;
         }
     }
 
-    // allow listener to be added to a PlotPoints object so that property 
-    // changes can be used to fire additional actions
-    public void addPropertyChangeListener(PropertyChangeListener l) {
-        pcs.addPropertyChangeListener(l);
+    /**
+     * allow listener to be added to a PlotPoints object so that property 
+     * changes can be used to fire additional actions
+     * @param listener 
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(listener);
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener l) {
-        pcs.removePropertyChangeListener(l);
+    /**
+     * allows removal of listener
+     * @param listener 
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        pcs.removePropertyChangeListener(listener);
     }
     
+    /**
+     * returns number of point records
+     * @return 
+     */
     public int size() {
-        return xList.size();
+        return pointRecords.size();
     }
     
+    /**
+     * returns the margin from the last point record added
+     * @return 
+     */
     public double getLastMargin() {
-        return margins.get(margins.size() - 1);
+        return pointRecords.get(pointRecords.size() - 1).getMargin();
     }
 
+    /**
+     * returns array of x values
+     * @return 
+     */
     public double[] getXArr() {
+        List<Double> xList = new ArrayList<>();
+        for(PointRecord point : pointRecords)
+        {
+            xList.add(point.getX());
+        }
         return doubleListToArray(xList);
     }
 
+    /**
+     * returns array of y values
+     * @return 
+     */
     public double[] getYArr() {
+        List<Double> yList = new ArrayList<>();
+        for(PointRecord point : pointRecords)
+        {
+            yList.add(point.getY());
+        }
         return doubleListToArray(yList);
     }
 
-    // converts List<Double> to double[]
+    /**
+     * converts List<Double> to double[]
+     * @param list
+     * @return 
+     */
     private double[] doubleListToArray(List<Double> list) {
         double[] target = new double[list.size()];
         for (int i = 0; i < target.length; i++) {
@@ -115,26 +156,16 @@ public class PlotPoints {
         return target;
     }
     
-    // Converts a number of seconds to a consistently formatted string of the 
-    // form HH:MM:SS.ss
-    private String toTimeString(double seconds) {
-        int hours   =  (int) seconds / 3600;
-        int minutes = ((int) seconds % 3600) / 60;
-        seconds     = seconds % 60;
-        DecimalFormat df1 = new DecimalFormat("00");
-        DecimalFormat df2 = new DecimalFormat("00.00");
-        String time       = df1.format(hours) + ":"
-                          + df1.format(minutes) + ":"
-                          + df2.format(seconds);
-        return time;
-    }
-    
-    // Creates padding based on length of data file name
+    /**
+     * Creates padding based on length of data file name
+     * @param spacing
+     * @return 
+     */
     private String padding(int spacing)
     {
-        if(!fileNames.isEmpty())
+        if(!pointRecords.isEmpty())
         {
-            spacing += fileNames.get(0).length();
+            spacing += pointRecords.get(0).getFileName().length();
         }
         spacing = Math.max(spacing, 1);//avoid spacing less than 1
         String padding = "";
@@ -147,8 +178,6 @@ public class PlotPoints {
 
     @Override
     public String toString() {
-        DecimalFormat df0 = new DecimalFormat("#.##");
-        DecimalFormat df2 = new DecimalFormat("0.000");
         String str = "Plot Points:\n "
                 + " X"
                 + "          Y"
@@ -157,14 +186,8 @@ public class PlotPoints {
                 + padding(-5)
                 + "sNo"
                 + "       Time";
-        for (int i = 0; i < xList.size(); i++) {
-            str += "\n" 
-                    + String.format("%3s", df0.format(xList.get(i))) + "," 
-                    + String.format("%8s", df0.format(yList.get(i))) + "," 
-                    + String.format("%7s", df2.format(margins.get(i))) + ",    " 
-                    + fileNames.get(i)+ ",   " 
-                    + speciesNos.get(i)+ ",   " 
-                    + toTimeString(times.get(i)/1000.0);
+        for (int i = 0; i < pointRecords.size(); i++) {
+            str += "\n" + pointRecords;
         }
         return str;
     }

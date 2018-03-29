@@ -11,20 +11,31 @@ import javax.swing.JOptionPane;
 
 /**
  * File related utilities
+ *
  * @author mre16utu
  */
 public class FileUtils {
-    
-    public static boolean fileExists(File file)
-    {
-        if(file.exists() && !file.isDirectory())
-        {
+
+    /**
+     * returns whether the file exists and is not a directory
+     *
+     * @param file
+     * @return
+     */
+    public static boolean fileExists(File file) {
+        if (file.exists() && !file.isDirectory()) {
             return true;
         }
         return false;
     }
-    
-    // Reads a file line by line and adds each line to an ArrayList of Strings
+
+    /**
+     * Reads a file line by line and adds each line to an ArrayList of Strings
+     *
+     * @param file
+     * @return
+     * @throws FileNotFoundException
+     */
     public static List<String> readFileToList(File file) throws FileNotFoundException {
         String line;
         List<String> list = new ArrayList<>();
@@ -37,32 +48,39 @@ public class FileUtils {
         return list;
     }
 
-    // returns filename string with file extension removed
+    /**
+     * returns filename string with file extension removed
+     *
+     * @param fileName
+     * @return
+     */
     public static String removeExt(String fileName) {
         return fileName.substring(0, fileName.lastIndexOf("."));
     }
-    
-    public static String openFile(String fileName) throws IOException
-    {
+
+    /**
+     * Opens a file in the default program of the host PC
+     *
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public static String openFile(String fileName) throws IOException {
         File f = new File(fileName);
-            if(f.exists() && !f.isDirectory()) { 
-                if (Desktop.isDesktopSupported()) {
-                    Desktop.getDesktop().open(f);
-                    return "";
-                } 
-                else 
-                {
-                    String str = "Cannot open file. This PC does not support Desktop.";
-                    JOptionPane.showMessageDialog(null, str, "InfoBox: " + "Open File Error", JOptionPane.INFORMATION_MESSAGE);
-                    System.out.println(str);
-                    return str;
-                }
-            }
-            else
-            {
-                String str = "File " + fileName + "does not exist";
+        if (f.exists() && !f.isDirectory()) {
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(f);
+                return "";
+            } else {
+                String str = "Cannot open file. This PC does not support Desktop.";
+                JOptionPane.showMessageDialog(null, str, "InfoBox: " + "Open File Error", JOptionPane.INFORMATION_MESSAGE);
                 System.out.println(str);
                 return str;
             }
+        } else {
+            String str = "File " + fileName + "does not exist";
+            System.out.println(str);
+            return str;
+        }
     }
 }

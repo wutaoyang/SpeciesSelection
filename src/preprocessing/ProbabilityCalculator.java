@@ -28,12 +28,18 @@ public class ProbabilityCalculator {
     private final SpecSelGUI specSelGUI;
     private final HashMap<Integer, HashMap<Integer, Double>> probabilities;
     private final Set<Integer> speciesSet;
-    private final List<String> fileAsList;// The complete dataset converted to list
-    private static String currentProbsFileName;
-    
+    private final List<String> fileAsList;// The complete dataset converted to a list
     private final int noSubsets;
     private final int subsetSize;
+    private static String currentProbsFileName;
     
+    /**
+     * Constructor
+     * @param specSelGUI
+     * @param fileAsList
+     * @param noSubsets
+     * @param subsetSize 
+     */
     public ProbabilityCalculator(SpecSelGUI specSelGUI, List<String> fileAsList, int noSubsets, int subsetSize)
     {
         this.specSelGUI = specSelGUI;
@@ -44,7 +50,6 @@ public class ProbabilityCalculator {
         this.fileAsList = fileAsList;
         ProbabilityCalculator.currentProbsFileName = "probabilities.txt";
     }
-    
     
     /**
      * Calculates the probability that a species will appear in an optimal 
@@ -159,23 +164,27 @@ public class ProbabilityCalculator {
                 return false;
             }
         }
-        
         // If user did not cancel, save the probabilities
         outputResults(file, optimalOccurence, speciesSetSizeUsage);
         return true;
     }
     
+    /**
+     * Write probabilities out to file
+     * @param file
+     * @param optimalOccurence
+     * @param speciesSetSizeUsage
+     * @throws FileNotFoundException 
+     */
     private void outputResults(File file, 
             HashMap<Integer, HashMap<Integer, Integer>> optimalOccurence, 
             HashMap<Integer, HashMap<Integer, Integer>> speciesSetSizeUsage) 
             throws FileNotFoundException
     {
-        
         // Output the results to a file
         PrintStream outPut = new PrintStream(file);
         outPut.println("Source dataset: " + specSelGUI.getProbabilitiesFileName());
         outPut.println("Probabilities calculated from " + noSubsets + " subsets of size " + subsetSize + "\n");
-        //DecimalFormat df = new DecimalFormat("0.##"); 
         Set<Integer> optOccKeys = optimalOccurence.keySet();
         int setSizeWithTruncation = Collections.max(optOccKeys) - specSelGUI.getTruncateThreshold() + 1;// set size where min mean sensitivity must be increasing
                 
@@ -205,17 +214,19 @@ public class ProbabilityCalculator {
                 }
             }
             probabilities.put(setSize, map);
-
             outPut.println(speciesStr);
             outPut.println(probStr);
         }
         outPut.println(getProbableSpeciesString());
         outPut.close();
-        
-//        System.out.println(toString());// TODO Comment out this line when no longer debugging
+        // System.out.println(toString());// TODO Comment out this line when no longer debugging
     }
 
-    // creates dataset containing only the species with a probability of appearing in an optimal specsel solution
+    /**
+     * creates dataset containing only the species with a probability of appearing in an optimal specsel solution
+     * @param fileName
+     * @throws FileNotFoundException 
+     */
     public void generateSubDataset(String fileName) throws FileNotFoundException
     {
         PrintStream outPut = new PrintStream(new File(fileName));
@@ -232,18 +243,30 @@ public class ProbabilityCalculator {
         outPut.close();
     }
     
-    // return int at the beginning of a string
+    /**
+     * return int at the beginning of a string
+     * @param str
+     * @return 
+     */
     private int getFirstInt(String str)
     {
         Scanner scanner = new Scanner(str);
         return scanner.nextInt();        
     }
     
+    /**
+     * returns the fileName designated for writing probabilities results
+     * @return 
+     */
     public String getCurrentProbsFileName()
     {
         return currentProbsFileName;
     }
-       
+
+    /**
+     * Opens the probabilities result file in the PC's default viewer
+     * @return 
+     */
     public static String viewResults() {
         try
         {
@@ -258,6 +281,11 @@ public class ProbabilityCalculator {
         }
     }
     
+    /**
+     * returns a string describing the species with probability of appearing in 
+     * a result set which probability greater than specified threshold
+     * @return 
+     */
     private String getProbableSpeciesString()
     {
         return "\nThere are " + speciesSet.size() + " species with "

@@ -1513,9 +1513,12 @@ public class SpecSelGUI extends javax.swing.JFrame {
             ReadFile.infoBox(str, "View Results Error");
         }
     }//GEN-LAST:event_jButtonPViewResultsActionPerformed
-
+    
+    /**
+     * Recalculates problem species based on margins from a prior run and the set exp divergence
+     * @param evt 
+     */
     private void jButtonAUpdateProblemSpeciesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAUpdateProblemSpeciesActionPerformed
-        
         ArrayList<Integer> speciesNos = problemSpec.getPoints().getSpeciesByMargin(
                     (int)jSpinnerAllowableExpDivergencePct.getValue());
         jTextFieldProblemSpecies.setText(problemSpec.intsToString(speciesNos));
