@@ -19,7 +19,7 @@ public class Constants {
             + "of East Anglia, Norwich, England<br>"
             + "Software produced by:<br>"
             + "Taoyang Wu - Mar 2014 & Feb 2016<br>"
-            + "Stephen Whiddett -  Jan 2018 - Last updated 29MAR18<br>"
+            + "Stephen Whiddett -  Jan 2018 - Last updated 19APR18<br>"
             + "<br>"
             + "Note: Input files must be in same directory at SpeciesSelection.jar "
             + "and all output files are written to that same directory.<br>"

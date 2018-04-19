@@ -59,6 +59,7 @@ public class PlotPoints {
      */
     public void addPoint(double x, double y, String fileName, int speciesNo, long time) {
         PointRecord pointRecord = new PointRecord(x, y, calcMargin(), fileName, speciesNo, time);
+        pointRecords.add(pointRecord);
         pcs.firePropertyChange("size", null, this.size());
     }
 
@@ -187,7 +188,7 @@ public class PlotPoints {
                 + "sNo"
                 + "       Time";
         for (int i = 0; i < pointRecords.size(); i++) {
-            str += "\n" + pointRecords;
+            str += "\n" + pointRecords.get(i);
         }
         return str;
     }
