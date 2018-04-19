@@ -58,7 +58,7 @@ public class PlotPoints {
      * @param time 
      */
     public void addPoint(double x, double y, String fileName, int speciesNo, long time) {
-        PointRecord pointRecord = new PointRecord(x, y, calcMargin(), fileName, speciesNo, time);
+        PointRecord pointRecord = new PointRecord(x, y, calcMargin(x,y), fileName, speciesNo, time);
         pointRecords.add(pointRecord);
         pcs.firePropertyChange("size", null, this.size());
     }
@@ -68,7 +68,7 @@ public class PlotPoints {
      * point in comparison to a fitted exponential trendline
      * @return 
      */
-    private double calcMargin() {
+    private double calcMargin(double x, double y) {
         if (this.size() > MIN_POINTS_TO_FIT_CURVE) {
             double[] xArr = this.getXArr();
             double[] yArr = this.getYArr();
@@ -77,7 +77,7 @@ public class PlotPoints {
             double xLast = xArr[xArr.length - 1];
             double yLast = yArr[yArr.length - 1];
             // error factor = measurement / prediction
-            double errMargin = yLast / t.predict(xLast);
+            double errMargin = y / t.predict(x);
             System.err.println("Margin: " + errMargin);
             return errMargin;
         } else {
